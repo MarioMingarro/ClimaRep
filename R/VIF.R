@@ -50,6 +50,9 @@ vif_filter <- function(x, th = 10) {
 
   # Function to calculate the VIF of all variables
   calc_vif <- function(df) {
+    if (ncol(df) == 0) {
+      return(numeric(0)) # Return an empty numeric vector if the data frame is empty
+    }
     vif_values <- sapply(1:ncol(df), function(i) {
       formula <- as.formula(paste(names(df)[i], "~ ."))  # Formula of lm with all other variables
       model <- lm(formula, data = df)
@@ -64,25 +67,23 @@ vif_filter <- function(x, th = 10) {
     x <- terra::as.data.frame(x, na.rm = TRUE)
   }
 
-
   # Iteratively remove multicollinear variables
   exc <- character(0)  # List of excluded variables
-  while (TRUE) {
+  while (ncol(x) > 0) { # Check if there are columns left
     v <- calc_vif(x)  # Calculate the VIF
-    if (max(v) < th) break  # End if no VIF is above the threshold
+    if (length(v) == 0 || max(v) < th) break  # End if no VIF is above the threshold or no variables left
     ex <- names(v)[which.max(v)]  # Variable with the highest VIF
     exc <- c(exc, ex)  # Add to the list of excluded variables
-    x <- x[, !(colnames(x) %in% ex)]  # Remove variable
+    x <- x[, !(colnames(x) %in% ex), drop = FALSE]  # Remove variable, keep as data frame if only one column left
   }
 
   # Create list of results
   result <- list(
     variables = colnames(x),
     excluded = exc,
-    corMatrix = cor(x, method = "pearson"),
+    corMatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL, # Calculate correlation only if more than one variable remains
     results = data.frame(Variables = names(v), VIF = v)
   )
-
 
   print(result)
   return(result)
