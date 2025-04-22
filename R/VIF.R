@@ -73,7 +73,7 @@ vif_filter <- function(x, th = 10) {
   result <- list(
     variables = colnames(x),
     excluded = exc,
-    corMatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL,
+    corrlationmatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL,
     results = data.frame(Variables = names(v), VIF = v)
   )
 
