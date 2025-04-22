@@ -1,0 +1,159 @@
+vif_filter <- function(x, th = 10) {
+
+  # --- Importante: Exigir que el input sea un SpatRaster ---
+  if (!inherits(x, 'SpatRaster')) {
+    stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
+  }
+
+  # Almacenar el raster original
+  original_raster <- x
+
+  # Convertir a data frame para el cálculo de VIF
+  # na.rm=TRUE significa que el cálculo de VIF se hace sobre filas sin NAs
+  x_df <- terra::as.data.frame(x, na.rm = TRUE)
+
+  # Verificar si el dataframe resultante está vacío
+  if (nrow(x_df) == 0 || ncol(x_df) == 0) {
+    warning("Data frame is empty after removing NAs. Cannot perform VIF calculation. Returning an empty SpatRaster.")
+    return(original_raster[[character(0)]])
+  }
+
+  # --- Modificación 1: Calcular y almacenar la matriz de correlación ORIGINAL ---
+  original_cor_matrix <- NULL
+  # Solo calcular si hay al menos 2 columnas en el data frame original
+  if (ncol(x_df) > 1) {
+    original_cor_matrix <- round(cor(x_df, method = "pearson"), 4)
+  } else {
+    # Si solo hay 0 o 1 columna, no se puede calcular la matriz de correlación
+    original_cor_matrix <- "Correlation matrix not applicable (less than 2 original variables after removing NAs)."
+  }
+
+
+  # Helper function para calcular VIF values (la versión robusta anterior)
+  calc_vif <- function(df) {
+    if (ncol(df) <= 1) {
+      return(numeric(0))
+    }
+    variances <- apply(df, 2, var, na.rm = TRUE)
+    cols_zero_var <- names(variances[variances < .Machine$double.eps^0.5])
+    if (length(cols_zero_var) > 0) {
+      warning("Removing columns with zero or near-zero variance during VIF calculation:", paste(cols_zero_var, collapse = ", "))
+      df <- df[, !(colnames(df) %in% cols_zero_var), drop = FALSE]
+      if (ncol(df) <= 1) {
+        return(numeric(0))
+      }
+    }
+    vif_values <- sapply(1:ncol(df), function(i) {
+      model <- try(lm(as.formula(paste(names(df)[i], "~ .")), data = df), silent = TRUE)
+      if (inherits(model, "try-error") || is.null(summary(model)$r.squared) || is.na(summary(model)$r.squared) || summary(model)$r.squared >= 1) {
+        return(Inf)
+      }
+      vif <- 1 / (1 - summary(model)$r.squared)
+      if (is.infinite(vif)) {
+        return(Inf)
+      }
+      return(vif)
+    })
+    names(vif_values) <- colnames(df)
+    return(vif_values)
+  }
+
+  exc <- character(0) # Variables excluidas
+  kept_vars <- colnames(x_df) # Variables que se mantienen inicialmente (todos los nombres de columna)
+
+  # Filtrado iterativo por VIF
+  while (length(kept_vars) > 1) {
+    # Trabajar con el sub-dataframe de las variables aún mantenidas
+    df_subset <- x_df[, kept_vars, drop = FALSE]
+
+    # Calcular VIF para las variables actuales en el sub-dataframe
+    v <- calc_vif(df_subset)
+
+    # Si no se pudieron calcular VIFs o si todas están por debajo del umbral
+    if (length(v) == 0 || all(v < th)) {
+      break
+    }
+
+    # Encontrar la variable con el VIF máximo
+    max_v_val <- max(v, na.rm = TRUE)
+    if (is.infinite(max_v_val)) {
+      ex <- names(v)[which(is.infinite(v))[1]] # Si hay Inf, excluir la primera
+    } else {
+      ex <- names(v)[which.max(v)]
+    }
+
+    # Defensa: Si la variable a excluir ya está en la lista de excluidas
+    if (ex %in% exc) {
+      warning("Variable ", ex, " with max VIF already in excluded list. Breaking loop.")
+      break
+    }
+
+    # Añadir a excluidas y remover de mantenidas
+    exc <- c(exc, ex)
+    kept_vars <- kept_vars[!(kept_vars %in% ex)]
+  }
+
+  # --- Recalcular VIFs finales para las variables MANTENIDAS para imprimir ---
+  final_vif_data <- NULL # Almacenará el data.frame de VIFs finales o un mensaje
+  kept_df_subset <- x_df[, kept_vars, drop = FALSE] # Dataframe final con variables mantenidas
+
+  if (length(kept_vars) > 0) {
+    # Recalcular VIFs solo si quedan al menos 2 variables
+    if (length(kept_vars) > 1) {
+      final_vif_values <- round(calc_vif(kept_df_subset),4)
+      if (length(final_vif_values) > 0) {
+        # --- Modificación 2: Corregir formato del data frame de VIFs ---
+        # Usar los nombres de las variables como nombres de fila y 'VIF' como columna
+        final_vif_data <- data.frame(VIF = final_vif_values)
+        # Opcional: Ordenar por VIF
+        # final_vif_data <- final_vif_data[order(final_vif_data$VIF, decreasing = TRUE),, drop = FALSE]
+      } else {
+        final_vif_data <- "Could not calculate VIFs for kept variables (e.g., perfect collinearity remaining or insufficient variables after zero-variance removal)."
+      }
+    } else { # Si solo queda una variable
+      final_vif_data <- "Only one variable kept. VIF calculation not applicable."
+    }
+  } else { # Si no queda ninguna variable
+    final_vif_data <- "No variables kept."
+  }
+
+
+  # --- Sección de Impresión Corregida ---
+
+  cat("--- VIF Filtering Summary ---\n")
+  cat("VIF filtering completed.\n")
+  cat("Kept layers:", paste(kept_vars, collapse = ", "), "\n")
+  cat("Excluded layers:", paste(exc, collapse = ", "), "\n")
+
+  # --- Imprimir la matriz de correlación ORIGINAL ---
+  cat("\nPearson correlation matrix of original data:\n")
+  # Verificar si es una matriz (significa que se pudo calcular)
+  if (is.matrix(original_cor_matrix)) {
+    print(original_cor_matrix) # Usar print() para mostrar la matriz
+  } else {
+    # Usar cat() para mostrar el mensaje si no se pudo calcular
+    cat(original_cor_matrix, "\n")
+  }
+
+  # Imprimir los VIFs finales (formato corregido)
+  cat("\nFinal VIF values for kept variables:\n")
+  if (is.data.frame(final_vif_data)) {
+    print(final_vif_data) # Usar print() para mostrar el data frame de VIFs corregido
+  } else {
+    cat(final_vif_data, "\n") # Usar cat() para mostrar el mensaje si no se pudo calcular el data frame
+  }
+
+  cat("----------------------------\n")
+
+
+  # --- Devolver el SpatRaster filtrado ---
+  if (length(kept_vars) == 0) {
+    warning("All variables were excluded. Returning an empty SpatRaster.")
+    return(original_raster[[character(0)]])
+  }
+
+  # Seleccionar las capas del raster original usando los nombres de las variables kept
+  result_raster <- subset(original_raster, kept_vars)
+
+  return(result_raster)
+}
