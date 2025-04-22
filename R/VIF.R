@@ -47,41 +47,33 @@
 #'
 #' @export
 vif_filter <- function(x, th = 10) {
-
-  # Function to calculate the VIF of all variables
   calc_vif <- function(df) {
     if (ncol(df) == 0) {
-      return(numeric(0)) # Return an empty numeric vector if the data frame is empty
+      return(numeric(0))
     }
     vif_values <- sapply(1:ncol(df), function(i) {
-      formula <- as.formula(paste(names(df)[i], "~ ."))  # Formula of lm with all other variables
+      formula <- as.formula(paste(names(df)[i], "~ ."))
       model <- lm(formula, data = df)
       return(1 / (1 - summary(model)$r.squared))
     })
     names(vif_values) <- colnames(df)
     return(vif_values)
   }
-
-  # Convert the terra SpatRaster object to a data frame
   if (inherits(x, 'SpatRaster')) {
     x <- terra::as.data.frame(x, na.rm = TRUE)
   }
-
-  # Iteratively remove multicollinear variables
-  exc <- character(0)  # List of excluded variables
-  while (ncol(x) > 0) { # Check if there are columns left
-    v <- calc_vif(x)  # Calculate the VIF
-    if (length(v) == 0 || max(v) < th) break  # End if no VIF is above the threshold or no variables left
-    ex <- names(v)[which.max(v)]  # Variable with the highest VIF
-    exc <- c(exc, ex)  # Add to the list of excluded variables
-    x <- x[, !(colnames(x) %in% ex), drop = FALSE]  # Remove variable, keep as data frame if only one column left
+  exc <- character(0)
+  while (ncol(x) > 0) {
+    v <- calc_vif(x)
+    if (length(v) == 0 || max(v) < th) break
+    ex <- names(v)[which.max(v)]
+    exc <- c(exc, ex)
+    x <- x[, !(colnames(x) %in% ex), drop = FALSE]
   }
-
-  # Create list of results
   result <- list(
     variables = colnames(x),
     excluded = exc,
-    corMatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL, # Calculate correlation only if more than one variable remains
+    corMatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL,
     results = data.frame(Variables = names(v), VIF = v)
   )
 
