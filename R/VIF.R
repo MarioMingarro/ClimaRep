@@ -60,6 +60,7 @@ vif_filter <- function(x, th = 10) {
     return(vif_values)
   }
   if (inherits(x, 'SpatRaster')) {
+    original <- x
     x <- terra::as.data.frame(x, na.rm = TRUE)
   }
   exc <- character(0)
@@ -69,11 +70,12 @@ vif_filter <- function(x, th = 10) {
     ex <- names(v)[which.max(v)]
     exc <- c(exc, ex)
     x <- x[, !(colnames(x) %in% ex), drop = FALSE]
+    return(terra::subset(original, exc))
   }
   result <- list(
     variables = colnames(x),
     excluded = exc,
-    corrlationmatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL,
+    correlationmatrix = if (ncol(x) > 1) cor(x, method = "pearson") else NULL,
     results = data.frame(Variables = names(v), VIF = v)
   )
 
