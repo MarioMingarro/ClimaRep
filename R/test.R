@@ -1,21 +1,22 @@
 library(terra)
 library(sf)
-dir_present_climate_data <- "C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/CLIMA/PRESENT/"
-dir_future_climate_data <- "C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/CLIMA/FUTURE/GFDL/"
-dir_result <- "C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/PKG/"
+library(tictoc)
+dir_present_climate_data <- "C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/CLIMA/PRESENT/"
+dir_future_climate_data <- "C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/CLIMA/FUTURE/GFDL/"
+dir_result <- "C:/A_TRABAJO/A_CLIMAREP_TEST/"
 #study_area <- read_sf("C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/Peninsula_Iberica_89.shp")
-study_area <- read_sf("C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/MURCIA/MURCIA.shp")
-polygon <- read_sf("C:/A_TRABAJO/A_GABRIEL/REPRESENTATIVIDAD/MURCIA/WDPA_MURCIA_89N.shp")
+study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/MURCIA.shp")
+polygon <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/PAS_murcia.shp")
 
 ## Load data ----
 present_climatic_variables <- terra::rast(list.files(dir_present_climate_data, "\\.tif$", full.names = T))
 # Crear un vector con los nombres de las variables a excluir
 exclude_vars <- c("bio8", "bio9", "bio18", "bio19")
-
-# Crear un patrón de expresión regular para excluir estas variables
+#
+# # Crear un patrón de expresión regular para excluir estas variables
 exclude_pattern <- paste0("bio(", paste(gsub("bio", "", exclude_vars), collapse = "|"), ")")
-
-# Seleccionar las variables deseadas
+#
+# # Seleccionar las variables deseadas
 present_climatic_variables <- subset(present_climatic_variables, grep(exclude_pattern, names(present_climatic_variables), invert = TRUE, value = TRUE))
 
 future_climatic_variables <- terra::rast(list.files(dir_future_climate_data, "\\.tif$", full.names = T))
@@ -45,9 +46,11 @@ present_climatic_variables <-  terra::mask (crop(present_climatic_variables, stu
 future_climatic_variables  <-  terra::mask(crop(future_climatic_variables,  study_area), study_area)
 
 ###########################################
+tic()
 present_climatic_variables <- vif_filter(present_climatic_variables, th = 10)
+toc()
 ###########################################
-future_climatic_variables <- terra::subset(future_climatic_variables, names(future_climatic_variables) %in% names(present_climatic_variables$filtered_object))
+future_climatic_variables <- terra::subset(future_climatic_variables, names(future_climatic_variables) %in% names(present_climatic_variables))
 
 
 
@@ -59,8 +62,8 @@ kk <- polygon[5,]
 pp <- pa_mh_present_future(
     present_climatic_variables,
     future_climatic_variables,
-    kk,
-    output_dir = "results",
+    polygon,
+    output_dir = dir_result,
     model = "kkdvk",
     year = "2070",
     th = 0.9,
