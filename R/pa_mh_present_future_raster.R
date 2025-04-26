@@ -79,21 +79,29 @@ pa_mh_present_future <- function(polygon,
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_present, dir_future, dir_charts, dir_shared)
 
+  if (save_raster) {
+    dirs_to_create <- c(dir_present, dir_future, dir_shared, dir_charts)
+  } else {
+    dirs_to_create <- c(dir_shared, dir_charts)
+  }
   sapply(dirs_to_create, function(dir) {
-    if (!dir.exists(dir)) dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+    if (!dir.exists(dir)) {
+      dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+    }
   })
 
+  reference_system_check <- terra::crs(present_climatic_variables, describe = TRUE)$code
   reference_system <- terra::crs(present_climatic_variables)
 
-  if (terra::crs(future_climatic_variables) != reference_system) {
+  if (terra::crs(future_climatic_variables, describe = TRUE)$code != reference_system_check) {
     message("Adjusting CRS of future_climatic_variables to match reference system.")
     future_climatic_variables <- terra::project(future_climatic_variables, reference_system)
   }
-  if (sf::st_crs(polygon) != reference_system) {
+  if (sf::st_crs(polygon)$epsg != reference_system_check) {
     message("Adjusting CRS of polygon to match reference system.")
     polygon <- sf::st_transform(polygon, reference_system)
   }
-  if (sf::st_crs(study_area) != reference_system) {
+  if (sf::st_crs(study_area)$epsg != reference_system_check) {
     message("Adjusting CRS of study_area to match reference system.")
     study_area <- sf::st_transform(study_area, reference_system)
   }
@@ -168,33 +176,34 @@ pa_mh_present_future <- function(polygon,
     )
 
 
-    # Convertir a factor y manejar NAs explícitamente
+
     raster_final <- terra::as.factor(raster_final)
 
-    # Crear gráfico con manejo explícito de niveles
+
     p <- suppressMessages(ggplot2::ggplot() +
-      tidyterra::geom_spatraster(data = raster_final) +
-      ggplot2::geom_sf(data = study_area, color = "gray50", fill = NA, linewidth = 1) +
-      ggplot2::geom_sf(data = pol, color = "black", fill = NA) +
-      ggplot2::scale_fill_manual(
-        name = "Categorías",
-        values = c(
-          "0" = "grey90",
-          "1" = "gold",
-          "2" = "aquamarine3",
-          "3" = "coral3"
-        ),
-        labels = c(
-          "0" = "Non-representative",
-          "1" = "Stable representativeness",
-          "2" = "Present representativeness",
-          "3" = "Future representativeness"
-        ),
-        na.value = "transparent",
-        drop = FALSE  # Fuerza a mostrar todos los niveles aunque no estén presentes
-      ) +
-      ggplot2::ggtitle(pol_name) +
-      ggplot2::theme_minimal())
+                            tidyterra::geom_spatraster(data = raster_final) +
+                            ggplot2::geom_sf(data = study_area, color = "gray50", fill = NA, linewidth = 1) +
+                            ggplot2::geom_sf(data = pol, color = "black", fill = NA) +
+                            ggplot2::scale_fill_manual(
+                              name = "Categorías",
+                              values = c(
+                                "0" = "grey90",
+                                "1" = "gold",
+                                "2" = "aquamarine3",
+                                "3" = "coral3"
+                              ),
+                              labels = c(
+                                "0" = "Non-representative",
+                                "1" = "Stable representativeness",
+                                "2" = "Present representativeness",
+                                "3" = "Future representativeness"
+                              ),
+                              na.value = "transparent",
+                              na.translate = FALSE,
+                              drop = FALSE
+                            ) +
+                            ggplot2::ggtitle(pol_name) +
+                            ggplot2::theme_minimal())
 
     ggplot2::ggsave(
       filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep_shared.jpeg")),
