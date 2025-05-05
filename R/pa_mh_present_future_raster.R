@@ -190,12 +190,12 @@ pa_mh_present_future <- function(polygon,
                             ggplot2::geom_sf(data = study_area, color = "gray50", fill = NA, linewidth = 1) +
                             ggplot2::geom_sf(data = pol, color = "black", fill = NA) +
                             ggplot2::scale_fill_manual(
-                              name = "Categorías",
+                              name = " ",
                               values = c(
                                 "0" = "grey90",
-                                "1" = "gold",
-                                "2" = "aquamarine3",
-                                "3" = "coral3"
+                                "1" = "aquamarine3",
+                                "2" = "coral3",
+                                "3" = "gold"
                               ),
                               labels = c(
                                 "0" = "Non-representative",

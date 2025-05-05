@@ -1,6 +1,7 @@
 library(terra)
 library(sf)
 library(tictoc)
+library(dplyr)
 dir_present_climate_data <- "C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/CLIMA/PRESENT/"
 dir_future_climate_data <- "C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/CLIMA/FUTURE/GFDL/"
 
@@ -32,13 +33,13 @@ reference_system <- terra::crs(present_climatic_variables)
 ##############################################################################################################################
 
 
-dir_result <- "C:/A_TRABAJO/A_CLIMAREP_TEST/N2000_RESULTS/"
-study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/Peninsula_Iberica_89.shp")
-#study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/MURCIA.shp")
-polygon <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/NATURA_2000.shp")
-# polygon <- filter(polygon, DESIG_ENG %in% c( "Nacional Park"
-# ))
-polygon <- dplyr::filter(polygon, GIS_AREA >= 10)
+dir_result <- "C:/A_TRABAJO/A_CLIMAREP_TEST/RESULTS/"
+#study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/Peninsula_Iberica_89.shp")
+study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/MURCIA.shp")
+polygon <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/WDPA_spain.shp")
+polygon <- dplyr::filter(polygon, DESIG_ENG %in% c("Regional Park"))
+
+#polygon <- dplyr::filter(polygon, GIS_AREA >= 10)
 study_area <- st_transform(study_area, crs(reference_system))
 study_area <- st_make_valid(study_area)
 polygon <- st_transform(polygon, crs(reference_system))
@@ -53,7 +54,6 @@ polygon<- st_intersection(st_crop(polygon, st_bbox(study_area)), study_area)
 # Crop raster to study area
 present_climatic_variables <-  terra::mask (crop(present_climatic_variables, study_area), study_area)
 future_climatic_variables  <-  terra::mask(crop(future_climatic_variables,  study_area), study_area)
-
 ###########################################
 tic()
 present_climatic_variables <- vif_filter(present_climatic_variables, th = 10)
@@ -63,9 +63,7 @@ future_climatic_variables <- terra::subset(future_climatic_variables, names(futu
 
 polygon <- polygon[1:100,]
 tic()
-resultados <- for
-
-    pa_mh_present_future(
+resultados <- pa_mh_present_future(
     polygon = polygon,
     col_name = "ORIG_NAME",
     present_climatic_variables = present_climatic_variables,
