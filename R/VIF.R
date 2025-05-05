@@ -30,24 +30,13 @@
 #' # requires terra package
 #' library(terra)
 #'
-#' # Create a simple SpatRaster with 3 layers, one highly correlated
-#' r <- rast(ncols=5, nrows=5) # Small raster
+#' r <- rast(ncols=5, nrows=5)
 #' values(r) <- cbind(1:ncell(r), (1:ncell(r))*1.5 + rnorm(ncell(r), 0, 0.1), runif(ncell(r)))
 #' names(r) <- c("v1", "v_corr", "v_rand")
+#' filtered_r <- vif_filter(x = r, th = 5)
+#' print(filtered_r)
 #'
-#' # Apply the VIF filtering function (replace 'your_vif_filter_function'
-#' # with the actual name of the function)
-#' # filtered_r <- your_vif_filter_function(x = r, th = 5)
-#'
-#' # Print the result (replace 'filtered_r' as needed)
-#' # print(filtered_r)
-#'
-#' @export # Export the function if it's part of a package
-#'
-# Followed by the actual function code:
-# your_vif_filter_function <- function(x, th = 10) {
-#   # ... function implementation ...
-# }
+#' @export
 
 vif_filter <- function(x, th = 10) {
   if (!inherits(x, 'SpatRaster')) {
