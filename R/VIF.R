@@ -1,26 +1,54 @@
-#' @title Filtra capas de un SpatRaster basadas en el Factor de Inflación de Varianza (VIF)
+#' @title Filter SpatRaster Layers based on Variance Inflation Factor (VIF)
 #'
 #' @description
-#' Esta función filtra iterativamente las capas de un objeto \code{SpatRaster} eliminando aquellas con el VIF más alto que superan un umbral especificado, hasta que todas las capas restantes tengan un VIF por debajo del umbral. El cálculo de VIF se realiza después de eliminar filas con valores \code{NA}.
+#' This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`). The process continues until all remaining layers have a VIF below the threshold or only one layer remains. VIF calculation is performed on the raster data converted to a `data.frame` after removing rows containing `NA` values in any column.
 #'
-#' @param x Un objeto \code{SpatRaster} que contiene las capas a filtrar. Debe ser un objeto \code{SpatRaster} válido.
-#' @param th Un valor numérico que especifica el umbral del VIF. Las capas con un VIF superior a este umbral son candidatas a ser eliminadas. El valor por defecto es 10.
+#' @param x A `SpatRaster` object containing the layers (variables) to filter. Must be a valid `SpatRaster` object with multiple layers.
+#' @param th A numeric value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each step. Defaults to 10.
 #'
 #' @details
-#' La función convierte el \code{SpatRaster} a un \code{data.frame}, eliminando cualquier fila que contenga \code{NA} en *cualquiera* de las columnas antes de calcular el VIF. El proceso de filtrado es iterativo: en cada paso, se calcula el VIF para las variables restantes y se elimina la variable con el VIF más alto si éste excede el umbral \code{th}. Este proceso continúa hasta que todas las variables restantes tengan un VIF por debajo del umbral o solo quede una variable. La función imprime un resumen del proceso en la consola, incluyendo las capas conservadas y excluidas, la matriz de correlación original (calculada después de eliminar NAs) y los VIF finales de las capas conservadas. La función interna para calcular VIF incluye comprobaciones para manejar columnas con varianza cero o casi cero y casos de colinealidad perfecta.
+#' The Variance Inflation Factor (VIF) quantifies the severity of multicollinearity in a linear regression analysis. A high VIF for a variable indicates that this variable is strongly correlated with other predictor variables. In the context of environmental variable selection, a high VIF suggests redundancy of information among variables.
+#'
+#' The function follows a common iterative procedure to reduce multicollinearity:
+#' 1.  The input `SpatRaster` is converted to a `data.frame`.
+#' 2.  Rows containing any `NA` values are removed. All VIF calculations are based on this cleaned dataset.
+#' 3.  The VIF is calculated for each remaining variable.
+#' 4.  If the highest VIF is greater than the threshold `th`, the corresponding variable is removed from the dataset.
+#' 5.  Steps 3 and 4 are repeated until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains.
+#'
+#' During the process, the function prints messages to the console indicating which variables are being evaluated and which, if any, are removed.
+#'
+#' The internal function for calculating VIF includes checks to handle problematic situations such as columns with zero or near-zero variance and cases of perfect collinearity, which could otherwise cause errors in VIF calculation.
 #'
 #' @return
-#' Un objeto \code{SpatRaster} que contiene solo las capas que pasaron el filtro del VIF. Si todas las capas son excluidas durante el proceso, devuelve un \code{SpatRaster} vacío.
+#' A `SpatRaster` object containing only the layers from the input `SpatRaster` that were retained by the VIF filter. The order of the remaining layers is kept according to the original `SpatRaster`. If all layers are excluded during the process, an empty `SpatRaster` is returned.
 #'
 #' @importFrom terra SpatRaster as.data.frame subset
+#' @importFrom stats cov
 #'
 #' @examples
 #' # requires terra package
 #' library(terra)
 #'
+#' # Create a simple SpatRaster with 3 layers, one highly correlated
+#' r <- rast(ncols=5, nrows=5) # Small raster
+#' values(r) <- cbind(1:ncell(r), (1:ncell(r))*1.5 + rnorm(ncell(r), 0, 0.1), runif(ncell(r)))
+#' names(r) <- c("v1", "v_corr", "v_rand")
 #'
+#' # Apply the VIF filtering function (replace 'your_vif_filter_function'
+#' # with the actual name of the function)
+#' # filtered_r <- your_vif_filter_function(x = r, th = 5)
 #'
+#' # Print the result (replace 'filtered_r' as needed)
+#' # print(filtered_r)
 #'
+#' @export # Export the function if it's part of a package
+#'
+# Followed by the actual function code:
+# your_vif_filter_function <- function(x, th = 10) {
+#   # ... function implementation ...
+# }
+
 vif_filter <- function(x, th = 10) {
   if (!inherits(x, 'SpatRaster')) {
     stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
@@ -131,7 +159,6 @@ vif_filter <- function(x, th = 10) {
   }
 
   cat("----------------------------\n")
-
 
   if (length(kept_vars) == 0) {
     warning("All variables were excluded. Returning an empty SpatRaster.")
