@@ -38,14 +38,16 @@ study_area <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/Peninsula_Iberica_89.sh
 polygon <- read_sf("C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/NATURA_2000.shp")
 # polygon <- filter(polygon, DESIG_ENG %in% c( "Nacional Park"
 # ))
-polygon <- filter(polygon, GIS_AREA >= 10)
+polygon <- dplyr::filter(polygon, GIS_AREA >= 10)
 study_area <- st_transform(study_area, crs(reference_system))
 study_area <- st_make_valid(study_area)
 polygon <- st_transform(polygon, crs(reference_system))
 polygon <- st_make_valid(polygon)
 
 polygon<- st_intersection(st_crop(polygon, st_bbox(study_area)), study_area)
-polygon[425,]$NAME
+
+
+
 
 
 # Crop raster to study area
@@ -59,9 +61,11 @@ toc()
 ###########################################
 future_climatic_variables <- terra::subset(future_climatic_variables, names(future_climatic_variables) %in% names(present_climatic_variables))
 
-
+polygon <- polygon[1:100,]
 tic()
-resultados <- pa_mh_present_future(
+resultados <- for
+
+    pa_mh_present_future(
     polygon = polygon,
     col_name = "ORIG_NAME",
     present_climatic_variables = present_climatic_variables,
@@ -216,7 +220,7 @@ mi_carpeta_con_rasters <- "C:/A_TRABAJO/A_CLIMAREP_TEST/N2000_RESULTS/Shared/"
 combined_counts_raster <- process_rasters_by_category(mi_carpeta_con_rasters)
 
 # Puedes especificar un nombre diferente para el archivo de salida si lo deseas
-combined_counts_raster <- process_rasters_by_category(mi_carpeta_con_rasters, output_filename = "conteo_categorias_final.tif")
+#combined_counts_raster <- process_rasters_by_category(mi_carpeta_con_rasters, output_filename = "conteo_categorias_final.tif")
 
 # Si tus categorías tienen valores diferentes a 1, 2, 3, especifícalos:
 # combined_counts_raster <- process_rasters_by_category(mi_carpeta_con_rasters, category_values = c(10, 20, 30))

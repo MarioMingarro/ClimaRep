@@ -119,6 +119,11 @@ pa_mh_present_future <- function(polygon,
   for(j in 1:nrow(polygon)) {
     pol <- polygon[j, ]
     pol_name <- as.character(pol[[col_name]])
+    pol_name <- as.character(tolower(pol_name))
+    pol_name <- iconv(pol_name, to = 'ASCII//TRANSLIT')
+    pol_name <- gsub("[^a-z0-9_]+", "_", pol_name)
+    pol_name <- gsub("__+", "_", pol_name)
+    pol_name <- gsub("^_|_$", "", pol_name)
 
     message("\nProcessing polygon: ", pol_name, " (", j, " of ", nrow(polygon), ")")
 
