@@ -29,6 +29,7 @@ names(future_climatic_variables) <- names(present_climatic_variables)
 # Reference system ----
 terra::crs(present_climatic_variables)
 reference_system <- terra::crs(present_climatic_variables)
+
 ##############################################################################################################################
 ##############################################################################################################################
 
@@ -48,11 +49,8 @@ polygon <- st_make_valid(polygon)
 polygon<- st_intersection(st_crop(polygon, st_bbox(study_area)), study_area)
 
 
-
-
-
 # Crop raster to study area
-present_climatic_variables <-  terra::mask (crop(present_climatic_variables, study_area), study_area)
+present_climatic_variables <-  terra::mask(crop(present_climatic_variables, study_area), study_area)
 future_climatic_variables  <-  terra::mask(crop(future_climatic_variables,  study_area), study_area)
 ###########################################
 tic()
@@ -62,19 +60,41 @@ toc()
 future_climatic_variables <- terra::subset(future_climatic_variables, names(future_climatic_variables) %in% names(present_climatic_variables))
 
 polygon <- polygon[1:100,]
+###########################################
 tic()
-resultados <- pa_mh_present_future(
+mh_present_future(
     polygon = polygon,
     col_name = "ORIG_NAME",
     present_climatic_variables = present_climatic_variables,
     future_climatic_variables = future_climatic_variables,
-    study_area = study_area,
     th = 0.9,
     model = "GFDL",
     year = "2070",
+    study_area = study_area,
     dir_output = dir_result,
-    save_raster = F)
+    save_intermediate_raster = TRUE)
 toc()
+###########################################
+
+###########################################
+tic()
+mh_representativeness(
+polygon = polygon,
+col_name = "ORIG_NAME",
+climatic_variables = present_climatic_variables,
+th = 0.9, # Use a threshold, e.g., 90th percentile
+dir_output = dir_result,
+save_intermediate_raster = FALSE)
+toc()
+###########################################
+
+
+
+
+
+
+
+
 
 
 
