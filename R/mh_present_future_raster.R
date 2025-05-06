@@ -14,14 +14,14 @@
 #' @param model Character. Name of the climate model used for future projections (used in output filenames).
 #' @param year Character. Projection year for future climate data (used in output filenames).
 #' @param dir_output Character. Path to the directory where output files will be saved. The function will create subdirectories within this path (default: "output/").
-#' @param save_raster Logical. If TRUE, saves intermediate rasters generated during the process (e.g., raw Mahalanobis distance). The final classification rasters listed in `@return` are saved regardless of this parameter setting (default: FALSE).
+#' @param save_intermediate_raster Logical. If TRUE, saves intermediate rasters generated during the process (e.g., raw Mahalanobis distance). The final classification rasters listed in `@return` are saved regardless of this parameter setting (default: FALSE).
 #' Note on parameters `model` and `year`: These parameters are mandatory. They are used in the output filenames and directory structure to facilitate better data management and organization of results.
 
 
 #' @return Invisibly returns NULL. Writes to disk:
-#' - Classification GeoTIFF rasters (representing stable, loss, and new areas) for Present/, Future/, and Shared/ classifications in the `dir_output` subdirectories (saved regardless of `save_raster` setting).
+#' - Classification GeoTIFF rasters (representing stable, loss, and new areas) for Present/, Future/, and Shared/ classifications in the `dir_output` subdirectories (saved regardless of `save_intermediate_raster` setting).
 #' - JPEG maps visualizing the classification results for each polygon in the Charts/ subdirectory within `dir_output`.
-#' - *Optionally*, intermediate rasters (if `save_raster = TRUE`).
+#' - *Optionally*, intermediate rasters (if `save_intermediate_raster = TRUE`).
 #'
 #' @details
 #' This function performs a multivariate analysis using Mahalanobis distance to assess and compare
@@ -72,7 +72,7 @@
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom stats mahalanobis cov quantile
 #'
-pa_mh_present_future <- function(polygon,
+mh_present_future <- function(polygon,
                                  col_name,
                                  present_climatic_variables,
                                  future_climatic_variables,
@@ -81,12 +81,39 @@ pa_mh_present_future <- function(polygon,
                                  model,
                                  year,
                                  dir_output = "output/",
-                                 save_raster = TRUE) {
+                                 save_intermediate_raster = TRUE) {
 
 
   old_warn <- getOption("warn")
   options(warn = -1)
   on.exit(options(warn = old_warn))
+
+  if (!inherits(polygon, "sf"))
+    stop("Parameter 'polygon' must be an sf object.")
+  if (!inherits(present_climatic_variables, "SpatRaster"))
+    stop("Parameter 'present_climatic_variables' must be a SpatRaster object.")
+  if (!inherits(future_climatic_variables, "SpatRaster"))
+    stop("Parameter 'future_climatic_variables' must be a SpatRaster object.")
+  if (!inherits(study_area, "sf"))
+    stop("Parameter 'study_area' must be an sf object.")
+  if (!is.character(col_name) || length(col_name) != 1 || !(col_name %in% names(polygon))) {
+    stop("Parameter 'col_name' must be a single character string naming a column in 'polygon'.")
+  }
+  if (!is.numeric(th) || length(th) != 1 || th < 0 || th > 1) {
+    stop("Parameter 'th' must be a single numeric value between 0 and 1.")
+  }
+  if (!is.character(model) || length(model) != 1) {
+    stop("Parameter 'model' must be a single character string.")
+  }
+  if (!is.character(year) || length(year) != 1) {
+    stop("Parameter 'year' must be a single character string.")
+  }
+  if (!is.character(dir_output) || length(dir_output) != 1) {
+    stop("Parameter 'dir_output' must be a single character string.")
+  }
+  if (terra::nlyr(present_climatic_variables) < 2) {
+    warning("climatic_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable.")
+  }
 
   dir_present <- file.path(dir_output, "Present")
   dir_future <- file.path(dir_output, "Future")
@@ -94,7 +121,7 @@ pa_mh_present_future <- function(polygon,
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_present, dir_future, dir_charts, dir_shared)
 
-  if (save_raster) {
+  if (save_intermediate_raster) {
     dirs_to_create <- c(dir_present, dir_future, dir_shared, dir_charts)
   } else {
     dirs_to_create <- c(dir_shared, dir_charts)
@@ -105,6 +132,7 @@ pa_mh_present_future <- function(polygon,
     }
   })
 
+  message("Validating and adjusting Coordinate Reference Systems (CRS)...")
   reference_system_check <- terra::crs(present_climatic_variables, describe = TRUE)$code
   reference_system <- terra::crs(present_climatic_variables)
 
@@ -160,7 +188,7 @@ pa_mh_present_future <- function(polygon,
     mh_present <- calculate_mh(data_p)
     mh_future <- calculate_mh(data_f)
 
-    if(save_raster) {
+    if(save_intermediate_raster) {
         terra::writeRaster(mh_present,
                            paste0(dir_present, "/MH_PRESENT_", pol_name, ".tif"),
                            overwrite = TRUE)
@@ -232,5 +260,6 @@ pa_mh_present_future <- function(polygon,
   }
 
   message("\nAll processes were completed")
+  cat(paste("\nOutput files in: ", dir_result))
   return(invisible(NULL))
 }
