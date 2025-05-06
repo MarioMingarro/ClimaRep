@@ -12,17 +12,19 @@ values(r_clim) <- cbind(
 )
 names(r_clim) <- c("varA", "varB", "varC")
 terra::crs(r_clim) <- "EPSG:4326"
-study_area <- st_as_sf(as.polygons(terra::ext(r_clim)))
-st_crs(study_area) <- "EPSG:4326"
-hex_grid <- st_make_grid(study_area, square = FALSE) %>%
-  st_sf()
+
+
+
+hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim))), square = FALSE))
+st_crs(hex_grid) <- "EPSG:4326"
 polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
 polygons$name <- c("Polygon 1", "Polygon 2")
-st_crs(polygons) <- st_crs(study_area)
+st_crs(polygons) <- st_crs(hex_grid)
 
 
-plot(r_clim[[1]])
-plot(polygons, add = TRUE, col = "transparent")
+# plot(r_clim)
+# plot(polygons, add = TRUE, col = "transparent")
+
 
 
 getwd()
@@ -30,11 +32,11 @@ dir_out <- "results_present_analysis"
 if (!dir.exists(dir_out)) dir.create(dir_out)
 
 
-mh_representativeness(
+mh_present(
 polygon = polygons,
 col_name = "name",
-climatic_variables = r_clim,
+climatic_variables = kk,
 th = 0.95, # Use a threshold, e.g., 90th percentile
 dir_output = dir_out,
-save_intermediate_raster = FALSE
+save_intermediate_raster = T
 )
