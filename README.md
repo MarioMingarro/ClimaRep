@@ -61,13 +61,14 @@ This example explores the climate representativeness of a Protected Area network
 *Figure 1: Regional Parks considered as the protected area network used in this analysis.*
 
 
-
-
 Now you can use the package functions:
 
 ### 1. Filter Climatic Variables (Optional but Recommended)
 
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
+
+![Present_climate_variables](FIGURES/F2.jpg)
+*Figure 2: Climate dataset considered in this analysis.*
 
 ```{r}
 
