@@ -17,7 +17,6 @@ Key features include:
 ## Installation
 
 You can install the development version of [Package Name] from GitHub with:
-
 ```{r}
 install.packages("ClimaRep")
 ```
@@ -25,38 +24,39 @@ Alternatively, you can install the development version from GitHub:
 ```{r}
 install.packages("devtools")
 library(devtools)
-devtools::install_github("MarioMingarro/SppTrend")
+devtools::install_github("MarioMingarro/ClimaRep")
 ```
 Dependencies:
 
-This package relies on several other R packages, notably:
+This package relies on other R packages, notably:
 
 terra for handling raster data.
-sf for handling vector (polygon) data.
-testthat for package testing (development dependency).
+sf for handling vector data.
+dplyr for data manipulation.
 
-These dependencies will be installed automatically when you install [Package Name] using pak or devtools::install_github.
+These dependencies will be installed automatically when you install `ClimaRep`.
 
-Getting Started
+## Getting Started
+
 This section provides a brief example demonstrating the core workflow of the package.
 
 First, load the package:
 
 ```{r}
-library([Package Name])
+library(ClimaRep)
 library(terra)
 library(sf)
 ```
 Next, prepare your input data. You will need:
 
-Climatic variables (present and future) as SpatRaster objects.
-Protected area polygons as an sf object.
-A defined study area polygon as an sf object.
-Here's how you might create dummy data similar to the examples used in the tests:
+**Climatic variables** (present and future) as SpatRaster objects.
+**Protected area polygons** as an sf object.
+A defined **study area** polygon as an sf object.
+
+Here's how you might create simple data similar to the examples used in the tests:
 
 ```{r}
-
-# --- Create Dummy Climatic Data (Present) ---
+# --- Create simple present climatic data () ---
 set.seed(235)
 n_cells <- 20 * 20
 r_clim_present <- rast(ncols = 20, nrows = 20, nlyrs = 3)
@@ -69,33 +69,32 @@ names(r_clim_present) <- c("varA", "varB", "varC")
 terra::crs(r_clim_present) <- "EPSG:4326"
 
 
-# --- Create Dummy Climatic Data (Future) ---
+# --- Create simple future climatic data ---
 # Example: Add an increment to present variables
 r_clim_future <- r_clim_present + 2 # Simple increment
 names(r_clim_future) <- names(r_clim_present)
 terra::crs(r_clim_future) <- terra::crs(r_clim_present)
 
 
-# --- Create Dummy Protected Area Polygons ---
+# --- Create simple protected area polygons ---
 hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
 st_crs(hex_grid) <- "EPSG:4326"
 protected_areas <- hex_grid[sample(nrow(hex_grid), 2), ]
 protected_areas$name <- c("Area_1", "Area_2") # Column with polygon names
 st_crs(protected_areas) <- st_crs(hex_grid)
 
-
-# --- Create Dummy Study Area Polygon ---
+# --- Create simple study area polygon ---
 # Example: Use the extent of the raster
 study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
 st_crs(study_area_polygon) <- "EPSG:4326"
 
-# --- Define Output Directory ---
+# --- Define output directory ---
 output_dir <- "results_analysis"
 if (!dir.exists(output_dir)) dir.create(output_dir)
 ```
 Now you can use the package functions:
 
-1. Filter Climatic Variables (Optional but Recommended)
+### 1. Filter Climatic Variables (Optional but Recommended)
 
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
 
@@ -111,9 +110,10 @@ print(names(r_clim_filtered))
 # For this example, we'll just use the filtered present set for both present/future analysis
 # assuming filtering criteria derived from the present are applicable.
 2. Estimate Present Environmental Representativeness
-```
-Use mh_present to calculate environmental representativeness for your protected areas in the current climate.
 
+```
+### 2. Estimate climate representativeness.
+Use `mh_present` to estimate representativeness between present and future climates. Calculate environmental representativeness for protected areas in the current climate
 ```{r}
 # Note: 'climatic_variables' should be the *filtered* present variables if you used vif_filter
 mh_present(
@@ -128,15 +128,15 @@ mh_present(
 cat("Present analysis results saved to:", output_dir, "\n")
 # Check the 'output_dir' for results (e.g., rasters or tables per polygon)
 ```
-3. Estimate Change in Environmental Representativeness (Present vs. Future)
+### 3. Estimate change in climate representativeness.
 
-Use mh_present_future to compare representativeness between present and future climates.
+Use `mh_present_future` to compare representativeness between present and future climates.
 
 ```{r}
 
 # Note: Ensure present_climatic_variables and future_climatic_variables
 # have the same number of layers and layer names after any filtering.
-# Assuming r_clim_filtered is applicable to both for this example.
+
 r_clim_future_filtered <- terra::subset(r_clim_future, names(r_clim_filtered)) # Ensure layers match
 
 mh_present_future(
@@ -155,7 +155,6 @@ mh_present_future(
 cat("Present-Future analysis results saved to:", output_dir, "\n")
 # Check the 'output_dir' for additional results related to the future scenario
 ```
-Remember to replace the dummy data creation with loading your actual spatial data files.
 
 Functions
 vif_filter(x, th): Filters variables in a SpatRaster object (x) based on their Variance Inflation Factor (VIF). Variables with VIF above the threshold (th) are iteratively removed until all remaining variables have VIF below th. This helps mitigate issues associated with multicollinearity in subsequent analyses.
