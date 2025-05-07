@@ -92,6 +92,12 @@ st_crs(study_area_polygon) <- "EPSG:4326"
 output_dir <- "results_analysis"
 if (!dir.exists(output_dir)) dir.create(output_dir)
 ```
+```{r}
+plot(r_clim_present)
+plot(r_clim_future)
+```
+
+
 Now you can use the package functions:
 
 ### 1. Filter Climatic Variables (Optional but Recommended)
