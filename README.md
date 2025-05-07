@@ -1,4 +1,3 @@
-
 # ClimaRep: Estimating Climate Representativeness
 
 [![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
@@ -50,55 +49,19 @@ library(sf)
 ```
 Next, prepare your input data. You will need:
 
-**Climatic variables** (present and future) as SpatRaster objects.
-**Protected area polygons** as an sf object.
-A defined **study area** polygon as an sf object.
+* **Climatic variables** (present and future) as `SpatRaster` objects.
+* **Protected area polygons** as an `sf` object.
+* A defined **study area** polygon as an `sf` object.
 
-Here's how you might create simple data similar to the examples used in the tests:
+Here is a practical example.
 
-```{r}
-# --- Create simple present climatic data () ---
-set.seed(235)
-n_cells <- 20 * 20
-r_clim_present <- rast(ncols = 20, nrows = 20, nlyrs = 3)
-values(r_clim_present) <- cbind(
-  1:n_cells * 0.1 + rnorm(n_cells, 0, 2),
-  1:n_cells * 0.05 + rnorm(n_cells, 0, 1),
-  rnorm(n_cells, 10, 3)
-)
-names(r_clim_present) <- c("varA", "varB", "varC")
-terra::crs(r_clim_present) <- "EPSG:4326"
+This example explores the climate representativeness of a Protected Area network situated in Murcia, in the southwest of the Iberian Peninsula. In total, 6 Regional Parks have been used as an example.
+
+![Regional Parks of Murcia](FIGURES/F1.jpg)
+*Figure 1: Regional Parks considered as the protected area network used in this analysis.*
 
 
-# --- Create simple future climatic data ---
-# Example: Add an increment to present variables
-r_clim_future <- r_clim_present + 2 # Simple increment
-names(r_clim_future) <- names(r_clim_present)
-terra::crs(r_clim_future) <- terra::crs(r_clim_present)
 
-
-# --- Create simple protected area polygons ---
-hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
-st_crs(hex_grid) <- "EPSG:4326"
-protected_areas <- hex_grid[sample(nrow(hex_grid), 2), ]
-protected_areas$name <- c("Area_1", "Area_2") # Column with polygon names
-st_crs(protected_areas) <- st_crs(hex_grid)
-
-# --- Create simple study area polygon ---
-# Example: Use the extent of the raster
-study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
-st_crs(study_area_polygon) <- "EPSG:4326"
-
-# --- Define output directory ---
-output_dir <- "results_analysis"
-if (!dir.exists(output_dir)) dir.create(output_dir)
-```
-```{r}
-plot(r_clim_present)
-plot(r_clim_future)
-```
-![aa](FIGURES/F1.jpg)
-![bb](FIGURES/F2.jpeg)
 
 Now you can use the package functions:
 
@@ -110,15 +73,13 @@ Use `vif_filter` to remove highly correlated variables based on Variance Inflati
 
 # Filter present climatic variables
 r_clim_filtered <- vif_filter(x = r_clim_present, th = 5) # Use a VIF threshold (e.g., 5 or 10)
-print("Filtered Present Climate Variables:")
-print(names(r_clim_filtered))
+
+
 
 # You might also filter future variables or ensure consistency after filtering present
 # Consider how filtering applies to your future layers - typically based on present VIFs.
 # For this example, we'll just use the filtered present set for both present/future analysis
 # assuming filtering criteria derived from the present are applicable.
-2. Estimate Present Environmental Representativeness
-
 ```
 ### 2. Estimate climate representativeness.
 Use `mh_present` to estimate representativeness between present and future climates. Calculate environmental representativeness for protected areas in the current climate
@@ -187,3 +148,48 @@ If you encounter issues or have questions, please open an issue on the GitHub re
 
 License
 [Specify the package license, e.g., MIT, GPL-3]
+
+
+
+
+```{r}
+# --- Create simple present climatic data () ---
+set.seed(235)
+n_cells <- 20 * 20
+r_clim_present <- rast(ncols = 20, nrows = 20, nlyrs = 3)
+values(r_clim_present) <- cbind(
+  1:n_cells * 0.1 + rnorm(n_cells, 0, 2),
+  1:n_cells * 0.05 + rnorm(n_cells, 0, 1),
+  rnorm(n_cells, 10, 3)
+)
+names(r_clim_present) <- c("varA", "varB", "varC")
+terra::crs(r_clim_present) <- "EPSG:4326"
+
+
+# --- Create simple future climatic data ---
+# Example: Add an increment to present variables
+r_clim_future <- r_clim_present + 2 # Simple increment
+names(r_clim_future) <- names(r_clim_present)
+terra::crs(r_clim_future) <- terra::crs(r_clim_present)
+
+
+# --- Create simple protected area polygons ---
+hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
+st_crs(hex_grid) <- "EPSG:4326"
+protected_areas <- hex_grid[sample(nrow(hex_grid), 2), ]
+protected_areas$name <- c("Area_1", "Area_2") # Column with polygon names
+st_crs(protected_areas) <- st_crs(hex_grid)
+
+# --- Create simple study area polygon ---
+# Example: Use the extent of the raster
+study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
+st_crs(study_area_polygon) <- "EPSG:4326"
+
+# --- Define output directory ---
+output_dir <- "results_analysis"
+if (!dir.exists(output_dir)) dir.create(output_dir)
+```
+```{r}
+plot(r_clim_present)
+plot(r_clim_future)
+```
