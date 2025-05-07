@@ -7,9 +7,8 @@ dir_future_climate_data <- "C:/A_TRABAJO/A_CLIMAREP_TEST/DATA/CLIMA/FUTURE/GFDL/
 
 ## Load data ----
 present_climatic_variables <- terra::rast(list.files(dir_present_climate_data, "\\.tif$", full.names = T))
-# Crear un vector con los nombres de las variables a excluir
 exclude_vars <- c("bio8", "bio9", "bio18", "bio19")
-#
+
 # # Crear un patrón de expresión regular para excluir estas variables
 exclude_pattern <- paste0("bio(", paste(gsub("bio", "", exclude_vars), collapse = "|"), ")")
 #
@@ -52,9 +51,17 @@ polygon<- st_intersection(st_crop(polygon, st_bbox(study_area)), study_area)
 # Crop raster to study area
 present_climatic_variables <-  terra::mask(crop(present_climatic_variables, study_area), study_area)
 future_climatic_variables  <-  terra::mask(crop(future_climatic_variables,  study_area), study_area)
+
+
+jpeg(filename = "C:/GITHUB/ClimaRep/FIGURES/F2.jpg", width = 10, height = 8, units = "cm", res = 300)
+
+plot(present_climatic_variables)
+
+# Cierra el dispositivo gráfico para guardar el archivo
+dev.off()
 ###########################################
 tic()
-present_climatic_variables <- vif_filter(present_climatic_variables, th = 10)
+present_climatic_variables_filtered <- vif_filter(present_climatic_variables, th = 10)
 toc()
 ###########################################
 future_climatic_variables <- terra::subset(future_climatic_variables, names(future_climatic_variables) %in% names(present_climatic_variables))
