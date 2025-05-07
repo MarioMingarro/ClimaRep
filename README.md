@@ -67,7 +67,7 @@ Now you can use the package functions:
 
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
 
-![Present_climate_variables](FIGURES/F2.jpg)
+![Present_climate_variables](FIGURES/F2.jpeg)
 *Figure 2: Climate dataset considered in this analysis.*
 
 ```{r}
