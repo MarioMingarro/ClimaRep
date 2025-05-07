@@ -96,7 +96,8 @@ if (!dir.exists(output_dir)) dir.create(output_dir)
 plot(r_clim_present)
 plot(r_clim_future)
 ```
-![Estrategias](FIGURES/F1.jpg)
+![aa](FIGURES/F1.jpg)
+![bb](FIGURES/F2.jpg)
 
 Now you can use the package functions:
 
