@@ -1,3 +1,15 @@
+```{r}
+knitr::opts_chunk$set(
+  fig.width = 10,  # Ancho de la figura en pulgadas
+  fig.height = 8,  # Alto de la figura en pulgadas
+  # O puedes usar fig.dim = c(10, 8) para establecer ambos a la vez
+
+  # Otras opciones útiles globales (opcional):
+  echo = TRUE,     # Mostrar el código R en el output (cambia a FALSE si no quieres mostrarlo)
+  warning = FALSE, # No mostrar mensajes de warning generados por el código R
+  message = FALSE  # No mostrar mensajes generados por el código R
+)
+```
 # ClimaRep: Estimating Climate Representativeness
 
 [![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
