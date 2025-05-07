@@ -57,14 +57,9 @@ Here is a practical example.
 
 This example explores the climate representativeness of a Protected Area network situated in Murcia, in the southwest of the Iberian Peninsula. In total, 6 Regional Parks have been used as an example.
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  fig.width = 10,  # Ancho de la figura en pulgadas
-  fig.height = 8,  # Alto de la figura en pulgadas
-  # O puedes usar fig.dim = c(10, 8) )
-``` 
+<img src="FIGURES/F1.jpg" alt="Regional Parks of Murcia" width="600">
 
-![Regional Parks of Murcia](FIGURES/F1.jpg)
+
 *Figure 1: Regional Parks considered as the protected area network used in this analysis.*
 
 
@@ -74,7 +69,12 @@ Now you can use the package functions:
 
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
 
+<img src="FIGURES/F2.jpg" alt="Present climate variables" width="600">
+
+kkk
+
 ![Present_climate_variables](FIGURES/F2.jpeg)
+
 *Figure 2: Climate dataset considered in this analysis.*
 
 ```{r}
