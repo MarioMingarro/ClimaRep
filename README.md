@@ -1,13 +1,10 @@
-# ClimaRep: Estimating Environmental Representativeness
+# ClimaRep: Estimating Climate Representativeness
 
 [![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
 
 ## Overview
 
-The **[Package Name]** package provides tools to analyze the environmental representativeness of protected areas, particularly focusing on how this representativeness might change under future climate change scenarios. The methods implemented are based on the concepts described in the paper:
-
-> [Citar el artículo completo aquí, por ejemplo:]
-> Mingarro & Lobo (2018). Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change (https://doi.org/10.32800/abc.2018.41.0333)
+The **ClimaRep** package provides tools to analyze the climate representativeness of protected areas, particularly focusing on how this representativeness might change under future climate change scenarios.
 
 The package utilizes spatial data, specifically climatic raster layers and protected area polygons, along with a defined study area, to assess the current environmental representativeness and project its evolution under climate change.
 
@@ -15,7 +12,7 @@ Key features include:
 * Filtering climatic variables to reduce multicollinearity (`vif_filter`).
 * Estimating current environmental representativeness (`mh_present`).
 * Estimating changes in environmental representativeness under future climate projections (`mh_present_future`).
-
+* Estimating environmental representativeness overlay (`mh_overlay`).
 
 ## Installation
 
@@ -170,14 +167,16 @@ mh_present_future(polygon, col_name, present_climatic_variables, future_climatic
 Citation
 If you use this package in your research, please cite both the package and the underlying methodology paper:
 
-[Instructions on how to cite the R package - e.g., using citation("[Package Name]")]
+
+> Mingarro & Lobo (2018). Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change (https://doi.org/10.32800/abc.2018.41.0333)
+
 
 
 Contributing
-[Optional: Instructions on how others can contribute to the package development]
+
 
 Getting Help
-If you encounter issues or have questions, please open an issue on the GitHub repository: [https://github.com/[Your GitHub Username]/[Repository Name]/issues](https://github.com/[Your GitHub Username]/[Repository Name]/issues)
+If you encounter issues or have questions, please open an issue on the GitHub repository: [https://github.com/
 
 License
 [Specify the package license, e.g., MIT, GPL-3]

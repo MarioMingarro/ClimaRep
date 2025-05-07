@@ -77,7 +77,6 @@
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_manual ggtitle theme_minimal ggsave element_text
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom stats mahalanobis cov quantile na.omit
-#' @importFrom methods is
 #'
 mh_representativeness <- function(polygon,
                                      col_name,
