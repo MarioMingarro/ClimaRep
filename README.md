@@ -16,7 +16,7 @@ Key features include:
 
 ## Installation
 
-You can install the development version of [Package Name] from GitHub with:
+You can install the development version of ClimaRep from GitHub with:
 ```{r}
 install.packages("ClimaRep")
 ```
@@ -96,7 +96,7 @@ if (!dir.exists(output_dir)) dir.create(output_dir)
 plot(r_clim_present)
 plot(r_clim_future)
 ```
-
+![Estrategias](FIGURES/F1.jpg)
 
 Now you can use the package functions:
 
