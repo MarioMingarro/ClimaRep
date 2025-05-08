@@ -44,7 +44,7 @@ testthat::test_that("mh_present_future runs and writes output", {
   # (Los datos r_clim, r_clim_future, polygons y study_area_poly ya están definidos arriba)
   # Definir parámetros adicionales requeridos por la función
   test_model <- "TestModel"
-  test_year <- 2050
+  test_year <- "2050"
 
   # --- Ejecutar la función ---
   mh_present_future(
