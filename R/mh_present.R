@@ -22,14 +22,14 @@
 #' the climatic representativeness of areas within specified polygons for a single time period.
 #'
 #' Key workflow steps:
-#' 1.  **CRS Harmonization:** Ensures all spatial inputs (`polygon`, `climatic_variables`) share the same Coordinate Reference System (CRS), using the CRS of `climatic_variables` as the reference.
-#' 2.  **Per-Polygon Processing:** For each polygon in the `polygon` object:
-#'     * Clips and masks the climate variables raster (`climatic_variables`) to the polygon's area.
-#'     * Calculates the multivariate mean and covariance matrix using the data from the clipped and masked raster (ignoring NAs). This defines the reference climate space *for that specific polygon*.
-#'     * Calculates the Mahalanobis distance for *each pixel with valid data* within the polygon, using the mean and covariance matrix calculated for that polygon.
-#'     * Calculates the threshold (`th_value`) as the `th` quantile of the Mahalanobis distances calculated within the polygon.
-#'     * Classifies each pixel within the polygon as "Representative" (distance <= threshold, value 1) or "Non-Representative" (distance > threshold, value 0).
-#' 3.  **Output Generation:** Generates a classification raster (GeoTIFF) for each polygon and a corresponding visualization map (JPEG). Files are saved within the directory structure specified in `dir_output`.
+#' 1. **CRS Harmonization:** Ensures all spatial inputs (`polygon`, `climatic_variables`) share the same Coordinate Reference System (CRS), using the CRS of `climatic_variables` as the reference.
+#' 2. **Per-Polygon Processing:** For each polygon in the `polygon` object:
+#'* Clips and masks the climate variables raster (`climatic_variables`) to the polygon's area.
+#'* Calculates the multivariate mean and covariance matrix using the data from the clipped and masked raster (ignoring NAs). This defines the reference climate space *for that specific polygon*.
+#'* Calculates the Mahalanobis distance for *each pixel with valid data* within the polygon, using the mean and covariance matrix calculated for that polygon.
+#'* Calculates the threshold (`th_value`) as the `th` quantile of the Mahalanobis distances calculated within the polygon.
+#'* Classifies each pixel within the polygon as "Representative" (distance <= threshold, value 1) or "Non-Representative" (distance > threshold, value 0).
+#' 3.**Output Generation:** Generates a classification raster (GeoTIFF) for each polygon and a corresponding visualization map (JPEG). Files are saved within the directory structure specified in `dir_output`.
 #'
 #' It is important that the `climatic_variables` are not strongly correlated, as Mahalanobis distance assumes independence or uses the covariance matrix to account for correlation. Consider performing a collinearity analysis (e.g., using VIF) beforehand.
 #'
@@ -48,7 +48,7 @@
 #'
 #' # Create two analysis polygons
 #' polygons_sf <- st_make_grid(st_as_sf(as.polygons(ext(r_clim))), n = 2) %>%
-#'   st_sf(name = c("AreaA", "AreaB"))
+#' st_sf(name = c("AreaA", "AreaB"))
 #'
 #' # Define an output directory
 #' dir_out <- "results_present_analysis"
@@ -56,12 +56,12 @@
 #'
 #' # Run the representativeness analysis for the 'present' climate data
 #' pa_mh_representativeness(
-#'   polygon = polygons_sf,
-#'   col_name = "name",
-#'   climatic_variables = r_clim,
-#'   th = 0.9, # Use a threshold, e.g., 90th percentile
-#'   dir_output = dir_out,
-#'   save_intermediate_raster = FALSE
+#'  polygon = polygons_sf,
+#'  col_name = "name",
+#'  climatic_variables = r_clim,
+#'  th = 0.9, # Use a threshold, e.g., 90th percentile
+#'  dir_output = dir_out,
+#'  save_intermediate_raster = FALSE
 #' )
 #'
 #' # Check the output files

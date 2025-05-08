@@ -2,7 +2,7 @@ library(testthat)
 library(terra)
 library(sf)
 
-# --- Configuración de Datos (replicar ejemplo anterior) ---
+
 set.seed(235)
 n_cells <- 20 * 20
 r_clim <- rast(ncols = 20, nrows = 20, nlyrs = 3)
@@ -21,7 +21,7 @@ polygons$name <- c("Polygon_1", "Polygon_2")
 st_crs(polygons) <- st_crs(hex_grid)
 
 # --- Configuración de Datos (añadir escenario futuro) ---
-# Crear un raster de clima futuro incrementando ligeramente las variables presentes
+
 r_clim_future <- r_clim + 2 # Añadir un incremento constante de 2 a cada variable
 names(r_clim_future) <- names(r_clim) # Mantener los mismos nombres de variables
 terra::crs(r_clim_future) <- terra::crs(r_clim) # Mantener el mismo CRS
