@@ -19,7 +19,7 @@
 
 
 #' @return Invisibly returns NULL. Writes to disk:
-#' - Classification GeoTIFF rasters (representing stable, loss, and new areas) for Present/, Future/, and Shared/ classifications in the `dir_output` subdirectories (saved regardless of `save_intermediate_raster` setting).
+#' - Classification GeoTIFF rasters (representing stable, loss, and new areas) for Present/, Future/, and change/ classifications in the `dir_output` subdirectories (saved regardless of `save_intermediate_raster` setting).
 #' - JPEG maps visualizing the classification results for each polygon in the Charts/ subdirectory within `dir_output`.
 #' - *Optionally*, intermediate rasters (if `save_intermediate_raster = TRUE`).
 #'
@@ -72,7 +72,7 @@
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom stats mahalanobis cov quantile
 #'
-mh_present_future <- function(polygon,
+mh_rep_ch <- function(polygon,
                                  col_name,
                                  present_climatic_variables,
                                  future_climatic_variables,
@@ -115,16 +115,16 @@ mh_present_future <- function(polygon,
     warning("climatic_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable.")
   }
 
-  dir_present <- file.path(dir_output, "Present")
-  dir_future <- file.path(dir_output, "Future")
-  dir_shared <- file.path(dir_output, "Shared")
+  dir_present <- file.path(dir_output, "Mh_Raw_Pre")
+  dir_future <- file.path(dir_output, "Mh_Raw_Fut")
+  dir_change <- file.path(dir_output, "Change")
   dir_charts <- file.path(dir_output, "Charts")
-  dirs_to_create <- c(dir_present, dir_future, dir_charts, dir_shared)
+  dirs_to_create <- c(dir_present, dir_future, dir_charts, dir_change)
 
   if (save_intermediate_raster) {
-    dirs_to_create <- c(dir_present, dir_future, dir_shared, dir_charts)
+    dirs_to_create <- c(dir_present, dir_future, dir_change, dir_charts)
   } else {
-    dirs_to_create <- c(dir_shared, dir_charts)
+    dirs_to_create <- c(dir_change, dir_charts)
   }
   sapply(dirs_to_create, function(dir) {
     if (!dir.exists(dir)) {
@@ -190,10 +190,10 @@ mh_present_future <- function(polygon,
 
     if(save_intermediate_raster) {
         terra::writeRaster(mh_present,
-                           paste0(dir_present, "/MH_PRESENT_", pol_name, ".tif"),
+                           paste0(dir_present, "/MahalanobisRaw_", pol_name, ".tif"),
                            overwrite = TRUE)
         terra::writeRaster(mh_future,
-                           paste0(dir_future, "/MH_FUTURE_", model, "_", year, "_", pol_name, ".tif"),
+                           paste0(dir_future, "/MahalanobisRaw_post_", model, "_", year, "_", pol_name, ".tif"),
                            overwrite = TRUE)
       }
 
@@ -212,14 +212,14 @@ mh_present_future <- function(polygon,
     th_present <- classify_mh(mh_present, th_value)
     th_future <- classify_mh(mh_future, th_value)
 
-    shared <- th_present * th_future
-    solo_presente <- th_present - shared
-    solo_futura <- th_future - shared
-    raster_final <- shared + (solo_presente * 2) + (solo_futura * 3)
+    change <- th_present * th_future
+    solo_presente <- th_present - change
+    solo_futura <- th_future - change
+    raster_final <- change + (solo_presente * 2) + (solo_futura * 3)
 
     terra::writeRaster(
       raster_final,
-      file.path(dir_output, "Shared", paste0("TH_SHARED_", model, "_", year, "_", pol_name, ".tif")),
+      file.path(dir_output, "change", paste0("TH_change_", model, "_", year, "_", pol_name, ".tif")),
       overwrite = TRUE
     )
 
@@ -251,7 +251,7 @@ mh_present_future <- function(polygon,
                             ggplot2::theme_minimal())
 
     ggplot2::ggsave(
-      filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep_shared.jpeg")),
+      filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep_change.jpeg")),
       plot = p,
       width = 10,
       height = 8,

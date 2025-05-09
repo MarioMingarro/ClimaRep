@@ -78,7 +78,7 @@
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom stats mahalanobis cov quantile na.omit
 #'
-mh_representativeness <- function(polygon,
+mh_rep <- function(polygon,
                                      col_name,
                                      climatic_variables,
                                      th = 0.95,
@@ -110,7 +110,7 @@ mh_representativeness <- function(polygon,
   dirs_to_create <- c(dir_rep, dir_charts)
 
   if (save_intermediate_raster) {
-    dir_mh_raw <- file.path(dir_output, "MahalanobisRaw")
+    dir_mh_raw <- file.path(dir_output, "Mh_Raw")
     dirs_to_create <- c(dirs_to_create, dir_mh_raw)
   }
 
