@@ -187,7 +187,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="FIGURES/F_4.jpeg" alt="rep_map" width="600">
 
-*Figure 4: Binary representativeness maps for Area_1. Areas matching or exceeding the climate conditions threshold of the input polygon are shown.*
+*Figure 4: Binary representativeness maps for Pol_1. Areas matching or exceeding the climate conditions threshold of the input polygon are shown.*
 
 2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (as `.tif` files) for each input polygon. 
 Lower values indicate climates more similar to the polygon's centroid.
@@ -199,7 +199,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_5.jpeg" alt="cont_rep" width="600">
 
-*Figure 5: Example continuous Mahalanobis distance raster for Area_1. Darker shades indicate areas with climate conditions more similar to Area_1.*
+*Figure 5: Example continuous Mahalanobis distance raster for Pol_1. Darker shades indicate areas with climate conditions more similar to Pol_1.*
 
 3. The `Representativeness` subfolder contains the binary representativeness rasters (as `.tif` files) for each input polygon, based on the threshold (`th`) applied to the raw Mahalanobis distance. 
 Cells are typically coded 1 for represented and 0 for not represented.
@@ -211,7 +211,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="FIGURES/F_6.jpeg" alt="bin_rep" width="600">
 
-*Figure 6: Example binary representativeness raster for Area_1, showing areas classified as represented (value 1) based on the defined threshold.*
+*Figure 6: Example binary representativeness raster for Pol_1, showing areas classified as represented (value 1) based on the defined threshold.*
 
 ### 3. Estimate change in climate representativeness.
 To estimate how representativeness changes, a future climate scenario is required. 
@@ -286,7 +286,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="FIGURES/F_9.jpeg" alt="map_change_pol_2" width="600">
 
-*Figure 9: Example summary maps illustrating climate representativeness change for Pol_1 and Pol_2*
+*Figure 9: Example summary maps illustrating climate representativeness change for Pol_2*
 
 The `Mh_Raw_Pre` subfolder contains the continuous raw Mahalanobis distance rasters for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
 
@@ -310,7 +310,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="FIGURES/F_11.jpeg" alt="Raw_fut_pol2" width="600">
 
-*Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_1*
+*Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
 
@@ -322,9 +322,9 @@ Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflati
 
 `vif_filter(x, th)`
 
-> `x`: A SpatRaster object with climate layers.
+> `x`: A `SpatRaster` object with climate layers.
 
-> `th`: The VIF threshold.
+> `th`: The VIF `threshold`.
 
 
 **mh_rep()**
@@ -333,17 +333,17 @@ Estimates the current environmental representativeness of the areas defined by p
 
 `mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_intermediate_raster)`
 
-> `polygon`: An `sf` object containing the input areas (polygons).
+> `polygon`: An `sf` object containing the input polygon/s.
 
-> `col_name`: The name of the column in `polygon` that contains unique identifiers for each input area.
+> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
 
 > `climatic_variables`: A `SpatRaster` object with the climate layers.
 
-> `th`: The threshold for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
+> `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
-> `dir_output`: Path to the directory where output rasters and charts will be saved.
+> `dir_output`: Path to the `directory` where output rasters and charts will be saved.
 
-> `save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance raster for each input `polygon`.
+> `save_intermediate_raster`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster for each input `polygon`.
 
 
 **mh_rep_ch()**
@@ -353,25 +353,25 @@ It compares represented conditions between the two scenarios for each input poly
 
 `mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_intermediate_raster)`
 
-> `polygon`: An sf object containing the input areas (polygons).
+> `polygon`: An `sf` object containing the input polygon/s.
 
-> `col_name`: The name of the column in polygon that contains unique identifiers for each input area.
+> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
 
-> `present_climatic_variables`: A SpatRaster object with the present climate layers (typically filtered).
+> `present_climatic_variables`: A `SpatRaster` object with the present climate layers (typically filtered).
 
-> `future_climatic_variables`: A SpatRaster object with the future climate layers.
+> `future_climatic_variables`: A `SpatRaster` object with the future climate layers.
 
-> `study_area`: An sf object defining the overall study region.
+> `study_area`: An `sf` object defining the overall study region.
 
-> `th`: The percentile threshold for determining representativeness in both scenarios.
+> `th`: The percentile `threshold` for determining representativeness in both scenarios.
 
-> `model`: Character string identifying the climate model (e.g., "MIROC6"). Used in output filenames.
+> `model`: `Character string` identifying the climate model (e.g., "MIROC6"). Used in output filenames.
 
-> `year`: Character string identifying the future period (e.g., "2050"). Used in output filenames.
+> `year`: `Character string` identifying the future period (e.g., "2050"). Used in output filenames.
 
-> `dir_output`: Path to the directory where output rasters and charts will be saved.
+> `dir_output`: Path to the `directory` where output rasters and charts will be saved.
 
-> `save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
+> `save_intermediate_raster`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
 
 
 mh_overlay(...):
