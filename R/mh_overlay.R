@@ -66,6 +66,7 @@
 #' @importFrom base basename file.path seq_along sapply is.null length warning message
 #'
 #' @examples
+#' \dontrun{
 #' # requires terra package
 #' library(terra)
 #'
@@ -108,7 +109,7 @@
 #'
 #' # Clean up the temporary files and directory
 #' unlink(temp_dir, recursive = TRUE)
-#'
+#'}
 #' @export
 mh_overlay <- function(folder_path, output_filename = "combined_category_counts_ap.tif", category_values = c(1, 2, 3)) {
 

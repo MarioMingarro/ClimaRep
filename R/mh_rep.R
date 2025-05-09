@@ -61,7 +61,7 @@
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
 #' terra::plot(r_clim_present)
-#' r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+#' r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 #' hex_grid <- sf::st_sf(
 #' sf::st_make_grid(
 #'   sf::st_as_sf(
@@ -77,7 +77,7 @@
 #' terra::plot(r_clim_present[[1]])
 #' terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
 #' terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
-#' ClimaRep::mh_rep(
+#' mh_rep(
 #' polygon = polygons,
 #' col_name = "name",
 #' climatic_variables = r_clim_present_filtered,
@@ -169,7 +169,7 @@ mh_rep <- function(polygon,
     }
     mh_present <- calculate_mh(data_p)
     if (save_intermediate_raster) {
-      terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("MH_PRESENT_", pol_name, ".tif")), overwrite = TRUE)
+      terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("MH_rep_", pol_name, ".tif")), overwrite = TRUE)
     }
     mh_poly <- terra::mask(mh_present, pol)
     th_value <- quantile(terra::values(mh_poly),
@@ -188,7 +188,7 @@ mh_rep <- function(polygon,
                        file.path(
                          dir_output,
                          "Representativeness",
-                         paste0("TH_REP_", pol_name, ".tif")
+                         paste0("TH_Rep_", pol_name, ".tif")
                        ),
                        overwrite = TRUE)
     raster_final <- terra::as.factor(raster_final)
@@ -215,7 +215,7 @@ mh_rep <- function(polygon,
       filename = file.path(
         dir_output,
         "Charts",
-        paste0(pol_name, "_representativeness.jpeg")
+        paste0(pol_name, "_rep.jpeg")
       ),
       plot = p,
       width = 10,

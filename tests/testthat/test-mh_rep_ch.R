@@ -1,6 +1,9 @@
 library(testthat)
 library(terra)
 library(sf)
+library(ggplot2)
+library(tidyterra)
+library(stats)
 
 
 # --- Escribir el Test ---
@@ -19,7 +22,9 @@ testthat::test_that("mh_present_future runs and writes output", {
   names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
   terra::crs(r_clim_present) <- "EPSG:4326"
   terra::plot(r_clim_present)
-  r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+
+  r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+
   hex_grid <- sf::st_sf(
     sf::st_make_grid(
       sf::st_as_sf(
@@ -39,7 +44,8 @@ testthat::test_that("mh_present_future runs and writes output", {
   names(r_clim_future) <- names(r_clim_present_filtered)
   terra::crs(r_clim_future) <- terra::crs(r_clim_present_filtered)
   terra::plot(r_clim_future)
-  ClimaRep::mh_rep_ch(
+
+  mh_rep_ch(
   polygon = polygons,
   col_name = "name",
   present_climatic_variables = r_clim_present_filtered,

@@ -90,7 +90,7 @@ Multicollinearity among climate variables can affect multivariate analyses.
 Use `vif_filter` to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (`th`).
 
 ```{r}
-r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5) # Use a VIF threshold
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5) # Use a VIF threshold
 
 --- VIF Filtering Summary ---
 VIF filtering completed.
@@ -148,7 +148,7 @@ Use `mh_rep` to estimate climate representativeness for each input area (polygon
 The function calculates the Mahalanobis distance for every cell in the `climatic_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
 Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered represented.
 ```{r}
-ClimaRep::mh_rep(
+mh_rep(
   polygon = polygons,
   col_name = "name",
   climatic_variables = r_clim_present_filtered,
@@ -182,10 +182,11 @@ list.files(tempdir())
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
+[1] "pol_1_rep.jpeg" "pol_2_rep.jpeg"
 ```
 <img src="FIGURES/F_4.jpeg" alt="rep_map" width="600">
 
-*Figure 4: Binary representativeness maps for Pol_1.*
+*Figure 4: Binary representativeness maps for Pol_1 (pol_2_rep.jpeg).*
 
 2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (`.tif`) for each input polygon. 
 Lower values indicate climates more similar to the polygon's centroid.
@@ -234,7 +235,7 @@ Are Lost (represented in present but not future).
 Are Gained (not represented in present but are in future - often represents novel climates becoming analogous).
 
 ```{r}
-ClimaRep::mh_rep_ch(
+mh_rep_ch(
 polygon = polygons,
 col_name = "name",
 present_climatic_variables = r_clim_present_filtered,
@@ -282,10 +283,11 @@ The `Charts` subfolder is updated or regenerated and contains summary image file
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
+[1] "pol_1_rep_change.jpeg" "pol_2_rep_change.jpeg"
 ```
 <img src="FIGURES/F_9.jpeg" alt="map_change_pol_2" width="600">
 
-*Figure 9: Example summary maps illustrating climate representativeness change for Pol_2*
+*Figure 9: Example summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
 
 The `Mh_Raw_Pre` subfolder contains the continuous raw Mahalanobis distance rasters for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
 

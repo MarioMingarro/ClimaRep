@@ -77,6 +77,7 @@ agreement or frequency of classifications, aiding in identifying core areas
 for each category or areas of high uncertainty.
 }
 \examples{
+\dontrun{
 # requires terra package
 library(terra)
 
@@ -119,5 +120,5 @@ if (!is.null(output_stack)) {
 
 # Clean up the temporary files and directory
 unlink(temp_dir, recursive = TRUE)
-
+}
 }

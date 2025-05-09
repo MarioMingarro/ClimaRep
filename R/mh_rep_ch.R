@@ -71,7 +71,7 @@
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
 #' terra::plot(r_clim_present)
-#' r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+#' r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 #' hex_grid <- sf::st_sf(sf::st_make_grid(sf::st_as_sf(terra::as.polygons(terra::ext(r_clim_present))),square = FALSE))
 #' sf::st_crs(hex_grid) <- "EPSG:4326"
 #' polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
@@ -86,7 +86,7 @@
 #' names(r_clim_future) <- names(r_clim_present_filtered)
 #' terra::crs(r_clim_future) <- terra::crs(r_clim_present_filtered)
 #' terra::plot(r_clim_future)
-#' ClimaRep::mh_rep_ch(
+#' mh_rep_ch(
 #' polygon = polygons,
 #' col_name = "name",
 #' present_climatic_variables = r_clim_present_filtered,

@@ -1,5 +1,9 @@
 library(testthat)
 library(terra)
+library(sf)
+library(ggplot2)
+library(tidyterra)
+library(stats)
 
 
 testthat::test_that("mh_overlay counts categories correctly and writes output", {
