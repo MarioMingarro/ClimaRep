@@ -87,24 +87,36 @@ Now you can use the package functions:
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
 
 ```{r}
-r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5) # Use a VIF threshold
+
+--- VIF Filtering Summary ---
+VIF filtering completed.
+Kept layers: varA, varC, varE, varF, varG 
+Excluded layers:  
+
+Pearson correlation matrix of original data:
+        varA   varC    varE    varF   varG
+varA  1.0000 0.0087 -0.0745  0.5854 0.0028
+varC  0.0087 1.0000  0.0517  0.5694 0.8372
+varE -0.0745 0.0517  1.0000 -0.0256 0.0650
+varF  0.5854 0.5694 -0.0256  1.0000 0.6350
+varG  0.0028 0.8372  0.0650  0.6350 1.0000
+
+Final VIF values for kept variables:
+        VIF
+varA 2.3475
+varC 3.3954
+varE 1.0121
+varF 3.9725
+varG 4.5054
+----------------------------
+
 plot(r_clim_present_filtered)
 ```
 <img src="FIGURES/F_2.jpeg" alt="Climate filtered raster" width="600">
 *Figure 2: Climate dataset considered in this analysis.*
 
-```{r}
 
-# Filter present climatic variables
-r_clim_filtered <- vif_filter(x = r_clim_present, th = 5) # Use a VIF threshold (e.g., 5 or 10)
-
-
-
-# You might also filter future variables or ensure consistency after filtering present
-# Consider how filtering applies to your future layers - typically based on present VIFs.
-# For this example, we'll just use the filtered present set for both present/future analysis
-# assuming filtering criteria derived from the present are applicable.
-```
 ### 2. Estimate climate representativeness.
 Use `mh_present` to estimate representativeness between present and future climates. Calculate environmental representativeness for protected areas in the current climate
 ```{r}
