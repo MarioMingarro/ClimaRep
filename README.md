@@ -329,13 +329,13 @@ It compares represented conditions between the two scenarios for each input poly
 
 `mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_intermediate_raster)`
 
-`polygon`: An sf object containing the input areas (polygons).
+> `polygon`: An sf object containing the input areas (polygons).
 
-`col_name`: The name of the column in polygon that contains unique identifiers for each input area.
+> `col_name`: The name of the column in polygon that contains unique identifiers for each input area.
 
-`present_climatic_variables`: A SpatRaster object with the present climate layers (typically filtered).
+> `present_climatic_variables`: A SpatRaster object with the present climate layers (typically filtered).
 
-`future_climatic_variables`: A SpatRaster object with the future climate layers.
+> `future_climatic_variables`: A SpatRaster object with the future climate layers.
 
 `study_area`: An sf object defining the overall study region.
 
