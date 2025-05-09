@@ -292,14 +292,19 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 ## Functions Reference
 
-`**vif_filter()**`: Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflation Factor (VIF). Variables with VIF above the threshold (`th`) are iteratively removed until all remaining variables have VIF below th. This helps mitigate issues associated with multicollinearity in multivariate analyses.
+**vif_filter()**
+Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflation Factor (VIF). Variables with VIF above the threshold (`th`) are iteratively removed until all remaining variables have VIF below th. This helps mitigate issues associated with multicollinearity in multivariate analyses.
 
 `vif_filter(x, th)`
+
 `x`: A SpatRaster object with climate layers.
 `th`: The VIF threshold.
-**mh_rep()**: Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
+
+**mh_rep()**
+Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
 
 `mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_intermediate_raster)`
+
 `polygon`: An `sf` object containing the input areas (polygons).
 `col_name`: The name of the column in `polygon` that contains unique identifiers for each input area.
 `climatic_variables`: A `SpatRaster` object with the climate layers.
@@ -307,11 +312,12 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 `dir_output`: Path to the directory where output rasters and charts will be saved.
 `save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance raster for each input `polygon`.
 
-
-**mh_rep_ch()**: Estimates the change in environmental representativeness from present_climatic_variables to future_climatic_variables within the extent of study_area. 
+**mh_rep_ch()**
+Estimates the change in environmental representativeness from present_climatic_variables to future_climatic_variables within the extent of study_area. 
 It compares represented conditions between the two scenarios for each input polygon, classifying areas by change category (Persistence, Loss, Gain).
 
 `mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_intermediate_raster)`
+
 `polygon`: An sf object containing the input areas (polygons).
 `col_name`: The name of the column in polygon that contains unique identifiers for each input area.
 `present_climatic_variables`: A SpatRaster object with the present climate layers (typically filtered).
