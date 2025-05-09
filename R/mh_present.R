@@ -215,7 +215,7 @@ mh_representativeness <- function(polygon,
                             ggplot2::theme_minimal())
 
     ggplot2::ggsave(
-      filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep.jpeg")),
+      filename = file.path(dir_output, "Charts", paste0(pol_name, "_representativeness.jpeg")),
       plot = p,
       width = 10,
       height = 10,
@@ -224,6 +224,6 @@ mh_representativeness <- function(polygon,
   }
 
   message("\nAll processes were completed")
-  cat(paste("\nOutput files in: ",getwd(),"/", dir_output))
+  cat(paste("\nOutput files in:", dir_output))
   return(invisible(NULL))
 }

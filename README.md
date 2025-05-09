@@ -122,12 +122,12 @@ plot(r_clim_present_filtered)
 ### 2. Estimate climate representativeness.
 As previously was said, its necessary have an study area and polygons of protected areas. here a pair of polygon were created.
 ```{r}
-# --- Create simple protected area polygons ---
+# --- Create simple polygon polygons ---
 hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
 st_crs(hex_grid) <- "EPSG:4326"
-protected_areas <- hex_grid[sample(nrow(hex_grid), 2), ]
-protected_areas$name <- c("Area_1", "Area_2") # Column with polygon names
-st_crs(protected_areas) <- st_crs(hex_grid)
+polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
+polygons$name <- c("Pol_1", "Pol_2") # Column with polygon names
+st_crs(polygons) <- st_crs(hex_grid)
 
 # --- Create simple study area polygon ---
 # Example: Use the extent of the raster
@@ -135,29 +135,47 @@ study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
 st_crs(study_area_polygon) <- "EPSG:4326"
 
 terra::plot(r_clim_present[[1]])
-terra::plot(protected_areas, add = TRUE, color= "transparent", lwd = 3)
+terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
 terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
 ```
-<img src="FIGURES/F_3.jpeg" alt="protected areas" width="600">
+<img src="FIGURES/F_3.jpeg" alt="polygon" width="600">
 
 *Figure 2: protected areas in black and study area in red created to show this analysis.*
 
 Use `mh_present` to estimate representativeness between present and future climates. Calculate environmental representativeness for protected areas in the current climate
 ```{r}
-
-# Note: 'climatic_variables' should be the *filtered* present variables if you used vif_filter
-mh_present(
-  polygon = protected_areas,
-  col_name = "name", # Column in 'polygon' with unique names
-  climatic_variables = r_clim_filtered, # Use filtered present climate
-  th = 0.95, # Threshold for representativeness (e.g., 95th percentile)
-  dir_output = output_dir,
-  save_intermediate_raster = TRUE
+mh_representativeness(
+polygon = polygons,
+col_name = "name",
+climatic_variables = r_clim_present_filtered,
+th = 0.9, # Use a threshold, e.g., 90th percentile
+dir_output = tempdir(),
+save_intermediate_raster = TRUE
 )
+----------------------------
+Validating and adjusting Coordinate Reference Systems (CRS)...
+Starting per-polygon processing...
 
-cat("Present analysis results saved to:", output_dir, "\n")
-# Check the 'output_dir' for results (e.g., rasters or tables per polygon)
+Processing polygon: area_1 (1 of 2)
+
+Processing polygon: area_2 (2 of 2)
+
+All processes were completed
+
+Output files in: C:\Users\AppData\Local\Temp\RtmpY1rKKD
+----------------------------
 ```
+```{r}
+list.files(tempdir())
+ [1] "Charts"             "MahalanobisRaw"             "Representativeness"
+ 
+list.files(file.path(tempdir(), "Charts"))
+```
+<img src="FIGURES/F_4.jpeg" alt="representativeness_pol_1" width="600">
+<img src="FIGURES/F_5.jpeg" alt="representativeness_pol_2" width="600">
+
+*Figure 4: representativeness_pol_1 and pol2.*
+
 ### 3. Estimate change in climate representativeness.
 
 Use `mh_present_future` to compare representativeness between present and future climates.
