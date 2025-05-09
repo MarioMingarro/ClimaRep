@@ -75,7 +75,7 @@ values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnor
 )
 names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim_present) <- "EPSG:4326"
-plot(r_clim_present)
+terra::plot(r_clim_present)
 ```
 <img src="FIGURES/F_1.jpeg" alt="Climate layers" width="600">
 
@@ -90,7 +90,7 @@ Multicollinearity among climate variables can affect multivariate analyses like 
 Use `vif_filter` to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (`th`).
 
 ```{r}
-r_clim_present_filtered <- vif_filter(r_clim_present, th = 5) # Use a VIF threshold
+r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5) # Use a VIF threshold
 
 --- VIF Filtering Summary ---
 VIF filtering completed.
@@ -114,7 +114,7 @@ varF 3.9725
 varG 4.5054
 ----------------------------
 
-plot(r_clim_present_filtered)
+terra::plot(r_clim_present_filtered)
 ```
 <img src="FIGURES/F_2.jpeg" alt="Filtered Climate layers" width="600">
 
@@ -126,16 +126,16 @@ plot(r_clim_present_filtered)
 Create example input area polygons and a study area polygon to define the regions for analysis.
 ```{r}
 # Create simple input polygons (2 sample hexagons)
-hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
-st_crs(hex_grid) <- "EPSG:4326"
+hex_grid <- sf::st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
+sf::st_crs(hex_grid) <- "EPSG:4326"
 polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
 polygons$name <- c("Pol_1", "Pol_2")
-st_crs(polygons) <- st_crs(hex_grid)
+sf::st_crs(polygons) <- sf::st_crs(hex_grid)
 
 # Create simple study area polygon ---
 # Example: Use the extent of the raster
-study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
-st_crs(study_area_polygon) <- "EPSG:4326"
+study_area_polygon <- sf::st_as_sf(as.polygons(terra::ext(r_clim_present)))
+sf::st_crs(study_area_polygon) <- "EPSG:4326"
 
 terra::plot(r_clim_present[[1]])
 terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
@@ -149,7 +149,7 @@ Use `mh_rep` to estimate climate representativeness for each input area (polygon
 The function calculates the Mahalanobis distance for every cell in the climatic_variables raster from the multivariate centroid of climate conditions within each respective input polygon. 
 Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered "represented".
 ```{r}
-mh_rep(
+ClimaRep::mh_rep(
 polygon = polygons,
 col_name = "name",
 climatic_variables = r_clim_present_filtered,
@@ -224,7 +224,7 @@ Are Lost (represented in present but not future).
 Are Gained (not represented in present but are in future - often represents novel climates becoming analogous).
 
 ```{r}
-mh_rep_ch(
+ClimaRep::mh_rep_ch(
 polygon = polygons,
 col_name = "name",
 present_climatic_variables = r_clim_present_filtered,
@@ -256,8 +256,8 @@ list.files(tempdir())
 ```
 The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Persistence, Loss, Gain, or No Representation in either scenario).
 ```{r}
-mh_rep_result <- rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(mh_rep_result[[2]])
+Change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(Change_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_8.jpeg" alt="Change_pol_2" width="600">
@@ -272,8 +272,8 @@ list.files(file.path(tempdir(), "Charts"))
 *Figure 9: Example summary maps illustrating climate representativeness change for Pol_1 and Pol_2*
 The `Mh_Raw_Pre` subfolder contains the continuous raw Mahalanobis distance rasters for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
 ```{r}
-mh_rep_result <- rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(mh_rep_result[[2]])
+Mh_Raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(Mh_Raw_Pre_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_10.jpeg" alt="Raw_pre_pol2" width="600">
@@ -281,8 +281,8 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 The `Mh_Raw_Fut` subfolder contains the continuous raw Mahalanobis distance rasters for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
 ```{r}
-mh_rep_result <- rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(mh_rep_result[[2]])
+Mh_Raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(Mh_Raw_Fut_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_11.jpeg" alt="Raw_fut_pol2" width="600">
@@ -320,7 +320,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 mh_overlay(...):
 Citation
-If you use this package in your research, please cite both the package and the underlying methodology paper:
+If you use the `ClimaRep` package in your research, please cite the underlying methodology paper. If the package itself is formally cited (e.g., on CRAN), please include the package citation as well:
 
 
 > Mingarro & Lobo (2018). Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change (https://doi.org/10.32800/abc.2018.41.0333)
