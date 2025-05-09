@@ -30,9 +30,11 @@ Dependencies:
 
 This package relies on other R packages, notably:
 
-terra for handling raster data.
-sf for handling vector data.
-dplyr for data manipulation.
+`terra` for handling raster data.
+
+`sf` for handling vector data.
+
+`dplyr` for data manipulation.
 
 These dependencies will be installed automatically when you install `ClimaRep`.
 
@@ -160,20 +162,21 @@ License
 
 
 
-```{r}
+
 # --- Create simple present climatic data () ---
 set.seed(235)
-n_cells <- 20 * 20
-r_clim_present <- rast(ncols = 20, nrows = 20, nlyrs = 3)
-values(r_clim_present) <- cbind(
+n_cells <- 100 * 100
+r_clim_present <- rast(ncols = 100, nrows = 100, nlyrs = 6)
+values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells)
   1:n_cells * 0.1 + rnorm(n_cells, 0, 2),
   1:n_cells * 0.05 + rnorm(n_cells, 0, 1),
-  rnorm(n_cells, 10, 3)
+  rnorm(n_cells, 10, 3),
+  
 )
 names(r_clim_present) <- c("varA", "varB", "varC")
 terra::crs(r_clim_present) <- "EPSG:4326"
 
-
+```{r}
 # --- Create simple future climatic data ---
 # Example: Add an increment to present variables
 r_clim_future <- r_clim_present + 2 # Simple increment

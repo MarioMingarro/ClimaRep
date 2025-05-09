@@ -260,6 +260,6 @@ mh_present_future <- function(polygon,
   }
 
   message("\nAll processes were completed")
-  cat(paste("\nOutput files in: ", dir_result))
+  cat(paste("\nOutput files in: ", dir_output))
   return(invisible(NULL))
 }
