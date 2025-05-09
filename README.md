@@ -30,9 +30,9 @@ Dependencies:
 
 This package relies on other R packages, notably:
 
-`terra` for efficient handling of raster data (`SpatRaster` objects).
+> `terra` for efficient handling of raster data (`SpatRaster` objects).
 `sf` for robust handling of vector data (`sf` objects).
-`dplyr` for general data manipulation tasks.
+> `dplyr` for general data manipulation tasks.
 
 These dependencies will be installed automatically when you install `ClimaRep`.
 
@@ -298,9 +298,9 @@ Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflati
 
 `vif_filter(x, th)`
 
-`x`: A SpatRaster object with climate layers.
+> `x`: A SpatRaster object with climate layers.
 
-`th`: The VIF threshold.
+> `th`: The VIF threshold.
 
 
 **mh_rep()**
@@ -309,17 +309,17 @@ Estimates the current environmental representativeness of the areas defined by p
 
 `mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_intermediate_raster)`
 
-`polygon`: An `sf` object containing the input areas (polygons).
+> `polygon`: An `sf` object containing the input areas (polygons).
 
-`col_name`: The name of the column in `polygon` that contains unique identifiers for each input area.
+> `col_name`: The name of the column in `polygon` that contains unique identifiers for each input area.
 
-`climatic_variables`: A `SpatRaster` object with the climate layers.
+> `climatic_variables`: A `SpatRaster` object with the climate layers.
 
-`th`: The threshold for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
+> `th`: The threshold for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
-`dir_output`: Path to the directory where output rasters and charts will be saved.
+> `dir_output`: Path to the directory where output rasters and charts will be saved.
 
-`save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance raster for each input `polygon`.
+> `save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance raster for each input `polygon`.
 
 
 **mh_rep_ch()**
@@ -337,17 +337,17 @@ It compares represented conditions between the two scenarios for each input poly
 
 > `future_climatic_variables`: A SpatRaster object with the future climate layers.
 
-`study_area`: An sf object defining the overall study region.
+> `study_area`: An sf object defining the overall study region.
 
-`th`: The percentile threshold for determining representativeness in both scenarios.
+> `th`: The percentile threshold for determining representativeness in both scenarios.
 
-`model`: Character string identifying the climate model (e.g., "MIROC6"). Used in output filenames.
+> `model`: Character string identifying the climate model (e.g., "MIROC6"). Used in output filenames.
 
-`year`: Character string identifying the future period (e.g., "2050"). Used in output filenames.
+> `year`: Character string identifying the future period (e.g., "2050"). Used in output filenames.
 
-`dir_output`: Path to the directory where output rasters and charts will be saved.
+> `dir_output`: Path to the directory where output rasters and charts will be saved.
 
-`save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
+> `save_intermediate_raster`: Logical. If TRUE, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
 
 
 mh_overlay(...):
