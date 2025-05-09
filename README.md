@@ -58,9 +58,24 @@ Next, prepare your input data. You will need:
 Here is a practical example.
 
 This example explores the climate representativeness of a Protected Area network situated in Murcia, in the southwest of the Iberian Peninsula. In total, 6 Regional Parks have been used as an example.
+```{r}
+set.seed(2458)
+n_cells <- 100 * 100
+r_clim_present <- rast(ncols = 100, nrows = 100, nlyrs = 7)
+values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+                            (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+                            (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+                            (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
+                            (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
+                            (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
+                            (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4))
 
-<img src="FIGURES/F1.jpg" alt="Regional Parks of Murcia" width="600">
-
+)
+names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+terra::crs(r_clim_present) <- "EPSG:4326"
+plot(r_clim_present)
+```
+<img src="FIGURES/F_1.jpg" alt="Climate created raster" width="600">
 
 *Figure 1: Regional Parks considered as the protected area network used in this analysis.*
 
@@ -71,12 +86,11 @@ Now you can use the package functions:
 
 Use `vif_filter` to remove highly correlated variables based on Variance Inflation Factor (VIF).
 
-<img src="FIGURES/F2.jpg" alt="Present climate variables" width="600">
-
-kkk
-
-![Present_climate_variables](FIGURES/F2.jpeg)
-
+```{r}
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+plot(r_clim_present_filtered)
+```
+<img src="FIGURES/F_2.jpg" alt="Climate filtered raster" width="600">
 *Figure 2: Climate dataset considered in this analysis.*
 
 ```{r}
