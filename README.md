@@ -51,11 +51,11 @@ library(sf)
 ```
 Next, prepare your essential input data. You will need:
 
-1. `Climatic variables` as `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
+1. **Climatic variables** as an `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
 
-2. `polygons` as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
+2. **Polygons** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
 
-3. `study area` as a single `sf` object, representing the overall geographic region for analysis.
+3. **Study area** as a single `sf` object, representing the overall geographic region for analysis.
 
 
 Here is a practical example using simulated data to represent these inputs.
@@ -87,11 +87,10 @@ terra::plot(r_clim_present)
 *Figure 1: Example simulated climate raster layers.*
 
 
-Now you can use the package functions:
+### 1. Filter Climatic Variables
 
-### 1. Filter Climatic Variables (Optional but Recommended)
+Multicollinearity among climate variables can affect multivariate analyses.
 
-Multicollinearity among climate variables can affect multivariate analyses like Mahalanobis distance. 
 Use `vif_filter` to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (`th`).
 
 ```{r}
@@ -180,21 +179,26 @@ This process generates 3 subfolders within the directory specified by `dir_outpu
 list.files(tempdir())
  [1] "Charts"             "Mh_Raw"             "Representativeness"
 ```
+
 1. The `Charts` subfolder contains image files (.jpeg or .png) visualizing the binary representativeness map for each input polygon.
+
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="FIGURES/F_4.jpeg" alt="rep_map" width="600">
+
 *Figure 4: Binary representativeness maps for Area_1. Areas matching or exceeding the climate conditions threshold of the input polygon are shown.*
 
 2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (as `.tif` files) for each input polygon. 
 Lower values indicate climates more similar to the polygon's centroid.
+
 ```{r}
 mh_rep_raw <- rast(list.files(file.path(tempdir(), "MahalanobisRaw"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_5.jpeg" alt="cont_rep" width="600">
+
 *Figure 5: Example continuous Mahalanobis distance raster for Area_1. Darker shades indicate areas with climate conditions more similar to Area_1.*
 
 3. The `Representativeness` subfolder contains the binary representativeness rasters (as `.tif` files) for each input polygon, based on the threshold (`th`) applied to the raw Mahalanobis distance. 
@@ -204,7 +208,9 @@ mh_rep_result <- rast(list.files(file.path(tempdir(), "Representativeness"),  pa
 terra::plot(mh_rep_result[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
+
 <img src="FIGURES/F_6.jpeg" alt="bin_rep" width="600">
+
 *Figure 6: Example binary representativeness raster for Area_1, showing areas classified as represented (value 1) based on the defined threshold.*
 
 ### 3. Estimate change in climate representativeness.
@@ -253,44 +259,57 @@ All processes were completed
 Output files in:  C:\Users\AppData\Local\Temp\RtmpY1rKKD
 
 ```
+
 This process generates several subfolders within the directory specified by `dir_output`.
+
 ```{r}
 list.files(tempdir())
  [1] ""Change"             "Charts"             "Mh_Raw_Pre"             ""Mh_Raw_Fut"
 
 ```
+
 The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Persistence, Loss, Gain, or No Representation in either scenario).
+
 ```{r}
 Change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(Change_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_8.jpeg" alt="Change_pol_2" width="600">
+
 *Figure 8: Example change in representativeness raster for Pol_2, showing areas of persistence, loss, or gain.*
 
 The `Charts` subfolder is updated or regenerated and contains summary image files visualizing the change analysis results for each input polygon.
+
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="FIGURES/F_9.jpeg" alt="map_change_pol_2" width="600">
 
 *Figure 9: Example summary maps illustrating climate representativeness change for Pol_1 and Pol_2*
+
 The `Mh_Raw_Pre` subfolder contains the continuous raw Mahalanobis distance rasters for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
+
 ```{r}
 Mh_Raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(Mh_Raw_Pre_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
+
 <img src="FIGURES/F_10.jpeg" alt="Raw_pre_pol2" width="600">
+
 *Figure 10: Example continuous present-day Mahalanobis distance raster (within study area) for Pol_2.*
 
 The `Mh_Raw_Fut` subfolder contains the continuous raw Mahalanobis distance rasters for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
+
 ```{r}
 Mh_Raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(Mh_Raw_Fut_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
+
 <img src="FIGURES/F_11.jpeg" alt="Raw_fut_pol2" width="600">
+
 *Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_1*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
