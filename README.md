@@ -120,8 +120,31 @@ plot(r_clim_present_filtered)
 
 
 ### 2. Estimate climate representativeness.
+As previously was said, its necessary have an study area and polygons of protected areas. here a pair of polygon were created.
+```{r}
+# --- Create simple protected area polygons ---
+hex_grid <- st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
+st_crs(hex_grid) <- "EPSG:4326"
+protected_areas <- hex_grid[sample(nrow(hex_grid), 2), ]
+protected_areas$name <- c("Area_1", "Area_2") # Column with polygon names
+st_crs(protected_areas) <- st_crs(hex_grid)
+
+# --- Create simple study area polygon ---
+# Example: Use the extent of the raster
+study_area_polygon <- st_as_sf(as.polygons(terra::ext(r_clim_present)))
+st_crs(study_area_polygon) <- "EPSG:4326"
+
+terra::plot(r_clim_present[[1]])
+terra::plot(protected_areas, add = TRUE, color= "transparent", lwd = 3)
+terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
+```
+<img src="FIGURES/F_3.jpeg" alt="protected areas" width="600">
+
+*Figure 2: protected areas in black and study area in red created to show this analysis.*
+
 Use `mh_present` to estimate representativeness between present and future climates. Calculate environmental representativeness for protected areas in the current climate
 ```{r}
+
 # Note: 'climatic_variables' should be the *filtered* present variables if you used vif_filter
 mh_present(
   polygon = protected_areas,
