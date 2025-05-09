@@ -75,7 +75,7 @@ names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG
 terra::crs(r_clim_present) <- "EPSG:4326"
 plot(r_clim_present)
 ```
-<img src="FIGURES/F_1.jpg" alt="Climate created raster" width="600">
+<img src="FIGURES/F_1.jpeg" alt="Climate created raster" width="600">
 
 *Figure 1: Regional Parks considered as the protected area network used in this analysis.*
 
@@ -90,7 +90,7 @@ Use `vif_filter` to remove highly correlated variables based on Variance Inflati
 r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 plot(r_clim_present_filtered)
 ```
-<img src="FIGURES/F_2.jpg" alt="Climate filtered raster" width="600">
+<img src="FIGURES/F_2.jpeg" alt="Climate filtered raster" width="600">
 *Figure 2: Climate dataset considered in this analysis.*
 
 ```{r}
