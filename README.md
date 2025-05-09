@@ -4,9 +4,8 @@
 
 ## Overview
 
-The **ClimaRep** package provides tools to analyze the climate representativeness of protected areas, particularly focusing on how this representativeness might change under future climate change scenarios.
-
-The package utilizes spatial data, specifically climatic raster layers and protected area polygons, along with a defined study area, to assess the current environmental representativeness and project its evolution under climate change.
+The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
+Using spatial data, including climatic raster layers, the input area polygons, and a defined study area polygon, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
 * Filtering climatic variables to reduce multicollinearity (`vif_filter`).
@@ -63,21 +62,16 @@ This example simulates a network of defined input areas (represented by two simp
 While this example uses generic polygons, a common application for this package is analyzing protected areas, administrative regions, or sampling sites.
 
 ```{r}
-# Set seed for reproducibility
 set.seed(2458)
-# Create a multi-layer SpatRaster for present climate variables
-# Simulating different spatial gradients with added noise
 n_cells <- 100 * 100
-r_clim_present <- rast(ncols = 100, nrows = 100, nlyrs = 7)
+r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
 values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
                             (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
                             (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
                             (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
                             (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
                             (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4))
-
-)
+                            (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)))
 names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim_present) <- "EPSG:4326"
 terra::plot(r_clim_present)
@@ -130,37 +124,39 @@ terra::plot(r_clim_present_filtered)
 Create example input area polygons and a study area polygon to define the regions for analysis.
 ```{r}
 # Create simple input polygons (2 sample hexagons)
-hex_grid <- sf::st_sf(st_make_grid(st_as_sf(as.polygons(terra::ext(r_clim_present))), square = FALSE))
+hex_grid <- sf::st_sf(
+  sf::st_make_grid(
+    sf::st_as_sf(
+      terra::as.polygons(
+        terra::ext(r_clim_present))), 
+  square = FALSE))
 sf::st_crs(hex_grid) <- "EPSG:4326"
 polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
 polygons$name <- c("Pol_1", "Pol_2")
 sf::st_crs(polygons) <- sf::st_crs(hex_grid)
-
-# Create simple study area polygon ---
-# Example: Use the extent of the raster
 study_area_polygon <- sf::st_as_sf(as.polygons(terra::ext(r_clim_present)))
 sf::st_crs(study_area_polygon) <- "EPSG:4326"
-
 terra::plot(r_clim_present[[1]])
 terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
 terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
 ```
 <img src="FIGURES/F_3.jpeg" alt="polygon" width="600">
 
-*Figure 3: Example input areas (black outline) and study area (red outline) overlaid on a climate raster layer.*
+*Figure 3: Example input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
 
 Use `mh_rep` to estimate climate representativeness for each input area (polygon argument). 
-The function calculates the Mahalanobis distance for every cell in the climatic_variables raster from the multivariate centroid of climate conditions within each respective input polygon. 
-Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered "represented".
+The function calculates the Mahalanobis distance for every cell in the `climatic_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
+Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered represented.
 ```{r}
 ClimaRep::mh_rep(
-polygon = polygons,
-col_name = "name",
-climatic_variables = r_clim_present_filtered,
-th = 0.9, # Use a threshold, e.g., 90th percentile
-dir_output = tempdir(),
-save_intermediate_raster = TRUE
-)
+  polygon = polygons,
+  col_name = "name",
+  climatic_variables = r_clim_present_filtered,
+  th = 0.9, # Use a threshold, e.g., 90th percentile
+  dir_output = tempdir(),
+  save_intermediate_raster = TRUE)
+  
+  
 ----------------------------
 Validating and adjusting Coordinate Reference Systems (CRS)...
 Starting per-polygon processing...
@@ -173,6 +169,8 @@ All processes were completed
 
 Output files in: C:\Users\AppData\Local\Temp\RtmpY1rKKD
 ----------------------------
+
+
 ```
 This process generates 3 subfolders within the directory specified by `dir_output` (e.g., `tempdir()`).
 ```{r}
@@ -180,7 +178,7 @@ list.files(tempdir())
  [1] "Charts"             "Mh_Raw"             "Representativeness"
 ```
 
-1. The `Charts` subfolder contains image files (.jpeg or .png) visualizing the binary representativeness map for each input polygon.
+1. The `Charts` subfolder contains image files (.jpeg) visualizing the binary representativeness map for each input polygon.
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
@@ -189,11 +187,11 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 4: Binary representativeness maps for Pol_1. Areas matching or exceeding the climate conditions threshold of the input polygon are shown.*
 
-2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (as `.tif` files) for each input polygon. 
+2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (`.tif`) for each input polygon. 
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
-mh_rep_raw <- rast(list.files(file.path(tempdir(), "MahalanobisRaw"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "MahalanobisRaw"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -201,10 +199,11 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 5: Example continuous Mahalanobis distance raster for Pol_1. Darker shades indicate areas with climate conditions more similar to Pol_1.*
 
-3. The `Representativeness` subfolder contains the binary representativeness rasters (as `.tif` files) for each input polygon, based on the threshold (`th`) applied to the raw Mahalanobis distance. 
-Cells are typically coded 1 for represented and 0 for not represented.
+3. The `Representativeness` subfolder contains the binary representativeness rasters (`.tif`) for each input polygon, based on the threshold (`th`) applied to the raw Mahalanobis distance.
+
+Cells are coded 1 for represented and 0 for not represented.
 ```{r}
-mh_rep_result <- rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -271,8 +270,8 @@ list.files(tempdir())
 The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Persistence, Loss, Gain, or No Representation in either scenario).
 
 ```{r}
-Change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(Change_result[[2]])
+change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(change_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="FIGURES/F_8.jpeg" alt="Change_pol_2" width="600">
