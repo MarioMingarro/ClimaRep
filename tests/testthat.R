@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(ClimaRep2)
+library(ClimaRep)
 
-test_check("ClimaRep2")
+test_check("ClimaRep")

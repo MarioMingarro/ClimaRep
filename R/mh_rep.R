@@ -48,7 +48,6 @@
 #' \dontrun{
 #' library(terra)
 #' library(sf)
-#'
 #' set.seed(2458)
 #' n_cells <- 100 * 100
 #' r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
