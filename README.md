@@ -114,7 +114,9 @@ varG 4.5054
 plot(r_clim_present_filtered)
 ```
 <img src="FIGURES/F_2.jpeg" alt="Climate filtered raster" width="600">
+
 *Figure 2: Climate dataset considered in this analysis.*
+
 
 
 ### 2. Estimate climate representativeness.
