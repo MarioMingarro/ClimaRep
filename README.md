@@ -31,7 +31,9 @@ Dependencies:
 This package relies on other R packages, notably:
 
 > `terra` for efficient handling of raster data (`SpatRaster` objects).
-`sf` for robust handling of vector data (`sf` objects).
+
+> `sf` for robust handling of vector data (`sf` objects).
+
 > `dplyr` for general data manipulation tasks.
 
 These dependencies will be installed automatically when you install `ClimaRep`.
@@ -49,9 +51,12 @@ library(sf)
 ```
 Next, prepare your essential input data. You will need:
 
-**Climatic variables** (representing present and future conditions) as `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
-Input area **polygons** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
-A defined **study area** polygon as a single `sf` object, representing the overall geographic region for climate analysis.
+1. `Climatic variables` as `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
+
+2. `polygons` as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
+
+3. `study area` as a single `sf` object, representing the overall geographic region for analysis.
+
 
 Here is a practical example using simulated data to represent these inputs.
 This example simulates a network of defined input areas (represented by two simple polygons) and assesses their climate representativeness within a defined study area in a simulated climate space. 
