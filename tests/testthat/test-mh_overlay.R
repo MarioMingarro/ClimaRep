@@ -1,7 +1,5 @@
 library(testthat)
 library(terra)
-library(sf)
-library(ggplot2)
 library(tidyterra)
 library(stats)
 
@@ -44,13 +42,8 @@ testthat::test_that("mh_overlay counts categories correctly and writes output", 
               info = "Function did not return a SpatRaster object")
   expect_equal(nlyr(output_raster_stack), length(categories_to_count),
                info = paste("Output raster stack should have", length(categories_to_count), "layers"))
-  expected_layer_names <- paste0("Count_Category", categories_to_count)
+  expected_layer_names <- paste0("Count_Category_", categories_to_count)
   expect_equal(names(output_raster_stack), expected_layer_names,
                info = "Output layer names are not as expected")
 })
-testthat::teardown({
-  message("\nCleaning up temporary directory: ", temp_dir)
-  if (dir.exists(temp_dir)) {
-    unlink(temp_dir, recursive = TRUE)
-  }
-})
+

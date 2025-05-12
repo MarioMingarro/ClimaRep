@@ -8,13 +8,13 @@
 #' @param climatic_variables SpatRaster. A raster stack of climate variables representing the conditions of the analysis period (preferably not strongly correlated).
 #' @param th Numeric (0-1). Quantile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the distance corresponding to this quantile are classified as representative (default: 0.95).
 #' @param dir_output Character. Path to the directory where output files will be saved. The function will create subdirectories within this path (default: "output_representativeness/").
-#' @param save_intermediate_raster Logical. If TRUE, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).
+#' @param save_raw Logical. If TRUE, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).
 #'
 #' @return Invisibly returns NULL. Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{
 #'   \item Classification GeoTIFF rasters: Binary rasters (typically coded 1 for Representative, 0 for Non-representative) for each input polygon are saved in the `Representativeness/` subdirectory.
 #'   \item Visualization Maps: JPEG (or PNG) image files visualizing the classification results for each polygon are saved in the `Charts/` subdirectory.
-#'   \item Intermediate Mahalanobis Distance Rasters: *Optionally* saved as GeoTIFF files in the `Mh_Raw/` subdirectory if `save_intermediate_raster = TRUE`.
+#'   \item Intermediate Mahalanobis Distance Rasters: *Optionally* saved as GeoTIFF files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
 #' }
 #'
 #' @details
@@ -30,19 +30,22 @@
 #'     \item Clips and masks the climate variables raster (`climatic_variables`) to the polygon's extent and boundary.
 #'     \item Calculates the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate space specific to that polygon.
 #'     \item Calculates the Mahalanobis distance for each cell with valid data within the polygon's extent, relative to the polygon's calculated mean and covariance matrix.
-#'     \item Determines a threshold (`th_value`) based on the `th` quantile of the Mahalanobis distances calculated *within the polygon itself*.
-#'     \item Classifies each cell within the polygon's extent as "Representative" (Mahalanobis distance $\le$ threshold, typically assigned value 1) or "Non-Representative" (distance $>$ threshold, typically assigned value 0).
+#'     \item Determines a threshold (`th_value`) based on the `th` quantile of the Mahalanobis distances calculated within the polygon itself.
+#'     \item Classifies each cell within the polygon's extent as "Representative" (Mahalanobis distance < threshold, typically assigned value 1) or "Non-Representative" (distance > threshold, typically assigned value 0).
 #'   }
 #'   \item **Output Generation:** Saves the resulting binary classification raster for each polygon as a GeoTIFF file and generates a corresponding visualization map (JPEG/PNG). These are saved within the specified output directory structure.
 #' }
 #'
-#' It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables. While the covariance matrix accounts for correlations, it is strongly recommended that the `climatic_variables` are not strongly correlated. Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the `vif_filter` function from this package.
+#' It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables.
+#' While the covariance matrix accounts for correlations, it is strongly recommended that the `climatic_variables` are not strongly correlated.
+#' Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the `vif_filter` function from this package.
 #'
 #' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell
 #' @importFrom sf st_crs st_transform st_geometry st_as_sf st_make_grid
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_manual ggtitle theme_minimal ggsave element_text
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom stats mahalanobis cov quantile na.omit
+#' @importFrom utils packageVersion
 #'
 #' @examples
 #' \dontrun{
@@ -51,23 +54,32 @@
 #' set.seed(2458)
 #' n_cells <- 100 * 100
 #' r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
-#' values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-#'                             (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)))
+#' values(r_clim_present) <- c(
+#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+#'   (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+#'   (colFromCell(r_clim_present, 1:n_cells) +
+#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) /
+#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) *
+#'     (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) *
+#'     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
+#' )
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
 #' terra::plot(r_clim_present)
 #' r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 #' hex_grid <- sf::st_sf(
-#' sf::st_make_grid(
-#'   sf::st_as_sf(
-#'     terra::as.polygons(
-#'       terra::ext(r_clim_present))),
-#'   square = FALSE))
+#'   sf::st_make_grid(
+#'     sf::st_as_sf(
+#'       terra::as.polygons(
+#'         terra::ext(r_clim_present)
+#'       ),
+#'     square = FALSE
+#'   )
+#' )
 #' sf::st_crs(hex_grid) <- "EPSG:4326"
 #' polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
 #' polygons$name <- c("Pol_1", "Pol_2")
@@ -75,35 +87,36 @@
 #' study_area_polygon <- sf::st_as_sf(as.polygons(terra::ext(r_clim_present)))
 #' sf::st_crs(study_area_polygon) <- "EPSG:4326"
 #' terra::plot(r_clim_present[[1]])
-#' terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
+#' terra::plot(polygons, add = TRUE, color = "transparent", lwd = 3)
 #' terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
 #' mh_rep(
-#' polygon = polygons,
-#' col_name = "name",
-#' climatic_variables = r_clim_present_filtered,
-#' th = 0.9, # Use a threshold, e.g., 90th percentile
-#' dir_output = tempdir(),
-#' save_intermediate_raster = TRUE)
-#'
+#'   polygon = polygons,
+#'   col_name = "name",
+#'   climatic_variables = r_clim_present_filtered,
+#'   th = 0.95,
+#'   dir_output = file.path(tempdir(), "ClimaRep"),
+#'   save_raw = TRUE
+#' )
+#' }
 #' @export
 #'
 mh_rep <- function(polygon,
                    col_name,
                    climatic_variables,
                    th = 0.95,
-                   dir_output = tempdir(),
-                   save_intermediate_raster = FALSE) {
+                   dir_output = file.path(tempdir(), "ClimaRep"),
+                   save_raw = FALSE) {
   old_warn <- getOption("warn")
   options(warn = -1)
   on.exit(options(warn = old_warn))
   if (!inherits(polygon, "sf"))
     stop("Parameter 'polygon' must be an sf object.")
-  if (!inherits(climatic_variables, "SpatRaster"))
-    stop("Parameter 'climatic_variables' must be a SpatRaster object.")
   if (!is.character(col_name) ||
       length(col_name) != 1 || !(col_name %in% names(polygon))) {
     stop("Parameter 'col_name' must be a single character string naming a column in 'polygon'.")
   }
+  if (!inherits(climatic_variables, "SpatRaster"))
+    stop("Parameter 'climatic_variables' must be a SpatRaster object.")
   if (!is.numeric(th) || length(th) != 1 || th < 0 || th > 1) {
     stop("Parameter 'th' must be a single numeric value between 0 and 1.")
   }
@@ -118,7 +131,7 @@ mh_rep <- function(polygon,
   dir_rep <- file.path(dir_output, "Representativeness")
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_rep, dir_charts)
-  if (save_intermediate_raster) {
+  if (save_raw) {
     dir_mh_raw <- file.path(dir_output, "Mh_Raw")
     dirs_to_create <- c(dirs_to_create, dir_mh_raw)
   }
@@ -168,7 +181,7 @@ mh_rep <- function(polygon,
                   crs = reference_system)
     }
     mh_present <- calculate_mh(data_p)
-    if (save_intermediate_raster) {
+    if (save_raw) {
       terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("MH_rep_", pol_name, ".tif")), overwrite = TRUE)
     }
     mh_poly <- terra::mask(mh_present, pol)
@@ -223,7 +236,7 @@ mh_rep <- function(polygon,
       dpi = 300
     )
   }
-  message("\nAll processes were completed")
-  cat(paste("\nOutput files in:", dir_output))
+  message("All processes were completed")
+  cat(paste("Output files in:", dir_output))
   return(invisible(NULL))
 }

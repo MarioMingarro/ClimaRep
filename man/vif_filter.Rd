@@ -22,10 +22,7 @@ the VIF threshold criterion (all are excluded) or if the input becomes empty
 after removing NA values, an empty \code{SpatRaster} object is returned.}
 }
 \description{
-This function iteratively filters layers from a \code{SpatRaster}
-object by removing the one with the highest Variance Inflation Factor (VIF)
-that exceeds a specified threshold (\code{th}). The process continues until all
-remaining layers have a VIF below the threshold or until only one layer
+This function iteratively filters layers from a \code{SpatRaster} object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (\code{th}). The process continues until all remaining layers have a VIF below the threshold or until only one layer
 remains. VIF calculation is performed on the raster data after converting it
 to a \code{data.frame} and removing rows containing \code{NA} values in any column.
 }
@@ -65,16 +62,23 @@ library(sf)
 set.seed(2458)
 n_cells <- 100 * 100
 r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
-values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-                            (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-                            (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-                            (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)))
-names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
-terra::crs(r_clim_present) <- "EPSG:4326"
-terra::plot(r_clim_present)
-r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+values(r_clim_present) <- c(
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+  (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+  (colFromCell(r_clim_present, 1:n_cells) +
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) /
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
+)
+names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+terra::crs(r_clim) <- "EPSG:4326"
+terra::plot(r_clim)
+r_clim_filtered <- vif_filter(r_clim, th = 5)
+terra::plot(r_clim_filtered)
 }
 }

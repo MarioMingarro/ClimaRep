@@ -9,8 +9,8 @@ mh_rep(
   col_name,
   climatic_variables,
   th = 0.95,
-  dir_output = tempdir(),
-  save_intermediate_raster = FALSE
+  dir_output = file.path(tempdir(), "ClimaRep"),
+  save_raw = FALSE
 )
 }
 \arguments{
@@ -24,14 +24,14 @@ mh_rep(
 
 \item{dir_output}{Character. Path to the directory where output files will be saved. The function will create subdirectories within this path (default: "output_representativeness/").}
 
-\item{save_intermediate_raster}{Logical. If TRUE, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).}
+\item{save_raw}{Logical. If TRUE, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).}
 }
 \value{
 Invisibly returns NULL. Writes the following outputs to disk within subdirectories of \code{dir_output}:
 \itemize{
 \item Classification GeoTIFF rasters: Binary rasters (typically coded 1 for Representative, 0 for Non-representative) for each input polygon are saved in the \verb{Representativeness/} subdirectory.
 \item Visualization Maps: JPEG (or PNG) image files visualizing the classification results for each polygon are saved in the \verb{Charts/} subdirectory.
-\item Intermediate Mahalanobis Distance Rasters: \emph{Optionally} saved as GeoTIFF files in the \verb{Mh_Raw/} subdirectory if \code{save_intermediate_raster = TRUE}.
+\item Intermediate Mahalanobis Distance Rasters: \emph{Optionally} saved as GeoTIFF files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
 }
 }
 \description{
@@ -51,11 +51,65 @@ Key workflow steps include:
 \item Clips and masks the climate variables raster (\code{climatic_variables}) to the polygon's extent and boundary.
 \item Calculates the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate space specific to that polygon.
 \item Calculates the Mahalanobis distance for each cell with valid data within the polygon's extent, relative to the polygon's calculated mean and covariance matrix.
-\item Determines a threshold (\code{th_value}) based on the \code{th} quantile of the Mahalanobis distances calculated \emph{within the polygon itself}.
-\item Classifies each cell within the polygon's extent as "Representative" (Mahalanobis distance $\le$ threshold, typically assigned value 1) or "Non-Representative" (distance $>$ threshold, typically assigned value 0).
+\item Determines a threshold (\code{th_value}) based on the \code{th} quantile of the Mahalanobis distances calculated within the polygon itself.
+\item Classifies each cell within the polygon's extent as "Representative" (Mahalanobis distance < threshold, typically assigned value 1) or "Non-Representative" (distance > threshold, typically assigned value 0).
 }
 \item \strong{Output Generation:} Saves the resulting binary classification raster for each polygon as a GeoTIFF file and generates a corresponding visualization map (JPEG/PNG). These are saved within the specified output directory structure.
 }
 
-It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables. While the covariance matrix accounts for correlations, it is strongly recommended that the \code{climatic_variables} are not strongly correlated. Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the \code{vif_filter} function from this package.
+It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables.
+While the covariance matrix accounts for correlations, it is strongly recommended that the \code{climatic_variables} are not strongly correlated.
+Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the \code{vif_filter} function from this package.
+}
+\examples{
+\dontrun{
+library(terra)
+library(sf)
+set.seed(2458)
+n_cells <- 100 * 100
+r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
+values(r_clim_present) <- c(
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+  (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+  (colFromCell(r_clim_present, 1:n_cells) +
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) /
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
+)
+names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+terra::crs(r_clim_present) <- "EPSG:4326"
+terra::plot(r_clim_present)
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+hex_grid <- sf::st_sf(
+  sf::st_make_grid(
+    sf::st_as_sf(
+      terra::as.polygons(
+        terra::ext(r_clim_present)
+      ),
+    square = FALSE
+  )
+)
+sf::st_crs(hex_grid) <- "EPSG:4326"
+polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
+polygons$name <- c("Pol_1", "Pol_2")
+sf::st_crs(polygons) <- sf::st_crs(hex_grid)
+study_area_polygon <- sf::st_as_sf(as.polygons(terra::ext(r_clim_present)))
+sf::st_crs(study_area_polygon) <- "EPSG:4326"
+terra::plot(r_clim_present[[1]])
+terra::plot(polygons, add = TRUE, color = "transparent", lwd = 3)
+terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
+mh_rep(
+  polygon = polygons,
+  col_name = "name",
+  climatic_variables = r_clim_present_filtered,
+  th = 0.95,
+  dir_output = file.path(tempdir(), "ClimaRep"),
+  save_raw = TRUE
+)
+}
 }

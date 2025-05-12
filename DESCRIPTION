@@ -14,6 +14,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)
-Imports:
-    dplyr, ggplot2, terra, utils, stats, sf, tidyterra
+Imports: ggplot2, terra, utils, stats, sf, tidyterra
 Config/testthat/edition: 3

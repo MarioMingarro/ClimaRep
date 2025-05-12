@@ -2,123 +2,63 @@
 % Please edit documentation in R/mh_overlay.R
 \name{mh_overlay}
 \alias{mh_overlay}
-\title{Count Category Overlap Across Raster Layers for Protected Areas Analysis}
+\title{Overlay Mahalanobis-based Climate Representativeness Change Classifications}
 \usage{
 mh_overlay(
   folder_path,
-  output_filename = "combined_category_counts_ap.tif",
-  category_values = c(1, 2, 3)
+  output_filename = "combined_category_counts.tif",
+  category_values = c(1, 2, 3),
+  add_to_environment = FALSE
 )
 }
 \arguments{
-\item{folder_path}{A character string specifying the path to the folder
-containing the input GeoTIFF (.tif or .tiff) files. These files should
-represent different spatial datasets or scenarios classifying areas into
-the categories specified in \code{category_values}.}
+\item{folder_path}{Character. Path to the directory containing the input single-layer GeoTIFF
+classification rasters (e.g., outputs from \code{mh_rep_ch}).}
 
-\item{output_filename}{A character string specifying the name for the output
-GeoTIFF file. This file will contain a stack of layers, one for each
-category value specified in \code{category_values}, showing the count of
-occurrences. Defaults to "combined_category_counts_ap.tif".}
+\item{output_filename}{Character. The name for the output combined multi-layered GeoTIFF file.
+The file will be saved within the \code{folder_path}. Defaults to "combined_category_counts_ap.tif".}
 
-\item{category_values}{A numeric vector specifying the specific category
-values (pixel values) to count in the input rasters (e.g., \code{c(1, 2, 3, 4)}
-where 1=representative, 2=non-representative, etc.). Defaults to \code{c(1, 2, 3)}.}
+\item{category_values}{Numeric vector. A vector specifying the specific pixel
+values (\code{c(0, 1, 2, 3)}) to count in the input categories:
+0 = non-representative,
+1 = representative (mh_rep) or stable (mh_rep_ch),
+2 = loss (mh_rep_ch),
+3 = new (mh_rep_ch)). Defaults to \code{c(1, 2, 3)}.}
+
+\item{add_to_environment}{Logical. If TRUE, the resulting multi-layered \code{SpatRaster}
+object is assigned to a variable named \code{climarep_img} in the calling R environment.
+Defaults to \code{FALSE}.}
 }
 \value{
-An invisible \code{SpatRaster} object containing the stacked count layers. Each
-layer corresponds to a category value from \code{category_values} and shows
-the number of input rasters where that category was present at each location.
-Returns \code{NULL} if no valid raster files are found or processed.
+Invisibly returns the resulting multi-layered \code{SpatRaster} object.
+Writes the output stack to a GeoTIFF file in the specified \code{folder_path}.
+If \code{add_to_environment} is TRUE, also assigns the stack to \code{climarep_img} in the parent environment.
 }
 \description{
-This function processes multiple GeoTIFF files from a specified folder,
-treating them as layers containing categorical information relevant to
-Protected Area (AP) analysis (e.g., representative, non-representative,
-stable, future areas). It counts, for each pixel, how many input rasters
-classify that pixel into each of the specified categories. The output is a
-\code{SpatRaster} stack where each layer shows the total count of occurrences
-for a specific category across all input layers at every location. This is
-useful for assessing the spatial consistency and frequency of different
-classifications in representativeness studies.
+Combines multiple single-layer GeoTIFF rasters, typically outputs from \code{mh_rep_ch}
+for different input polygons, into a single multi-layered raster. Each layer
+in the output stack represents the count of how many input rasters had a
+specific category value (e.g., Persistence, Loss, Gain) at each grid cell.
+This allows visualizing spatial agreement or accumulation of change types across regions.
 }
 \details{
-This function is designed to help analyze spatial datasets where multiple
-raster layers provide potentially different classifications for the same
-geographic area, common in ecological modeling or conservation planning
-studies (e.g., predicting species distribution, habitat suitability, or
-conservation status under different scenarios).
+This function is intended to be used after running \code{mh_rep} or \code{mh_rep_ch} for multiple
+input polygons. Each run of \code{mh_rep_ch} produces a classification raster
+(e.g., codes 0, 1, 2, 3) for a single polygon. \code{mh_overlay} takes these
+individual polygon outputs and aggregates them by category.
 
-The process involves:
-\enumerate{
-\item Listing all GeoTIFF files in the \code{folder_path}.
-\item Reading each file. If a raster has multiple layers, only the first is used.
-\item For each specified category value, a binary layer (1 or 0) is created
-from each input raster, indicating where that category is present.
-\item The binary layers are grouped by category, and for each category, the
-layers are summed across all input rasters. The resulting sum layer
-shows, for each pixel, the \emph{number of input rasters} where that pixel
-belonged to that specific category.
-\item The sum layers for all categories are combined into a single output
-\code{SpatRaster} stack.
-\item The final stack is saved as a GeoTIFF file. The data type is set to
-"INT2U", suitable for counts up to 65535. Adjust if higher counts are
-expected.
-}
-
-The function assumes the input rasters have compatible spatial properties
-(extent, resolution, CRS), relying on \code{terra}'s ability to handle minor
-differences during stacking and processing. It includes messaging for
-progress and warnings for issues like unreadable files or categories not
-found in the data.
-
-The output stack provides valuable input for subsequent analysis of spatial
-agreement or frequency of classifications, aiding in identifying core areas
-for each category or areas of high uncertainty.
+For each cell in the study area and for each specified \code{category_value}, the
+function counts how many of the input classification rasters assigned that
+specific \code{category_value} to that cell. The output is a stack where each
+layer represents the counts for one category.
 }
 \examples{
 \dontrun{
-# requires terra package
-library(terra)
-
-# Create a temporary directory and some dummy raster files
-# simulating different scenarios or datasets for AP categories
-temp_dir <- file.path(tempdir(), "ap_category_overlap_example")
-dir.create(temp_dir, showWarnings = FALSE)
-
-# Simulate 3 raster layers. Values represent categories:
-# 1 = Representative, 2 = Non-representative, 3 = Stable, 4 = Future
-r_scenario1 <- rast(ncols=15, nrows=15, xmin=0, xmax=15, ymin=0, ymax=15)
-values(r_scenario1) <- sample(c(1, 2, 3, 4, 99, NA), size=ncell(r_scenario1), replace=TRUE, prob=c(0.2, 0.3, 0.1, 0.1, 0.2, 0.1))
-writeRaster(r_scenario1, file.path(temp_dir, "ap_cats_scenario_a.tif"), overwrite=TRUE)
-
-r_scenario2 <- rast(ncols=15, nrows=15, xmin=0, xmax=15, ymin=0, ymax=15)
-values(r_scenario2) <- sample(c(1, 2, 3, 4, 50, NA), size=ncell(r_scenario2), replace=TRUE, prob=c(0.3, 0.2, 0.1, 0.1, 0.2, 0.1))
-writeRaster(r_scenario2, file.path(temp_dir, "ap_cats_scenario_b.tif"), overwrite=TRUE)
-
-r_scenario3 <- rast(ncols=15, nrows=15, xmin=0, xmax=15, ymin=0, ymax=15)
-values(r_scenario3) <- sample(c(1, 2, 3, 4, 99, NA), size=ncell(r_scenario3), replace=TRUE, prob=c(0.1, 0.1, 0.3, 0.3, 0.1, 0.1))
-writeRaster(r_scenario3, file.path(temp_dir, "ap_cats_scenario_c.tif"), overwrite=TRUE)
-
-# Define the categories relevant to your AP analysis
-ap_categories <- c(1, 2, 3, 4) # Representative, Non-repr, Stable, Future
-
-# Process the rasters, counting occurrences of these categories
-output_stack <- conteo_superposicion_categorias_ap(
-  folder_path = temp_dir,
-  output_filename = "ap_category_overlap_counts.tif",
-  category_values = ap_categories
-)
-
-# Print the resulting stack (invisible by default, but can be captured)
-if (!is.null(output_stack)) {
-  print(output_stack)
-  # You can inspect the counts for each category layer
-  # For example, plot the count for the 'Representative' category (assuming it was category 1)
-  # plot(output_stack[["Count_Category1"]], main="Count of 'Representative' Category Overlap")
-}
-
-# Clean up the temporary files and directory
-unlink(temp_dir, recursive = TRUE)
+folder_path <- tempdir()
+mh_overlay(folder_path,
+  output_filename = "combined_category_counts.tif",
+  category_values = c(1, 2, 3),
+  add_to_environment = TRUE)
+terra::plot(climarep_img)
 }
 }

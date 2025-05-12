@@ -78,7 +78,7 @@ names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG
 terra::crs(r_clim_present) <- "EPSG:4326"
 terra::plot(r_clim_present)
 ```
-<img src="FIGURES/F_1.jpeg" alt="Climate layers" width="600">
+<img src="man/figures/F_1.jpeg" alt="Climate layers" width="600">
 
 *Figure 1: Example simulated climate raster layers.*
 
@@ -116,7 +116,7 @@ varG 4.5054
 
 terra::plot(r_clim_present_filtered)
 ```
-<img src="FIGURES/F_2.jpeg" alt="Filtered Climate layers" width="600">
+<img src="man/figures/F_2.jpeg" alt="Filtered Climate layers" width="600">
 
 *Figure 2: Filtered climate dataset, showing remaining variables after vif_filter() funtion.*
 
@@ -140,7 +140,7 @@ terra::plot(r_clim_present[[1]])
 terra::plot(polygons, add = TRUE, color= "transparent", lwd = 3)
 terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
 ```
-<img src="FIGURES/F_3.jpeg" alt="polygon" width="600">
+<img src="man/figures/F_3.jpeg" alt="polygon" width="600">
 
 *Figure 3: Example input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
 
@@ -154,7 +154,7 @@ mh_rep(
   climatic_variables = r_clim_present_filtered,
   th = 0.9, # Use a threshold, e.g., 90th percentile
   dir_output = tempdir(),
-  save_intermediate_raster = TRUE)
+  save_raw = TRUE)
   
   
 ----------------------------
@@ -184,7 +184,7 @@ list.files(tempdir())
 list.files(file.path(tempdir(), "Charts"))
 [1] "pol_1_rep.jpeg" "pol_2_rep.jpeg"
 ```
-<img src="FIGURES/F_4.jpeg" alt="rep_map" width="600">
+<img src="man/figures/F_4.jpeg" alt="rep_map" width="600">
 
 *Figure 4: Binary representativeness maps for Pol_1 (pol_2_rep.jpeg).*
 
@@ -196,7 +196,7 @@ mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "MahalanobisRaw"),  pa
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
-<img src="FIGURES/F_5.jpeg" alt="cont_rep" width="600">
+<img src="man/figures/F_5.jpeg" alt="cont_rep" width="600">
 
 *Figure 5: Example continuous Mahalanobis distance raster for Pol_1. Darker shades indicate areas with climate conditions more similar to Pol_1.*
 
@@ -209,7 +209,7 @@ terra::plot(mh_rep_result[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
-<img src="FIGURES/F_6.jpeg" alt="bin_rep" width="600">
+<img src="man/figures/F_6.jpeg" alt="bin_rep" width="600">
 
 *Figure 6: Example binary representativeness raster for Pol_1, showing areas classified as represented (value 1) based on the defined threshold.*
 
@@ -223,7 +223,7 @@ names(r_clim_future) <- names(r_clim_present_filtered)
 terra::crs(r_clim_future) <- terra::crs(r_clim_present_filtered)
 terra::plot(r_clim_future)
 ```
-<img src="FIGURES/F_7.jpeg" alt="Future Climate layers" width="600">
+<img src="man/figures/F_7.jpeg" alt="Future Climate layers" width="600">
 
 *Figure 7: Example simulated future climate variables.*
 
@@ -245,7 +245,7 @@ th = 0.95,
 model = "MODEL",
 year = "2070",
 dir_output = tempdir(),
-save_intermediate_raster = TRUE)
+save_raw = TRUE)
 
 Validating and adjusting Coordinate Reference Systems (CRS)...
 Starting process
@@ -275,7 +275,7 @@ change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern
 terra::plot(change_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
-<img src="FIGURES/F_8.jpeg" alt="Change_pol_2" width="600">
+<img src="man/figures/F_8.jpeg" alt="Change_pol_2" width="600">
 
 *Figure 8: Example change in representativeness raster for Pol_2, showing areas of persistence, loss, or gain.*
 
@@ -285,7 +285,7 @@ The `Charts` subfolder is updated or regenerated and contains summary image file
 list.files(file.path(tempdir(), "Charts"))
 [1] "pol_1_rep_change.jpeg" "pol_2_rep_change.jpeg"
 ```
-<img src="FIGURES/F_9.jpeg" alt="map_change_pol_2" width="600">
+<img src="man/figures/F_9.jpeg" alt="map_change_pol_2" width="600">
 
 *Figure 9: Example summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
 
@@ -297,7 +297,7 @@ terra::plot(Mh_Raw_Pre_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
-<img src="FIGURES/F_10.jpeg" alt="Raw_pre_pol2" width="600">
+<img src="man/figures/F_10.jpeg" alt="Raw_pre_pol2" width="600">
 
 *Figure 10: Example continuous present-day Mahalanobis distance raster (within study area) for Pol_2.*
 
@@ -309,7 +309,7 @@ terra::plot(Mh_Raw_Fut_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
-<img src="FIGURES/F_11.jpeg" alt="Raw_fut_pol2" width="600">
+<img src="man/figures/F_11.jpeg" alt="Raw_fut_pol2" width="600">
 
 *Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2*
 
@@ -332,7 +332,7 @@ Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflati
 
 Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
 
-`mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_intermediate_raster)`
+`mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_raw)`
 
 > `polygon`: An `sf` object containing the input polygon/s.
 
@@ -344,7 +344,7 @@ Estimates the current environmental representativeness of the areas defined by p
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved.
 
-> `save_intermediate_raster`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster for each input `polygon`.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster for each input `polygon`.
 
 
 **mh_rep_ch()**
@@ -352,7 +352,7 @@ Estimates the current environmental representativeness of the areas defined by p
 Estimates the change in environmental representativeness from present_climatic_variables to future_climatic_variables within the extent of study_area. 
 It compares represented conditions between the two scenarios for each input polygon, classifying areas by change category (Persistence, Loss, Gain).
 
-`mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_intermediate_raster)`
+`mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_raw)`
 
 > `polygon`: An `sf` object containing the input polygon/s.
 
@@ -372,7 +372,7 @@ It compares represented conditions between the two scenarios for each input poly
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved.
 
-> `save_intermediate_raster`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
 
 
 mh_overlay(...):

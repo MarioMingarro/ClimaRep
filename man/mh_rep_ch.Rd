@@ -10,11 +10,11 @@ mh_rep_ch(
   present_climatic_variables,
   future_climatic_variables,
   study_area,
-  th = 0.9,
+  th = 0.95,
   model,
   year,
-  dir_output = "output/",
-  save_intermediate_raster = TRUE
+  dir_output = file.path(tempdir(), "ClimaRep"),
+  save_raw = TRUE
 )
 }
 \arguments{
@@ -36,19 +36,102 @@ mh_rep_ch(
 
 \item{dir_output}{Character. Path to the directory where output files will be saved. The function will create subdirectories within this path (default: "output/").}
 
-\item{save_intermediate_raster}{Logical. If TRUE, saves intermediate continuous Mahalanobis distance rasters for both present and future periods within the study area extent. The final classification rasters listed in \verb{@return} are saved regardless of this parameter setting (default: TRUE).}
+\item{save_raw}{Logical. If TRUE, saves intermediate continuous Mahalanobis distance rasters for both present and future periods within the study area extent. The final classification rasters listed in \verb{@return} are saved regardless of this parameter setting (default: TRUE).}
 }
 \value{
 Invisibly returns NULL. Writes the following outputs to disk within subdirectories of \code{dir_output}:
 \itemize{
-\item Classification Change Raster: A GeoTIFF raster showing the change category for each input polygon (e.g., codes 0, 1, 2, 3) is saved in the \verb{Change/} subdirectory. The categories typically represent: 0 - Not Representative in either period; 1 - Persistence (Representative in both); 2 - Loss (Representative Present, Not Future); 3 - Gain (Not Representative Present, Representative Future).
+\item Classification Change Raster: A GeoTIFF raster showing the change category for each input polygon (e.g., codes 0, 1, 2, 3) is saved in the \verb{Change/} subdirectory.
+The categories typically represent: 0 - Not Representative in either period; 1 - Persistence (Representative in both); 2 - Loss (Representative Present, Not Future); 3 - Gain (Not Representative Present, Representative Future).
 \item Visualization Maps: JPEG (or PNG) image files visualizing the change classification results for each input polygon are saved in the \verb{Charts/} subdirectory.
-\item Intermediate Raw Mahalanobis Distance Rasters: \emph{Optionally} saved as GeoTIFF files if \code{save_intermediate_raster = TRUE}. The raw present distances (relative to the present polygon mean, scaled by overall variance) are saved in \verb{Mh_Raw_Pre/}. The raw future distances (relative to the present polygon mean, scaled by overall variance) are saved in \verb{Mh_Raw_Fut/}.
+\item Intermediate Raw Mahalanobis Distance Rasters: \emph{Optionally} saved as GeoTIFF files if \code{save_raw = TRUE}. The raw present distances (relative to the present polygon mean, scaled by overall variance) are saved in \verb{Mh_Raw_Pre/}.
+The raw future distances (relative to the present polygon mean, scaled by overall variance) are saved in \verb{Mh_Raw_Fut/}.
 }
 }
 \description{
-Calculates Mahalanobis-based climatic representativeness for input polygons across two time periods (present and future) within a defined study area. The function identifies areas of climate representativeness persistence, loss, or gain. Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions \emph{within} each specific input polygon in the \emph{present} period, scaled by the overall climate variability across both time periods within the study area.
+Calculates Mahalanobis-based climatic representativeness for input polygons across two time periods (present and future) within a defined study area. The function identifies areas of climate representativeness persistence, loss, or gain.
+Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions \emph{within} each specific input polygon in the \emph{present} period, scaled by the overall climate variability across both time periods within the study area.
 }
 \details{
+This function performs a multivariate analysis using Mahalanobis distance to assess and compare the climatic representativeness of input polygons across present and future periods within a defined study area.
+Representativeness for both periods is determined relative to the multivariate climate space defined by the conditions within each input polygon in the present time period.
+The calculation uses the mean climate of the present polygon, but accounts for the overall climate variability (covariance) observed across the entire study area for both present and future time periods combined.
 
+Key workflow steps include:
+\enumerate{
+\item \strong{CRS Harmonization:} Ensures all spatial inputs (\code{polygon}, \code{present_climatic_variables}, \code{future_climatic_variables}, \code{study_area}) share the same Coordinate Reference System (CRS), using the CRS of \code{present_climatic_variables} as the reference. Inputs are reprojected if necessary.
+\item \strong{Reference Variability Calculation:} Calculates the multivariate covariance matrix using climate data from \emph{all cells within the study area} for \emph{both} present and future time periods combined. This captures the overall climate variability against which distances are scaled.
+\item \strong{Per-Polygon Processing:} For each input polygon:
+\itemize{
+\item Calculates the multivariate mean climate using climate data \emph{only from within that polygon} for the \strong{present} time period. This defines the center of the reference climate space for the polygon.
+\item Calculates the Mahalanobis distance for \emph{all cells within the study area}, relative to the polygon's \strong{present} mean (calculated in the previous step) and the \strong{overall} present+future covariance matrix (calculated in step 2).
+This results in a Mahalanobis distance raster for the present period and a Mahalanobis distance raster for the future period.
+\item Determines a threshold (\code{th_value}) based on the \code{th} quantile of the Mahalanobis distances calculated \emph{only from within the present polygon}.
+\item Classifies all cells within the study area for both present and future periods as "Representative" (Mahalanobis distance < threshold) or "Non-Representative" (distance > threshold).
+}
+\item \strong{Classification of Change:} Compares the binary representativeness status of each cell between the present and future periods to classify it into one of four categories:
+\itemize{
+\item Not Representative in either period (e.g., code 0)
+\item Persistence (Representative in both present and future periods; e.g., code 1)
+\item Loss (Representative in the present period, but not in the future; e.g., code 2)
+\item Gain (Not representative in the present period, but representative in the future; e.g., code 3)
+\item \strong{Output Generation:} Saves the resulting categorical change raster for each input polygon as a GeoTIFF file and generates a corresponding visualization map (JPEG/PNG). Intermediate raw distance rasters are optionally saved.
+All files are saved within the specified output directory structure, using the \code{model} and \code{year} parameters in filenames for identification.
+}}
+
+It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables.
+While the covariance matrix accounts for correlations, it is strongly recommended that the climate variables (\code{present_climatic_variables} and \code{future_climatic_variables}) are not strongly correlated.
+Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the \code{vif_filter} function from this package.
+}
+\examples{
+\dontrun{
+library(terra)
+library(sf)
+set.seed(2458)
+n_cells <- 100 * 100
+r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
+values(r_clim_present) <- c(
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+  (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+  (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+  (colFromCell(r_clim_present, 1:n_cells) +
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) /
+    (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim_present, 1:n_cells) *
+    (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
+)
+names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+terra::crs(r_clim_present) <- "EPSG:4326"
+terra::plot(r_clim_present)
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+hex_grid <- sf::st_sf(
+  sf::st_make_grid(
+    sf::st_as_sf(
+      terra::as.polygons(
+        terra::ext(r_clim_present)
+      ),
+    square = FALSE
+  )
+)
+sf::st_crs(hex_grid) <- "EPSG:4326"
+polygons <- hex_grid[sample(nrow(hex_grid), 2), ]
+polygons$name <- c("Pol_1", "Pol_2")
+sf::st_crs(polygons) <- sf::st_crs(hex_grid)
+study_area_polygon <- sf::st_as_sf(as.polygons(terra::ext(r_clim_present)))
+sf::st_crs(study_area_polygon) <- "EPSG:4326"
+terra::plot(r_clim_present[[1]])
+terra::plot(polygons, add = TRUE, color = "transparent", lwd = 3)
+terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border = "red")
+mh_rep(
+  polygon = polygons,
+  col_name = "name",
+  climatic_variables = r_clim_present_filtered,
+  th = 0.95,
+  dir_output = file.path(tempdir(), "ClimaRep"),
+  save_raw = TRUE
+)
+}
 }

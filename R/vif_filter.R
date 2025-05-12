@@ -1,9 +1,6 @@
 #' @title Filter SpatRaster Layers based on Variance Inflation Factor (VIF)
 #'
-#' @description This function iteratively filters layers from a `SpatRaster`
-#' object by removing the one with the highest Variance Inflation Factor (VIF)
-#' that exceeds a specified threshold (`th`). The process continues until all
-#' remaining layers have a VIF below the threshold or until only one layer
+#' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`). The process continues until all remaining layers have a VIF below the threshold or until only one layer
 #' remains. VIF calculation is performed on the raster data after converting it
 #' to a `data.frame` and removing rows containing `NA` values in any column.
 #'
@@ -46,8 +43,8 @@
 #' VIFs or issues with matrix inversion). Variables with infinite VIF are
 #' prioritized for removal.
 #'
-#' @importFrom terra SpatRaster as.data.frame subset
-#' @importFrom stats cov var lm as.formula
+#' @importFrom terra as.data.frame subset
+#' @importFrom stats cov var lm as.formula cor
 #' @importFrom utils packageVersion
 #'
 #'
@@ -59,20 +56,26 @@
 #' set.seed(2458)
 #' n_cells <- 100 * 100
 #' r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
-#' values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-#'                             (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-#'                             (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)))
-#' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
-#' terra::crs(r_clim_present) <- "EPSG:4326"
-#' terra::plot(r_clim_present)
-#' r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+#' values(r_clim_present) <- c(
+#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+#'   (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+#'   (colFromCell(r_clim_present, 1:n_cells) +
+#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) /
+#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) *
+#'     (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim_present, 1:n_cells) *
+#'     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
+#' )
+#' names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+#' terra::crs(r_clim) <- "EPSG:4326"
+#' terra::plot(r_clim)
+#' r_clim_filtered <- vif_filter(r_clim, th = 5)
+#' terra::plot(r_clim_filtered)
 #'}
 #' @export
-
 vif_filter <- function(x, th = 10) {
   if (!inherits(x, 'SpatRaster')) {
     stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
@@ -107,7 +110,7 @@ vif_filter <- function(x, th = 10) {
       }
     }
     vif_values <- sapply(1:ncol(df), function(i) {
-      model <- try(lm(as.formula(paste(names(df)[i], "~ .")), data = df), silent = TRUE)
+      model <- try(stats::lm(as.formula(paste(names(df)[i], "~ .")), data = df), silent = TRUE)
       if (inherits(model, "try-error") ||
           is.null(summary(model)$r.squared) ||
           is.na(summary(model)$r.squared) ||
