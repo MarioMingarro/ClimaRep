@@ -67,13 +67,18 @@ Create a climate space (`SpatRaster`).
 set.seed(2458)
 n_cells <- 100 * 100
 r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
-values(r_clim_present) <- c((rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-                            (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-                            (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-                            (colFromCell(r_clim_present, 1:n_cells) + (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) / (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) * (rowFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)),
-                            (colFromCell(r_clim_present, 1:n_cells) * (colFromCell(r_clim_present, 1:n_cells))* 0.1 + rnorm(n_cells, 0, 4)))
+values(r_clim_present) <- c(
+   (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+   (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+   (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+   (colFromCell(r_clim_present, 1:n_cells) +
+     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+   (colFromCell(r_clim_present, 1:n_cells) /
+     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+   (colFromCell(r_clim_present, 1:n_cells) *
+     (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
+   (colFromCell(r_clim_present, 1:n_cells) *
+     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)))
 names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim_present) <- "EPSG:4326"
 terra::plot(r_clim_present)
@@ -186,7 +191,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="man/figures/F_4.jpeg" alt="rep_map" width="600">
 
-*Figure 4: Binary representativeness maps for Pol_1 (pol_2_rep.jpeg).*
+*Figure 4: Binary representativeness maps for Pol_1 (pol_1_rep.jpeg).*
 
 2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (`.tif`) for each input polygon. 
 Lower values indicate climates more similar to the polygon's centroid.
@@ -227,12 +232,12 @@ terra::plot(r_clim_future)
 
 *Figure 7: Example simulated future climate variables.*
 
-Use `mh_rep_ch` to compare representativeness between the `present_climatic_variables` and `future_climatic_variables` within the defined study_area. 
+Use `mh_rep_ch` to compare representativeness between the `present_climatic_variables` and `future_climatic_variables` within the defined `study_area`. 
 This function calculates representativeness for each input polygon in both scenarios and determines areas where conditions:
 
-Persist (represented in both present and future).
-Are Lost (represented in present but not future).
-Are Gained (not represented in present but are in future - often represents novel climates becoming analogous).
+Retained - Are present in both currently and future.
+Lost - Are present currently, but not present in the future.
+Novel - Are present in the future, but not present currently.
 
 ```{r}
 mh_rep_ch(
@@ -268,7 +273,7 @@ list.files(tempdir())
 
 ```
 
-The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Persistence, Loss, Gain, or No Representation in either scenario).
+The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Retained, Lost, Novel, or No Represented in either scenario).
 
 ```{r}
 change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
@@ -277,7 +282,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="man/figures/F_8.jpeg" alt="Change_pol_2" width="600">
 
-*Figure 8: Example change in representativeness raster for Pol_2, showing areas of persistence, loss, or gain.*
+*Figure 8: Example change in representativeness raster for Pol_2, showing areas of retained, lost, or novel.*
 
 The `Charts` subfolder is updated or regenerated and contains summary image files visualizing the change analysis results for each input polygon.
 
@@ -314,6 +319,18 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
+After obtaining the representativeness change rasters for multiple polygons using `mh_rep_ch`, you can combine them to visualize where different change types (Retained, Lost, Novel) overlap or accumulate. 
+The `mh_overlay` function does this by counting, for each cell, how many of the input rasters had a specific category value at that location.
+```{r}
+mh_overlay(folder_path = file.path(tempdir(), "Change"),
+output_filename = "combined_category_counts.tif",
+category_values = c(1, 2, 3),
+add_to_environment = TRUE)
+terra::plot(climarep_img)
+```
+<img src="man/figures/F_12.jpeg" alt="Retained" width="600">
+
+*Figure 11: Example of accumulate Retained (1), Lost (2) or Novel (3) cells*
 
 ## Functions Reference
 
@@ -330,7 +347,8 @@ Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflati
 
 **mh_rep()**
 
-Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
+Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. 
+It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
 
 `mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_raw)`
 
@@ -350,7 +368,7 @@ Estimates the current environmental representativeness of the areas defined by p
 **mh_rep_ch()**
 
 Estimates the change in environmental representativeness from present_climatic_variables to future_climatic_variables within the extent of study_area. 
-It compares represented conditions between the two scenarios for each input polygon, classifying areas by change category (Persistence, Loss, Gain).
+It compares represented conditions between the two scenarios for each input polygon, classifying areas by change category (Retained, Lost, Novel).
 
 `mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_raw)`
 
@@ -375,7 +393,21 @@ It compares represented conditions between the two scenarios for each input poly
 > `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
 
 
-mh_overlay(...):
+**mh_overlay()**
+Combines multiple single-layer GeoTIFF classification rasters (typically outputs from mh_rep_ch for different input polygons) into a single multi-layered raster stack. 
+Each layer in the output represents the count of how many input rasters had a specific category value (e.g., Represented/Retained, Lost, Novel) at each grid cell, allowing visualization of spatial agreement or accumulation of change types across `study_area`.
+
+`mh_overlay(folder_path, output_filename, category_values, add_to_environment)`
+
+> `folder_path`: Character string. Path to the directory containing the input single-layer GeoTIFF classification rasters (e.g., outputs from `mh_rep_ch`).
+
+> `output_filename`: Character string. The name for the output combined multi-layered GeoTIFF file. The file will be saved within the `folder_path`.
+
+> `category_values`: Numeric vector. A vector specifying the specific pixel values (categories like 0, 1, 2, 3) to count in the input rasters (0 = Non-representativeness, 1 = Represented/Retained, 2 = Lost, 3 = Novel).
+
+> `add_to_environment`: Logical. If `TRUE`, the resulting multi-layered SpatRaster object is assigned to a variable named `climarep_img` in the calling R environment.
+
+
 Citation
 If you use the `ClimaRep` package in your research, please cite the underlying methodology paper. If the package itself is formally cited (e.g., on CRAN), please include the package citation as well:
 
