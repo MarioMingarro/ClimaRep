@@ -20,10 +20,10 @@ The file will be saved within the \code{folder_path}. Defaults to "combined_cate
 
 \item{category_values}{Numeric vector. A vector specifying the specific pixel
 values (\code{c(0, 1, 2, 3)}) to count in the input categories:
-0 = non-representative,
-1 = representative (mh_rep) or stable (mh_rep_ch),
-2 = loss (mh_rep_ch),
-3 = new (mh_rep_ch)). Defaults to \code{c(1, 2, 3)}.}
+0 = Non-representativeness,
+1 = Represented (mh_rep) or Retained (mh_rep_ch),
+2 = Lost (mh_rep_ch),
+3 = Novel (mh_rep_ch)). Defaults to \code{c(1, 2, 3)}.}
 
 \item{add_to_environment}{Logical. If TRUE, the resulting multi-layered \code{SpatRaster}
 object is assigned to a variable named \code{climarep_img} in the calling R environment.

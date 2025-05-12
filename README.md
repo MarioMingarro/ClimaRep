@@ -316,7 +316,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="man/figures/F_11.jpeg" alt="Raw_fut_pol2" width="600">
 
-*Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2*
+*Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2.*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
 After obtaining the representativeness change rasters for multiple polygons using `mh_rep_ch`, you can combine them to visualize where different change types (Retained, Lost, Novel) overlap or accumulate. 
@@ -330,7 +330,7 @@ terra::plot(climarep_img)
 ```
 <img src="man/figures/F_12.jpeg" alt="Retained" width="600">
 
-*Figure 11: Example of accumulate Retained (1), Lost (2) or Novel (3) cells*
+*Figure 11: Example of accumulate Retained (1), Lost (2) or Novel (3) cells.*
 
 ## Functions Reference
 
@@ -408,7 +408,9 @@ Each layer in the output represents the count of how many input rasters had a sp
 > `add_to_environment`: Logical. If `TRUE`, the resulting multi-layered SpatRaster object is assigned to a variable named `climarep_img` in the calling R environment.
 
 
-Citation
+
+# Citation
+
 If you use the `ClimaRep` package in your research, please cite the underlying methodology paper. If the package itself is formally cited (e.g., on CRAN), please include the package citation as well:
 
 
