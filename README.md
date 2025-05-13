@@ -5,10 +5,10 @@
 ## Overview
 
 The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
-Using spatial data, including climatic raster layers, the input area polygons, and a climatic space defined by the polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
+Using spatial data, including climate raster layers, the input area polygons, and a climate space defined by the polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
-* Filtering raster climatic variables to reduce multicollinearity (`vif_filter`).
+* Filtering raster climate variables to reduce multicollinearity (`vif_filter`).
 * Estimating current climate representativeness (`mh_rep`).
 * Estimating changes in climate representativeness under future climate projections (`mh_rep_ch`).
 * Estimating climate representativeness overlay (`mh_overlay`).
@@ -52,7 +52,7 @@ library(sf)
 ```
 Next, prepare the essential input data:
 
-1. **Climatic variables** as an `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
+1. **climate variables** as an `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
 
 2. **Polygons** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
 
@@ -90,9 +90,9 @@ terra::plot(r_clim_present)
 *Figure 1: Example of simulated climate raster layers (r_clim_present).*
 
 
-### 1. Filter Climatic Variables
+### 1. Filter climate Variables
 
-A crucial first step in processing the climatic variables is often to address multicollinearity. Multicollinearity among climate variables can affect multivariate analyses. 
+A crucial first step in processing the climate variables is often to address multicollinearity. Multicollinearity among climate variables can affect multivariate analyses. 
 To handle this, the `vif_filter` function can be used to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (e.g., `th = 10`).
 
 The output of `vif_filter` is informative. It returns the filtered `SpatRaster` object and also provides a comprehensive summary printed to the console. 
@@ -160,13 +160,13 @@ terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border
 *Figure 3: Example of input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
 
 Use `mh_rep` to estimate climate representativeness for each input `polygon`. 
-The function calculates the Mahalanobis distance for every cell in the `climatic_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
+The function calculates the Mahalanobis distance for every cell in the `climate_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
 Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered represented.
 ```{r}
 mh_rep(
   polygon = polygons,
   col_name = "name",
-  climatic_variables = r_clim_present_filtered,
+  climate_variables = r_clim_present_filtered,
   th = 0.9, # Use a threshold, e.g., 90th percentile
   dir_output = tempdir(),
   save_raw = TRUE)
@@ -241,7 +241,7 @@ terra::plot(r_clim_future)
 
 *Figure 7: Example of simulated future climate variables.*
 
-Use `mh_rep_ch` to compare representativeness between the `present_climatic_variables` and `future_climatic_variables` within the defined `study_area`. 
+Use `mh_rep_ch` to compare representativeness between the `present_climate_variables` and `future_climate_variables` within the defined `study_area`. 
 This function calculates representativeness for each input `polygon` in both scenarios and determines cells where conditions:
 
 - **Retained** - Are present in both currently and future.
@@ -252,8 +252,8 @@ This function calculates representativeness for each input `polygon` in both sce
 mh_rep_ch(
 polygon = polygons,
 col_name = "name",
-present_climatic_variables = r_clim_present_filtered,
-future_climatic_variables = r_clim_future,
+present_climate_variables = r_clim_present_filtered,
+future_climate_variables = r_clim_future,
 study_area = study_area_polygon,
 th = 0.95,
 model = "MODEL",
@@ -358,16 +358,16 @@ Variables with VIF above the threshold are iteratively removed until all remaini
 
 **mh_rep()**
 
-Estimates the current climate representativeness of the areas defined by `polygon` relative to the climate space spanned by `climatic_variables` across the `study_area`. 
+Estimates the current climate representativeness of the areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
 It calculates Mahalanobis distance for each cell from the climate centroid of the input `polygon` and identifies cells within a specified threshold distance or percentile as "representativeness".
 
-`mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_raw)`
+`mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
 
 > `polygon`: An `sf` object containing the input polygon/s.
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
 
-> `climatic_variables`: A `SpatRaster` object with the climate layers.
+> `climate_variables`: A `SpatRaster` object with the climate layers.
 
 > `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
@@ -378,18 +378,18 @@ It calculates Mahalanobis distance for each cell from the climate centroid of th
 
 **mh_rep_ch()**
 
-Estimates the change in climate representativeness for the areas defined by `polygon` between present (`present_climatic_variables`) and future (`future_climatic_variables`) climate conditions. 
+Estimates the change in climate representativeness for the areas defined by `polygon` between present (`present_climate_variables`) and future (`future_climate_variables`) climate conditions. 
 For each input `polygon`, it compares the representativeness climate conditions across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
 
-`mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_raw)`
+`mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
 
 > `polygon`: An `sf` object containing the input polygon/s.
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
 
-> `present_climatic_variables`: A `SpatRaster` object with the present climate layers (typically filtered).
+> `present_climate_variables`: A `SpatRaster` object with the present climate layers (typically filtered).
 
-> `future_climatic_variables`: A `SpatRaster` object with the future climate layers.
+> `future_climate_variables`: A `SpatRaster` object with the future climate layers.
 
 > `study_area`: An `sf` object defining the overall study region.
 

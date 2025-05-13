@@ -12,7 +12,7 @@
 #'
 #' ## Key Features
 #' The package includes functions for:
-#' * Filtering raster climatic variables to reduce multicollinearity (`\code{\link{vif_filter}}`).
+#' * Filtering raster climate variables to reduce multicollinearity (`\code{\link{vif_filter}}`).
 #' * Estimating current climate representativeness (`\code{\link{mh_rep}}`).
 #' * Estimating changes in climate representativeness under future climate projections (`\code{\link{mh_rep_ch}}`).
 #' * Estimating climate representativeness overlay (`\code{\link{mh_overlay}}`).

@@ -35,7 +35,7 @@ testthat::test_that("mh_present runs and writes output", {
   mh_rep(
     polygon = polygons,
     col_name = "name",
-    climatic_variables = r_clim_present_filtered,
+    climate_variables = r_clim_present_filtered,
     th = 0.95,
     dir_output = file.path(tempdir(), "ClimaRep"),
     save_raw = TRUE

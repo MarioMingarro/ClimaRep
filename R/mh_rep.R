@@ -1,44 +1,43 @@
-#' @title Multivariate Climatic Representativeness Analysis
+#' @title Multivariate Climate Representativeness Analysis
 #'
-#' @description Calculates Mahalanobis-based climatic representativeness for input polygons within a defined area, using climate data from a single time period (e.g., present).
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within that specific polygon.
+#' @description Calculates Mahalanobis-based climate representativeness for input `polygons` within a defined area.
+#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within `study_area`.
 #'
-#' @param polygon An sf object containing the analysis regions (polygons).
-#' @param col_name Character. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param climatic_variables SpatRaster. A raster stack of climate variables representing the conditions of the analysis period (preferably not strongly correlated).
-#' @param th Numeric (0-1). Quantile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the distance corresponding to this quantile are classified as representative (default: 0.95).
-#' @param dir_output Character. Path to the directory where output files will be saved. The function will create subdirectories within this path (default: "output_representativeness/").
-#' @param save_raw Logical. If TRUE, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).
+#' @param polygon An `sf` object containing the definied areas.
+#' @param col_name `Character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
+#' @param climate_variables `SpatRaster`. A raster stack of climate variables representing the conditions of the analysis period.
+#' @param th `Numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
+#' @param dir_output `Character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
+#' @param save_raw `Logical.` If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: FALSE).
 #'
 #' @return Invisibly returns NULL. Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{
-#'   \item Classification GeoTIFF rasters: Binary rasters (typically coded 1 for Representative, 0 for Non-representative) for each input polygon are saved in the `Representativeness/` subdirectory.
-#'   \item Visualization Maps: JPEG (or PNG) image files visualizing the classification results for each polygon are saved in the `Charts/` subdirectory.
-#'   \item Intermediate Mahalanobis Distance Rasters: *Optionally* saved as GeoTIFF files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
+#'   \item Classification (`.tif` ) rasters: Binary rasters (`1` for Representative and `0` for Non-representative) for each input `polygon` are saved in the `Representativeness/` subdirectory.
+#'   \item Visualization (`.jpeg`) maps: Image files visualizing the classification results for each `polygon` are saved in the `Charts/` subdirectory.
+#'   \item Raw Mahalanobis distance rasters: *Optionally* saved as `.tif` files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
 #' }
 #'
 #' @details
 #' This function performs a multivariate analysis using Mahalanobis distance to assess
-#' the climatic representativeness of input polygons based on climate data from a single time period.
-#' It evaluates how well the climate conditions of locations within and outside each polygon match the range of multivariate conditions found within that particular polygon.
+#' the climate representativeness of input polygons based on climate data from a single time period.
 #'
-#' Key workflow steps include:
+#' Here are the key steps:
 #' \enumerate{
-#'   \item **CRS Harmonization:** Ensures all spatial inputs (`polygon`, `climatic_variables`) share the same Coordinate Reference System (CRS), using the CRS of `climatic_variables` as the reference.
-#'   \item **Per-Polygon Processing:** For each polygon in the `polygon` object:
+#'   \item Ensures all spatial inputs (`polygon`, `climate_variables`) share the same Coordinate Reference System (CRS), using the CRS of `climate_variables` as the reference.
+#'   \item For each polygon in the `polygon` object:
 #'   \itemize{
-#'     \item Clips and masks the climate variables raster (`climatic_variables`) to the polygon's extent and boundary.
-#'     \item Calculates the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate space specific to that polygon.
-#'     \item Calculates the Mahalanobis distance for each cell with valid data within the polygon's extent, relative to the polygon's calculated mean and covariance matrix.
-#'     \item Determines a threshold (`th_value`) based on the `th` quantile of the Mahalanobis distances calculated within the polygon itself.
-#'     \item Classifies each cell within the polygon's extent as "Representative" (Mahalanobis distance < threshold, typically assigned value 1) or "Non-Representative" (distance > threshold, typically assigned value 0).
+#'     \item Crops and masks the climate variables raster (`climate_variables`) to the boundary of the current polygon.
+#'     \item Calculates the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions for the current polygon.
+#'     \item Calculates the Mahalanobis distance for each cell within the (`study_area`)'s extent relative to the multivariate centroid and covariance matrix calculated for the current polygon.
+#'     \item Applies the specified threshold (`th`) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is typically a percentile of the Mahalanobis distances calculated for the cells originally within the current polygon.
+#'     \item Classifies each cell within the (`study_area`)'s extent as `Representative = 1` (mh distance is below the threshold ) or `Non-Representative = 0` (mh distance is above the threshold).
 #'   }
-#'   \item **Output Generation:** Saves the resulting binary classification raster for each polygon as a GeoTIFF file and generates a corresponding visualization map (JPEG/PNG). These are saved within the specified output directory structure.
+#'   \item Output Generation: Saves the binary classification raster (`.tif`) for each polygon and generates a corresponding visualization map (`jpeg`). These are saved within the specified output directory (`dir_output`).
 #' }
 #'
 #' It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables.
-#' While the covariance matrix accounts for correlations, it is strongly recommended that the `climatic_variables` are not strongly correlated.
-#' Consider performing a collinearity analysis (e.g., using Variance Inflation Factor - VIF) beforehand, perhaps using the `vif_filter` function from this package.
+#' While the covariance matrix accounts for correlations, it is strongly recommended that the `climate_variables` are not strongly correlated.
+#' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter` function from this package.
 #'
 #' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell
 #' @importFrom sf st_crs st_transform st_geometry st_as_sf st_make_grid
@@ -65,8 +64,7 @@
 #'   (colFromCell(r_clim_present, 1:n_cells) *
 #'     (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
 #'   (colFromCell(r_clim_present, 1:n_cells) *
-#'     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
-#' )
+#'     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)))
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
 #' terra::plot(r_clim_present)
@@ -92,7 +90,7 @@
 #' mh_rep(
 #'   polygon = polygons,
 #'   col_name = "name",
-#'   climatic_variables = r_clim_present_filtered,
+#'   climate_variables = r_clim_present_filtered,
 #'   th = 0.95,
 #'   dir_output = file.path(tempdir(), "ClimaRep"),
 #'   save_raw = TRUE
@@ -102,7 +100,7 @@
 #'
 mh_rep <- function(polygon,
                    col_name,
-                   climatic_variables,
+                   climate_variables,
                    th = 0.95,
                    dir_output = file.path(tempdir(), "ClimaRep"),
                    save_raw = FALSE) {
@@ -115,17 +113,17 @@ mh_rep <- function(polygon,
       length(col_name) != 1 || !(col_name %in% names(polygon))) {
     stop("Parameter 'col_name' must be a single character string naming a column in 'polygon'.")
   }
-  if (!inherits(climatic_variables, "SpatRaster"))
-    stop("Parameter 'climatic_variables' must be a SpatRaster object.")
+  if (!inherits(climate_variables, "SpatRaster"))
+    stop("Parameter 'climate_variables' must be a SpatRaster object.")
   if (!is.numeric(th) || length(th) != 1 || th < 0 || th > 1) {
     stop("Parameter 'th' must be a single numeric value between 0 and 1.")
   }
   if (!is.character(dir_output) || length(dir_output) != 1) {
     stop("Parameter 'dir_output' must be a single character string.")
   }
-  if (terra::nlyr(climatic_variables) < 2) {
+  if (terra::nlyr(climate_variables) < 2) {
     warning(
-      "climatic_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable."
+      "climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable."
     )
   }
   dir_rep <- file.path(dir_output, "Representativeness")
@@ -141,14 +139,14 @@ mh_rep <- function(polygon,
     }
   })
   message("Validating and adjusting Coordinate Reference Systems (CRS)...")
-  reference_system_check <- terra::crs(climatic_variables, describe = TRUE)$code
-  reference_system <- terra::crs(climatic_variables)
+  reference_system_check <- terra::crs(climate_variables, describe = TRUE)$code
+  reference_system <- terra::crs(climate_variables)
   if (sf::st_crs(polygon)$epsg != reference_system_check) {
     message("Adjusting CRS of polygon to match reference system.")
     polygon <- sf::st_transform(polygon, reference_system)
   }
   message("Starting per-polygon processing...")
-  data_p <- na.omit(terra::as.data.frame(climatic_variables, xy = TRUE))
+  data_p <- na.omit(terra::as.data.frame(climate_variables, xy = TRUE))
   data_p$Period <- "Present"
   cov_matrix <- cov(data_p[, 3:(ncol(data_p) - 1)], use = "complete.obs")
   for (j in 1:nrow(polygon)) {
@@ -166,7 +164,7 @@ mh_rep <- function(polygon,
             " of ",
             nrow(polygon),
             ")")
-    raster_polygon <- terra::mask(terra::crop(climatic_variables, pol), pol)
+    raster_polygon <- terra::mask(terra::crop(climate_variables, pol), pol)
     if (all(is.na(terra::values(raster_polygon)))) {
       warning("No available data for: ", pol_name, ". Skipping...")
       next
@@ -174,8 +172,8 @@ mh_rep <- function(polygon,
     mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
     calculate_mh <- function(data) {
       coords <- data[, 1:2]
-      climatic_data <- as.matrix(data[, 3:(ncol(data) - 1)])
-      mh_values <- mahalanobis(climatic_data, mu, cov_matrix)
+      climate_data <- as.matrix(data[, 3:(ncol(data) - 1)])
+      mh_values <- mahalanobis(climate_data, mu, cov_matrix)
       terra::rast(cbind(coords, mh_values),
                   type = "xyz",
                   crs = reference_system)

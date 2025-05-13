@@ -6,23 +6,22 @@
 #' specific category value (e.g., Persistence, Loss, Gain) at each grid cell.
 #' This allows visualizing spatial agreement or accumulation of change types across regions.
 #'
-#' @param folder_path Character. Path to the directory containing the input single-layer GeoTIFF
-#' classification rasters (e.g., outputs from `mh_rep_ch`).
-#' @param output_filename Character. The name for the output combined multi-layered GeoTIFF file.
-#' The file will be saved within the `folder_path`. Defaults to "combined_category_counts_ap.tif".
-#' @param category_values Numeric vector. A vector specifying the specific pixel
-#'   values (`c(0, 1, 2, 3)`) to count in the input categories:
-#'   0 = Non-representativeness,
-#'   1 = Represented (mh_rep) or Retained (mh_rep_ch),
-#'   2 = Lost (mh_rep_ch),
-#'   3 = Novel (mh_rep_ch)). Defaults to `c(1, 2, 3)`.
-#' @param add_to_environment Logical. If TRUE, the resulting multi-layered `SpatRaster`
-#' object is assigned to a variable named `climarep_img` in the calling R environment.
+#' @param folder_path `character`. Path to the directory containing the `mh_rep` or `mh_rep_ch`resulting classification rasters (`.tif`).
+#' @param output_filename `character`. Name for the output combined multi-layered file.
+#' The file will be saved within the `folder_path`. Defaults to "combined_category_counts.tif".
+#' @param category_values `numeric`. A vector (`c(0, 1, 2, 3)`) specifying the category to count in the input categories:
+#'   `0` = Non-represented,
+#'   `1` = Represented (mh_rep) or Retained (mh_rep_ch),
+#'   `2` = Lost (mh_rep_ch),
+#'   `3` = Novel (mh_rep_ch)).
+#'
+#' Defaults to `c(1, 2, 3)`.
+#' @param add_to_environment `Logical`. If `TRUE`, the resulting multi-layered `SpatRaster` is assigned to a variable named `climarep_img` in the R environment.
 #' Defaults to `FALSE`.
 #'
 #' @return Invisibly returns the resulting multi-layered `SpatRaster` object.
-#' Writes the output stack to a GeoTIFF file in the specified `folder_path`.
-#' If `add_to_environment` is TRUE, also assigns the stack to `climarep_img` in the parent environment.
+#' Writes the output raster in the specified `folder_path`.
+#' If `add_to_environment` is `TRUE`, also assigns the stack to `climarep_img` in the R environment.
 #'
 #' @details
 #' This function is intended to be used after running `mh_rep` or `mh_rep_ch` for multiple

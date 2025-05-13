@@ -38,8 +38,8 @@ testthat::test_that("mh_present_future runs and writes output", {
   mh_rep_ch(
     polygon = polygons,
     col_name = "name",
-    present_climatic_variables = r_clim_present_filtered,
-    future_climatic_variables = r_clim_future,
+    present_climate_variables = r_clim_present_filtered,
+    future_climate_variables = r_clim_future,
     study_area = study_area_polygon,
     th = 0.95,
     model = "MODEL",

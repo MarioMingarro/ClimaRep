@@ -12,27 +12,26 @@ mh_overlay(
 )
 }
 \arguments{
-\item{folder_path}{Character. Path to the directory containing the input single-layer GeoTIFF
-classification rasters (e.g., outputs from \code{mh_rep_ch}).}
+\item{folder_path}{\code{character}. Path to the directory containing the \code{mh_rep} or \code{mh_rep_ch}resulting classification rasters (\code{.tif}).}
 
-\item{output_filename}{Character. The name for the output combined multi-layered GeoTIFF file.
-The file will be saved within the \code{folder_path}. Defaults to "combined_category_counts_ap.tif".}
+\item{output_filename}{\code{character}. Name for the output combined multi-layered file.
+The file will be saved within the \code{folder_path}. Defaults to "combined_category_counts.tif".}
 
-\item{category_values}{Numeric vector. A vector specifying the specific pixel
-values (\code{c(0, 1, 2, 3)}) to count in the input categories:
-0 = Non-representativeness,
-1 = Represented (mh_rep) or Retained (mh_rep_ch),
-2 = Lost (mh_rep_ch),
-3 = Novel (mh_rep_ch)). Defaults to \code{c(1, 2, 3)}.}
+\item{category_values}{\code{numeric}. A vector (\code{c(0, 1, 2, 3)}) specifying the category to count in the input categories:
+\code{0} = Non-represented,
+\code{1} = Represented (mh_rep) or Retained (mh_rep_ch),
+\code{2} = Lost (mh_rep_ch),
+\code{3} = Novel (mh_rep_ch)).
 
-\item{add_to_environment}{Logical. If TRUE, the resulting multi-layered \code{SpatRaster}
-object is assigned to a variable named \code{climarep_img} in the calling R environment.
+Defaults to \code{c(1, 2, 3)}.}
+
+\item{add_to_environment}{\code{Logical}. If \code{TRUE}, the resulting multi-layered \code{SpatRaster} is assigned to a variable named \code{climarep_img} in the R environment.
 Defaults to \code{FALSE}.}
 }
 \value{
 Invisibly returns the resulting multi-layered \code{SpatRaster} object.
-Writes the output stack to a GeoTIFF file in the specified \code{folder_path}.
-If \code{add_to_environment} is TRUE, also assigns the stack to \code{climarep_img} in the parent environment.
+Writes the output raster in the specified \code{folder_path}.
+If \code{add_to_environment} is \code{TRUE}, also assigns the stack to \code{climarep_img} in the R environment.
 }
 \description{
 Combines multiple single-layer GeoTIFF rasters, typically outputs from \code{mh_rep_ch}
