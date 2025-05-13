@@ -329,8 +329,8 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
-After obtaining the representativeness change rasters for multiple polygons using `mh_rep_ch`, you can combine them to visualize where different change types (Retained, Lost, Novel) overlap or accumulate. 
-The `mh_overlay` function does this by counting, for each cell, how many of the input rasters had a specific category value at that location.
+After obtaining the representativeness change rasters for multiple polygons using `mh_rep_ch`, you can combine them to visualize where different change types (**Retained, Lost, Novel**) accumulate. 
+The `mh_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 ```{r}
 mh_overlay(folder_path = file.path(tempdir(), "Change"),
 output_filename = "combined_category_counts.tif",
@@ -346,7 +346,8 @@ terra::plot(climarep_img)
 
 **vif_filter()**
 
-Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflation Factor (VIF). Variables with VIF above the threshold (`th`) are iteratively removed until all remaining variables have VIF below th. This helps mitigate issues associated with multicollinearity in multivariate analyses.
+Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflation Factor (VIF).
+Variables with VIF above the threshold are iteratively removed until all remaining variables have VIF below `th`. 
 
 `vif_filter(x, th)`
 
@@ -357,8 +358,8 @@ Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflati
 
 **mh_rep()**
 
-Estimates the current environmental representativeness of the areas defined by polygon within the climate space of climatic_variables. 
-It calculates Mahalanobis distance for each cell from the climate centroid of the input polygon and identifies cells within a specified threshold distance or percentile as "represented".
+Estimates the current climate representativeness of the areas defined by `polygon` relative to the climate space spanned by `climatic_variables` across the `study_area`. 
+It calculates Mahalanobis distance for each cell from the climate centroid of the input `polygon` and identifies cells within a specified threshold distance or percentile as "representativeness".
 
 `mh_rep(polygon, col_name, climatic_variables, th, dir_output, save_raw)`
 
@@ -377,8 +378,8 @@ It calculates Mahalanobis distance for each cell from the climate centroid of th
 
 **mh_rep_ch()**
 
-Estimates the change in environmental representativeness from present_climatic_variables to future_climatic_variables within the extent of study_area. 
-It compares represented conditions between the two scenarios for each input polygon, classifying areas by change category (Retained, Lost, Novel).
+Estimates the change in climate representativeness for the areas defined by `polygon` between present (`present_climatic_variables`) and future (`future_climatic_variables`) climate conditions. 
+For each input `polygon`, it compares the representativeness climate conditions across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
 
 `mh_rep_ch(polygon, col_name, present_climatic_variables, future_climatic_variables, study_area, th, model, year, dir_output, save_raw)`
 
@@ -404,8 +405,8 @@ It compares represented conditions between the two scenarios for each input poly
 
 
 **mh_overlay()**
-Combines multiple single-layer GeoTIFF classification rasters (typically outputs from mh_rep_ch for different input polygons) into a single multi-layered raster stack. 
-Each layer in the output represents the count of how many input rasters had a specific category value (e.g., Represented/Retained, Lost, Novel) at each grid cell, allowing visualization of spatial agreement or accumulation of change types across `study_area`.
+Combines multiple single-layer rasters (`.tif`) into a single multi-layered raster stack. 
+Each layer in the output represents the count of how many input rasters had a specific category value (e.g., Represented/Retained, Lost, Novel) at each grid cell, allowing visualization of spatial accumulation of change types across `study_area`.
 
 `mh_overlay(folder_path, output_filename, category_values, add_to_environment)`
 
