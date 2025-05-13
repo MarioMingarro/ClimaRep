@@ -87,7 +87,7 @@ terra::plot(r_clim_present)
 ```
 <img src="man/figures/F_1.jpeg" alt="Climate layers" width="600">
 
-*Figure 1: Example simulated climate raster layers (r_clim_present).*
+*Figure 1: Example of simulated climate raster layers (r_clim_present).*
 
 
 ### 1. Filter Climatic Variables
@@ -133,7 +133,7 @@ terra::plot(r_clim_present_filtered)
 ```
 <img src="man/figures/F_2.jpeg" alt="Filtered Climate layers" width="600">
 
-*Figure 2: Filtered climate dataset, showing remaining variables (r_clim_present_filtered) after vif_filter() function.*
+*Figure 2: Example of filtered climate dataset, showing remaining variables (r_clim_present_filtered) after vif_filter() function.*
 
 ### 2. Estimate climate representativeness.
 Create example input area polygons (`sf`) and a study area polygon (`sf`) to define the regions and climate space for analysis.
@@ -157,7 +157,7 @@ terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border
 ```
 <img src="man/figures/F_3.jpeg" alt="polygon" width="600">
 
-*Figure 3: Example input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
+*Figure 3: Example of input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
 
 Use `mh_rep` to estimate climate representativeness for each input `polygon`. 
 The function calculates the Mahalanobis distance for every cell in the `climatic_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
@@ -201,7 +201,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="man/figures/F_4.jpeg" alt="rep_map" width="600">
 
-*Figure 4: Binary representativeness maps for Pol_1 (pol_1_rep.jpeg).*
+*Figure 4: Example of binary representativeness maps for Pol_1 (pol_1_rep.jpeg).*
 
 2. The `MahalanobisRaw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
 Lower values indicate climates more similar to the polygon's centroid.
@@ -213,7 +213,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="man/figures/F_5.jpeg" alt="cont_rep" width="600">
 
-*Figure 5: Example continuous Mahalanobis distance raster for Pol_1. Darker shades indicate areas with climate conditions more similar to Pol_1.*
+*Figure 5: Example of continuous Mahalanobis distance raster for Pol_1. Darker shades indicate cells with climate conditions more similar to Pol_1.*
 
 3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
 Cells are coded 1 for represented and 0 for not represented.
@@ -225,11 +225,11 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="man/figures/F_6.jpeg" alt="bin_rep" width="600">
 
-*Figure 6: Example binary representativeness raster for Pol_1, showing areas classified as represented (value 1) based on the defined threshold.*
+*Figure 6: Example of binary representativeness raster for Pol_1, showing cells classified as represented (value 1) based on the defined threshold.*
 
 ### 3. Estimate change in climate representativeness.
 To estimate how representativeness changes, a future climate scenario is required. 
-In this example, a simple virtual future scenario (`SpatRaster`) is created by adding a constant value to the present filtered climate data.
+In this example, a simple virtual future scenario (`SpatRaster`) is created by adding a constant value to the `r_clim_present_filtered` data.
 
 ```{r}
 r_clim_future <- r_clim_present_filtered + 2 
@@ -239,14 +239,14 @@ terra::plot(r_clim_future)
 ```
 <img src="man/figures/F_7.jpeg" alt="Future Climate layers" width="600">
 
-*Figure 7: Example simulated future climate variables.*
+*Figure 7: Example of simulated future climate variables.*
 
 Use `mh_rep_ch` to compare representativeness between the `present_climatic_variables` and `future_climatic_variables` within the defined `study_area`. 
-This function calculates representativeness for each input polygon in both scenarios and determines areas where conditions:
+This function calculates representativeness for each input `polygon` in both scenarios and determines cells where conditions:
 
-Retained - Are present in both currently and future.
-Lost - Are present currently, but not present in the future.
-Novel - Are present in the future, but not present currently.
+- **Retained** - Are present in both currently and future.
+- **Lost** - Are present currently, but not present in the future.
+- **Novel** - Are present in the future, but not present currently.
 
 ```{r}
 mh_rep_ch(
