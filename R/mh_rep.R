@@ -1,7 +1,7 @@
 #' @title Multivariate Climatic Representativeness Analysis
 #'
 #' @description Calculates Mahalanobis-based climatic representativeness for input polygons within a defined area, using climate data from a single time period (e.g., present).
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions *within* that specific polygon.
+#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within that specific polygon.
 #'
 #' @param polygon An sf object containing the analysis regions (polygons).
 #' @param col_name Character. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
@@ -20,7 +20,7 @@
 #' @details
 #' This function performs a multivariate analysis using Mahalanobis distance to assess
 #' the climatic representativeness of input polygons based on climate data from a single time period.
-#' It evaluates how well the climate conditions of locations within and outside each polygon match the range of multivariate conditions found *within* that particular polygon.
+#' It evaluates how well the climate conditions of locations within and outside each polygon match the range of multivariate conditions found within that particular polygon.
 #'
 #' Key workflow steps include:
 #' \enumerate{

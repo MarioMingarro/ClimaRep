@@ -1,41 +1,41 @@
 #' @title Filter SpatRaster Layers based on Variance Inflation Factor (VIF)
 #'
-#' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`). The process continues until all remaining layers have a VIF below the threshold or until only one layer
-#' remains. VIF calculation is performed on the raster data after converting it
-#' to a `data.frame` and removing rows containing `NA` values in any column.
+#' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
+#' The process continues until all remaining layers have a VIF below the threshold or until only one layer remains.
 #'
 #' @param x A `SpatRaster` object containing the layers (variables) to filter.
-#'   Must contain two or more layers for VIF calculation to be possible.
+#'   Must contain two or more layers.
 #' @param th A numeric value specifying the Variance Inflation Factor (VIF)
 #'   threshold. Layers whose VIF exceeds this threshold are candidates for
 #'   removal in each iteration (default: 10).
 #'
-#' @return \item{A [SpatRaster] object}{A [SpatRaster] object containing only
-#' the layers from the input `x` that were retained by the VIF filtering
-#' process. The layers are returned in their original order. If no layers meet
-#' the VIF threshold criterion (all are excluded) or if the input becomes empty
-#' after removing NA values, an empty `SpatRaster` object is returned.}
+#' @return A [SpatRaster] object containing onlythe layers from the input
+#' `x` that were retained by the VIF filtering process. The layers are returned
+#' in their original order. If no layers meet the VIF threshold criterion
+#' (all are excluded) or if the input becomes empty after removing NA values, an empty `SpatRaster` object is returned.
 #'
 #' @details The Variance Inflation Factor (VIF) quantifies the severity of
 #' multicollinearity among predictor variables in a linear regression model. A
 #' high VIF for a variable indicates that this variable is highly correlated
-#' with other predictors. In the context of environmental variable selection for
+#' with other predictors. In the context of climate variable selection for
 #' multivariate analyses (such as Mahalanobis distance), high VIF values suggest
 #' redundancy of information among variables.
 #'
-#' This function implements a common iterative procedure to reduce
-#' multicollinearity:
+#' This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF). Here are the key steps:
 #' \enumerate{
 #'   \item The input `SpatRaster` (`x`) is converted to a `data.frame`.
-#'   \item Rows containing any `NA` values across all variables are removed from the `data.frame`. All subsequent VIF calculations are based on this cleaned dataset.
-#'   \item The VIF is calculated for each variable currently in the dataset.
-#'   \item If the highest VIF calculated in the current step is greater than the threshold `th`, the variable corresponding to this highest VIF is removed from the dataset.
-#'   \item Steps 3 and 4 are repeated until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains in the dataset.
+#'   \item Rows containing any `NA` values across all variables are removed from the `data.frame`.
+#'   \item The function enters an iterative loop. In each iteration, the Variance Inflation Factor (VIF) is calculated for all variables currently remaining in the dataset.
+#'   \item The variable with the highest VIF among the remaining variables is identified.
+#'   \item If this highest VIF value is greater than the specified threshold (`th`), tthe variable with the highest VIF is removed from the dataset, and the loop continues with the remaining variables.
+#'   \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains in the dataset.
 #' }
 #'
-#' During the process, the function prints messages to the console indicating
-#' which variables are being evaluated and which, if any, are removed in each
-#' iteration.
+#' Finally, the function returns a new `SpatRaster` object containing only the variables that were kept.
+#' Also prints a summary of the filtering process including:
+#' - The original correlation matrix.
+#' - The lists of kept and excluded variables.
+#' - The final VIF values for the variables that were retained.
 #'
 #' The internal VIF calculation includes checks to handle potential numerical
 #' instability, such as columns with zero or near-zero variance and cases of
@@ -49,7 +49,6 @@
 #'
 #'
 #' @examples
-#' \dontrun{
 #' library(terra)
 #' library(sf)
 #'
@@ -74,12 +73,15 @@
 #' terra::plot(r_clim)
 #' r_clim_filtered <- vif_filter(r_clim, th = 5)
 #' terra::plot(r_clim_filtered)
-#'}
+#'
 #' @export
 #'
 vif_filter <- function(x, th = 10) {
   if (!inherits(x, 'SpatRaster')) {
     stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
+  }
+  if (!is.numeric(th)) {
+    stop("Parameter 'th' must be numeric.")
   }
   original_raster <- x
   x_df <- terra::as.data.frame(x, na.rm = TRUE)

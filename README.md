@@ -98,11 +98,10 @@ To handle this, the `vif_filter` function can be used to iteratively remove vari
 The output of `vif_filter` is informative. It returns the filtered `SpatRaster` object and also provides a comprehensive summary printed to the console. 
 This summary includes:
 
-\enumerate{
-\item A list detailing which variables were kept and which were excluded by the filtering process.
-\item The Pearson correlation matrix of the original input data, showing the initial relationships between all variables.
-\item The final VIF values for the variables that were retained, confirming that the remaining variables are below the specified threshold.
-}
+- A list detailing which variables were kept and which were excluded by the filtering process.
+- The Pearson correlation matrix of the original input data, showing the initial relationships between all variables.
+- The final VIF values for the variables that were retained, confirming that the remaining variables are below the specified threshold.
+
 Use `vif_filter` to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (`th`).
 
 ```{r}
