@@ -5,13 +5,13 @@
 ## Overview
 
 The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
-Using spatial data, including climatic raster layers, the input area polygons, and a defined study area polygon, the package quantifies this representativeness and analyzes its transformation.
+Using spatial data, including climatic raster layers, the input area polygons, and a climatic space defined by the polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
-* Filtering climatic variables to reduce multicollinearity (`vif_filter`).
-* Estimating current environmental representativeness (`mh_rep`).
-* Estimating changes in environmental representativeness under future climate projections (`mh_rep_ch`).
-* Estimating environmental representativeness overlay (`mh_overlay`).
+* Filtering raster climatic variables to reduce multicollinearity (`vif_filter`).
+* Estimating current climate representativeness (`mh_rep`).
+* Estimating changes in climate representativeness under future climate projections (`mh_rep_ch`).
+* Estimating climate representativeness overlay (`mh_overlay`).
 
 ## Installation
 
@@ -50,19 +50,21 @@ library(ClimaRep)
 library(terra)
 library(sf)
 ```
-Next, prepare your essential input data. You will need:
+Next, prepare the essential input data:
 
 1. **Climatic variables** as an `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
 
 2. **Polygons** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
 
-3. **Study area** as a single `sf` object, representing the overall geographic region for analysis.
+3. **Study area** as a single `sf` object, representing the overall geographical region for analysis and thus the **climate space** being worked on.
 
 
 Here is a practical example using simulated data to represent these inputs.
+The example simulates a pair of defined input areas (represented by two simple hexagonal polygons) and assesses their climate representativeness within a defined study area or climate space. 
+This involves creating a simulated climate space (represented as a `study_area`) within which the analysis is performed.
+This practical example demonstrates the proposed procedure. 
+It begins by generating simulated raster layers to represent climate variables and then applies the functions from this package. 
 
-This simulates a pair of defined input areas (represented by two simple polygons) and assesses their climate representativeness within a defined study area in a simulated climate space. 
-Create a climate space (`SpatRaster`).
 ```{r}
 set.seed(2458)
 n_cells <- 100 * 100
@@ -85,17 +87,25 @@ terra::plot(r_clim_present)
 ```
 <img src="man/figures/F_1.jpeg" alt="Climate layers" width="600">
 
-*Figure 1: Example simulated climate raster layers.*
+*Figure 1: Example simulated climate raster layers (r_clim_present).*
 
 
 ### 1. Filter Climatic Variables
 
-Multicollinearity among climate variables can affect multivariate analyses.
+A crucial first step in processing the climatic variables is often to address multicollinearity. Multicollinearity among climate variables can affect multivariate analyses. 
+To handle this, the `vif_filter` function can be used to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (e.g., `th = 10`).
+
+The output of `vif_filter` is informative. It returns the filtered `SpatRaster` object and also provides a comprehensive summary printed to the console. 
+This summary includes:
+
+- A list detailing which variables were kept and which were excluded by the filtering process.
+- The Pearson correlation matrix of the original input data, showing the initial relationships between all variables.
+- The final VIF values for the variables that were retained, confirming that the remaining variables are below the specified threshold.
 
 Use `vif_filter` to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (`th`).
 
 ```{r}
-r_clim_present_filtered <- vif_filter(r_clim_present, th = 5) # Use a VIF threshold
+r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 
 --- VIF Filtering Summary ---
 VIF filtering completed.
@@ -123,10 +133,10 @@ terra::plot(r_clim_present_filtered)
 ```
 <img src="man/figures/F_2.jpeg" alt="Filtered Climate layers" width="600">
 
-*Figure 2: Filtered climate dataset, showing remaining variables after vif_filter() funtion.*
+*Figure 2: Filtered climate dataset, showing remaining variables (r_clim_present_filtered) after vif_filter() function.*
 
 ### 2. Estimate climate representativeness.
-Create example input area polygons (`sf`) and a study area polygon (`sf`) to define the regions for analysis.
+Create example input area polygons (`sf`) and a study area polygon (`sf`) to define the regions and climate space for analysis.
 ```{r}
 # Create simple input polygons (2 sample hexagons)
 hex_grid <- sf::st_sf(
@@ -149,7 +159,7 @@ terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border
 
 *Figure 3: Example input polygons (black outline) and study area (red outline) overlaid on a climate raster layer.*
 
-Use `mh_rep` to estimate climate representativeness for each input area (polygon argument). 
+Use `mh_rep` to estimate climate representativeness for each input `polygon`. 
 The function calculates the Mahalanobis distance for every cell in the `climatic_variables` raster from the multivariate centroid of climate conditions within each respective input `polygon`. 
 Cells within a certain percentile threshold (`th`) of distances found within the input polygon are considered represented.
 ```{r}
@@ -183,7 +193,7 @@ list.files(tempdir())
  [1] "Charts"             "Mh_Raw"             "Representativeness"
 ```
 
-1. The `Charts` subfolder contains image files (.jpeg) visualizing the binary representativeness map for each input polygon.
+1. The `Charts` subfolder contains the **binary representativeness** image files (`.jpeg`) for each input `polygon`.
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
@@ -193,7 +203,7 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 4: Binary representativeness maps for Pol_1 (pol_1_rep.jpeg).*
 
-2. The `MahalanobisRaw` subfolder contains the continuous Mahalanobis distance rasters (`.tif`) for each input polygon. 
+2. The `MahalanobisRaw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
@@ -205,8 +215,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 5: Example continuous Mahalanobis distance raster for Pol_1. Darker shades indicate areas with climate conditions more similar to Pol_1.*
 
-3. The `Representativeness` subfolder contains the binary representativeness rasters (`.tif`) for each input polygon, based on the threshold (`th`) applied to the raw Mahalanobis distance.
-
+3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
 Cells are coded 1 for represented and 0 for not represented.
 ```{r}
 mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
