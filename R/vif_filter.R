@@ -76,6 +76,7 @@
 #' terra::plot(r_clim_filtered)
 #'}
 #' @export
+#'
 vif_filter <- function(x, th = 10) {
   if (!inherits(x, 'SpatRaster')) {
     stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
