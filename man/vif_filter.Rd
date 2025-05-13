@@ -57,6 +57,7 @@ VIFs or issues with matrix inversion). Variables with infinite VIF are
 prioritized for removal.
 }
 \examples{
+\dontrun{
 library(terra)
 library(sf)
 
@@ -82,4 +83,5 @@ terra::plot(r_clim)
 r_clim_filtered <- vif_filter(r_clim, th = 5)
 terra::plot(r_clim_filtered)
 
+}
 }

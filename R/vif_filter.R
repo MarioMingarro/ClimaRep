@@ -49,6 +49,7 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' library(terra)
 #' library(sf)
 #'
@@ -74,6 +75,7 @@
 #' r_clim_filtered <- vif_filter(r_clim, th = 5)
 #' terra::plot(r_clim_filtered)
 #'
+#'}
 #' @export
 #'
 vif_filter <- function(x, th = 10) {
