@@ -203,7 +203,7 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 4: Example of binary representativeness maps for Pol_1 (pol_1_rep.jpeg).*
 
-2. The `MahalanobisRaw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
+2. The `Mh_Raw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
@@ -216,7 +216,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 5: Example of continuous Mahalanobis distance raster for Pol_1. Darker shades indicate cells with climate conditions more similar to Pol_1.*
 
 3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
-Cells are coded 1 for represented and 0 for not represented.
+Cells are coded `1` for represented and `0` for not represented.
 ```{r}
 mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
@@ -282,7 +282,8 @@ list.files(tempdir())
 
 ```
 
-The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change (Retained, Lost, Novel, or No Represented in either scenario).
+The `Change` subfolder contains binary rasters (`.tif`) for each input polygon, indicating the category of change 
+(`0` = No Represented, `1` = Retained, `2` = Lost, `3` = Novel).
 
 ```{r}
 change_result <- terra::rast(list.files(file.path(tempdir(), "Change"),  pattern = "\\.tif$", full.names = TRUE))
@@ -291,9 +292,9 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="man/figures/F_8.jpeg" alt="Change_pol_2" width="600">
 
-*Figure 8: Example change in representativeness raster for Pol_2, showing areas of retained, lost, or novel.*
+*Figure 8: Example of change in representativeness raster for Pol_2, showing areas No Represented (0), Retained (1), Lost (2), Novel (3).*
 
-The `Charts` subfolder is updated or regenerated and contains summary image files visualizing the change analysis results for each input polygon.
+The `Charts` subfolder is updated or regenerated and contains **summary map** files (`.jpeg`) visualizing the change analysis results for each input `polygon`.
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
@@ -301,9 +302,9 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="man/figures/F_9.jpeg" alt="map_change_pol_2" width="600">
 
-*Figure 9: Example summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
+*Figure 9: Example of summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
 
-The `Mh_Raw_Pre` subfolder contains the continuous raw Mahalanobis distance rasters for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
+The `Mh_Raw_Pre` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
 Mh_Raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
@@ -315,7 +316,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 10: Example continuous present-day Mahalanobis distance raster (within study area) for Pol_2.*
 
-The `Mh_Raw_Fut` subfolder contains the continuous raw Mahalanobis distance rasters for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input polygon.
+The `Mh_Raw_Fut` subfolder contains the **continuous raw Mahalanobis distance** rasters (`.tif`) for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
 Mh_Raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
@@ -325,7 +326,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="man/figures/F_11.jpeg" alt="Raw_fut_pol2" width="600">
 
-*Figure 11: Example continuous future Mahalanobis distance raster (within study area) for Pol_2.*
+*Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
 ### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
 After obtaining the representativeness change rasters for multiple polygons using `mh_rep_ch`, you can combine them to visualize where different change types (Retained, Lost, Novel) overlap or accumulate. 
