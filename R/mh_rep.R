@@ -1,6 +1,6 @@
 #' @title Multivariate Climate Representativeness Analysis
 #'
-#' @description Calculates Mahalanobis-based climate representativeness for input `polygons` within a defined area.
+#' @description Calculates Mahalanobis-based climate representativeness for input `polygon` within a defined area.
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within `study_area`.
 #'
 #' @param polygon An `sf` object containing the definied areas.

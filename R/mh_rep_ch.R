@@ -1,7 +1,7 @@
 #' @title Multivariate Temporal Climate Representativeness Change Analysis
 #'
-#' @description Calculates Mahalanobis-based climate representativeness for input polygons across two time periods (present and future) within a defined study area. The function identifies areas of climate representativeness persistence, loss, or gain.
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions *within* each specific input polygon in the *present* period, scaled by the overall climate variability across both time periods within the study area.
+#' @description Calculates Mahalanobis-based climate representativeness or forward climate analogs for input `polygon` across two time periods (present and future) within a defined study area. The function identifies areas of climate representativeness **Retained**, **Lost**, or **Novel**.
+#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within each specific input polygon in the **present** period, scaled by the overall climate variability across both time periods within the `study_area`.
 #'
 #' @param polygon An `sf` object containing the definied areas.
 #' @param col_name `Character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
