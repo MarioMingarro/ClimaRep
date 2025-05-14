@@ -40,7 +40,7 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 }
 \details{
 This function performs a multivariate analysis using Mahalanobis distance to assess
-the climate representativeness (\strong{forward climate analogs}) of input polygons based on climate data from a single time period.
+the climate representativeness of input polygons based on climate data from a single time period.
 
 Here are the key steps:
 \enumerate{

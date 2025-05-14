@@ -65,7 +65,7 @@ Key workflow steps include:
 \item Calculate the Mahalanobis distance for all cells within the study area, relative to the polygon's \strong{present} conditions (calculated in the previous step) and the overall \strong{present} and \strong{future} covariance matrix (calculated in step 2).
 This results in a Mahalanobis distance raster for the present period and a Mahalanobis distance raster for the future period.
 \item Determine a threshold (\code{th}) based on the \code{th} percentile of the Mahalanobis distances calculated \emph{only from within the present polygon}.
-\item Classify, based on the threshold (\code{th}), all cells within the \code{study_area} for both present and future periods as Representative (mh < \code{th}) or "Non-Representative" (mh > \code{th}).
+\item Classify, based on the threshold (\code{th}), all cells within the \code{study_area} for both present and future periods as Representative or forward climate analogs (mh < \code{th}) or "Non-Representative" (mh > \code{th}).
 }
 \item Compares the binary representativeness status of each cell between the present and future periods and determines cells where conditions:
 \itemize{

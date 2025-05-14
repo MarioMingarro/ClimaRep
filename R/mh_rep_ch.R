@@ -36,7 +36,7 @@
 #'     \item Calculate the Mahalanobis distance for all cells within the study area, relative to the polygon's **present** conditions (calculated in the previous step) and the overall **present** and **future** covariance matrix (calculated in step 2).
 #'     This results in a Mahalanobis distance raster for the present period and a Mahalanobis distance raster for the future period.
 #'     \item Determine a threshold (`th`) based on the `th` percentile of the Mahalanobis distances calculated *only from within the present polygon*.
-#'     \item Classify, based on the threshold (`th`), all cells within the `study_area` for both present and future periods as Representative (mh < `th`) or "Non-Representative" (mh > `th`).
+#'     \item Classify, based on the threshold (`th`), all cells within the `study_area` for both present and future periods as Representative or forward climate analogs (mh < `th`) or "Non-Representative" (mh > `th`).
 #'   }
 #'   \item Compares the binary representativeness status of each cell between the present and future periods and determines cells where conditions:
 #'   \itemize{

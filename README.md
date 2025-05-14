@@ -4,7 +4,7 @@
 
 ## Overview
 
-The `ClimaRep` package offers tools to analyze the **climate representativeness** or **forward analogs** of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
+The `ClimaRep` package offers tools to analyze the **climate representativeness** of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
 Using spatial data, including climate raster layers, the input area polygons, and a polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
@@ -214,7 +214,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 5: Example of continuous Mahalanobis distance raster for Pol_1. Darker shades indicate cells with climate conditions more similar to Pol_1.*
 
 3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
-Cells are coded `1` for `represented` or **forward climate analogs** or and `0` for not represented.
+Cells are coded `1` for `represented` and `0` for not represented.
 ```{r}
 mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
@@ -226,7 +226,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 6: Example of binary representativeness raster for Pol_1, showing cells classified as represented (value 1).*
 
 ### 3. Estimate change in climate representativeness.
-To estimate how representativeness or (forward climate analogs) changes, a future climate scenario is required. 
+To estimate how representativeness changes, a future climate scenario is required. 
 In this example, a simple virtual future climate conditions (`SpatRaster`) are created by adding a constant value to the `r_clim_present_filtered` data.
 
 ```{r}
@@ -421,8 +421,11 @@ Each layer in the output represents the count of how many input rasters had a sp
 If the package itself is formally cited (e.g., on CRAN), please include the package citation as well:
 
 > Mingarro & Lobo (2021) Connecting protected areas in the Iberian peninsula to facilitate climate change tracking. *Environmental Conservation*, 48(3): 182-191. doi:10.1017/S037689292100014X
+
 > Mingarro, Aguilera-Benavente & Lobo (2020) A methodology to assess the future connectivity of protected areas by combining climatic representativeness and land-cover change simulations: the case of the Guadarrama National Park (Madrid, Spain). *Environmental Planning and Management*, 64(4): 734–753. doi.org/10.1080/09640568.2020.1782859
+
 > Mingarro & Lobo (2018) Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change. *Animal Biodiversity and Conservation*, 41(2): 333–344. doi.org/10.32800/abc.2018.41.0333
+
 
 Contributing
 
