@@ -22,21 +22,21 @@
 #' }
 #'
 #' @details
-#' This function extends the multivariate analysis approach used in `mh_rep` to assess changes in climate representativeness over time.
+#' This function extends the multivariate analysis approach used in `mh_rep` to assess changes in climate representativeness (or **forward climate analogs**) over time.
 #' While `mh_rep()` calculates representativeness relative to the mean and covariance of climate conditions *without change*, `mh_rep_ch()` adapts this by using the mean from the present polygon but a covariance matrix derived from the overall climate space across both present and future periods combined.
 #'
 #' The process involves comparing representativeness between **present** and **future** periods within a defined climate scpace (`study_area`) for areas defined by input polygons (`polygon`).
 #' Key workflow steps include:
 #' \enumerate{
-#'   \item Ensures all spatial inputs (`polygon`, `present_climate_variables`, `future_climate_variables`, `study_area`) share the same Coordinate Reference System (CRS), using the CRS of `present_climate_variables` as the reference.
-#'   \item Calculates the multivariate covariance matrix using climate data from *all cells within the study area* for *both* present and future time periods combined. This captures the overall climate variability against which distances are scaled.
+#'   \item Ensure all spatial inputs (`polygon`, `present_climate_variables`, `future_climate_variables`, `study_area`) share the same Coordinate Reference System (CRS), using the CRS of `present_climate_variables` as the reference.
+#'   \item Calculate the multivariate covariance matrix using climate data from *all cells within the study area* for *both* present and future time periods combined. This captures the overall climate variability against which distances are scaled.
 #'   \item For each polygon in the `polygon` object:
 #'   \itemize{
-#'     \item Calculates the multivariate mean climate using climate data *only from within that polygon* for the **present** time period. This defines the center of the reference climate space for the polygon.
-#'     \item Calculates the Mahalanobis distance for all cells within the study area, relative to the polygon's **present** conditions (calculated in the previous step) and the overall **present** and **future** covariance matrix (calculated in step 2).
+#'     \item Calculate the multivariate mean climate using climate data *only from within that polygon* for the **present** time period. This defines the center of the reference climate space for the polygon.
+#'     \item Calculate the Mahalanobis distance for all cells within the study area, relative to the polygon's **present** conditions (calculated in the previous step) and the overall **present** and **future** covariance matrix (calculated in step 2).
 #'     This results in a Mahalanobis distance raster for the present period and a Mahalanobis distance raster for the future period.
-#'     \item Determines a threshold (`th`) based on the `th` percentile of the Mahalanobis distances calculated *only from within the present polygon*.
-#'     \item Classifies, based on the threshold (`th`), all cells within the `study_area` for both present and future periods as Representative (mh < `th`) or "Non-Representative" (mh > `th`).
+#'     \item Determine a threshold (`th`) based on the `th` percentile of the Mahalanobis distances calculated *only from within the present polygon*.
+#'     \item Classify, based on the threshold (`th`), all cells within the `study_area` for both present and future periods as Representative (mh < `th`) or "Non-Representative" (mh > `th`).
 #'   }
 #'   \item Compares the binary representativeness status of each cell between the present and future periods and determines cells where conditions:
 #'   \itemize{
