@@ -51,21 +51,21 @@ Calculates Mahalanobis-based climate representativeness for input polygons acros
 Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions \emph{within} each specific input polygon in the \emph{present} period, scaled by the overall climate variability across both time periods within the study area.
 }
 \details{
-This function extends the multivariate analysis approach used in \code{mh_rep} to assess changes in climate representativeness over time.
+This function extends the multivariate analysis approach used in \code{mh_rep} to assess changes in climate representativeness (or \strong{forward climate analogs}) over time.
 While \code{mh_rep()} calculates representativeness relative to the mean and covariance of climate conditions \emph{without change}, \code{mh_rep_ch()} adapts this by using the mean from the present polygon but a covariance matrix derived from the overall climate space across both present and future periods combined.
 
 The process involves comparing representativeness between \strong{present} and \strong{future} periods within a defined climate scpace (\code{study_area}) for areas defined by input polygons (\code{polygon}).
 Key workflow steps include:
 \enumerate{
-\item Ensures all spatial inputs (\code{polygon}, \code{present_climate_variables}, \code{future_climate_variables}, \code{study_area}) share the same Coordinate Reference System (CRS), using the CRS of \code{present_climate_variables} as the reference.
-\item Calculates the multivariate covariance matrix using climate data from \emph{all cells within the study area} for \emph{both} present and future time periods combined. This captures the overall climate variability against which distances are scaled.
+\item Ensure all spatial inputs (\code{polygon}, \code{present_climate_variables}, \code{future_climate_variables}, \code{study_area}) share the same Coordinate Reference System (CRS), using the CRS of \code{present_climate_variables} as the reference.
+\item Calculate the multivariate covariance matrix using climate data from \emph{all cells within the study area} for \emph{both} present and future time periods combined. This captures the overall climate variability against which distances are scaled.
 \item For each polygon in the \code{polygon} object:
 \itemize{
-\item Calculates the multivariate mean climate using climate data \emph{only from within that polygon} for the \strong{present} time period. This defines the center of the reference climate space for the polygon.
-\item Calculates the Mahalanobis distance for all cells within the study area, relative to the polygon's \strong{present} conditions (calculated in the previous step) and the overall \strong{present} and \strong{future} covariance matrix (calculated in step 2).
+\item Calculate the multivariate mean climate using climate data \emph{only from within that polygon} for the \strong{present} time period. This defines the center of the reference climate space for the polygon.
+\item Calculate the Mahalanobis distance for all cells within the study area, relative to the polygon's \strong{present} conditions (calculated in the previous step) and the overall \strong{present} and \strong{future} covariance matrix (calculated in step 2).
 This results in a Mahalanobis distance raster for the present period and a Mahalanobis distance raster for the future period.
-\item Determines a threshold (\code{th}) based on the \code{th} percentile of the Mahalanobis distances calculated \emph{only from within the present polygon}.
-\item Classifies, based on the threshold (\code{th}), all cells within the \code{study_area} for both present and future periods as Representative (mh < \code{th}) or "Non-Representative" (mh > \code{th}).
+\item Determine a threshold (\code{th}) based on the \code{th} percentile of the Mahalanobis distances calculated \emph{only from within the present polygon}.
+\item Classify, based on the threshold (\code{th}), all cells within the \code{study_area} for both present and future periods as Representative (mh < \code{th}) or "Non-Representative" (mh > \code{th}).
 }
 \item Compares the binary representativeness status of each cell between the present and future periods and determines cells where conditions:
 \itemize{

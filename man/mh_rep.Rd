@@ -40,18 +40,18 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 }
 \details{
 This function performs a multivariate analysis using Mahalanobis distance to assess
-the climate representativeness of input polygons based on climate data from a single time period.
+the climate representativeness (\strong{forward climate analogs}) of input polygons based on climate data from a single time period.
 
 Here are the key steps:
 \enumerate{
-\item Ensures all spatial inputs (\code{polygon}, \code{climate_variables}) share the same Coordinate Reference System (CRS), using the CRS of \code{climate_variables} as the reference.
+\item Ensure all spatial inputs (\code{polygon}, \code{climate_variables}) share the same Coordinate Reference System (CRS), using the CRS of \code{climate_variables} as the reference.
 \item For each polygon in the \code{polygon} object:
 \itemize{
-\item Crops and masks the climate variables raster (\code{climate_variables}) to the boundary of the current polygon.
-\item Calculates the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions for the current polygon.
-\item Calculates the Mahalanobis distance for each cell within the (\code{study_area})'s extent relative to the multivariate centroid and covariance matrix calculated for the current polygon.
-\item Applies the specified threshold (\code{th}) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is typically a percentile of the Mahalanobis distances calculated for the cells originally within the current polygon.
-\item Classifies each cell within the (\code{study_area})'s extent as \code{Representative = 1} (mh distance is below the threshold ) or \code{Non-Representative = 0} (mh distance is above the threshold).
+\item Crop and mask the climate variables raster (\code{climate_variables}) to the boundary of the current polygon.
+\item Calculate the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions for the current polygon.
+\item Calculate the Mahalanobis distance for each cell within the (\code{study_area})'s extent relative to the multivariate centroid and covariance matrix calculated for the current polygon.
+\item Apply the specified threshold (\code{th}) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is typically a percentile of the Mahalanobis distances calculated for the cells originally within the current polygon.
+\item Classify each cell within the (\code{study_area})'s extent as \code{Representative = 1} (mh distance is below the threshold ) or \code{Non-Representative = 0} (mh distance is above the threshold).
 }
 \item Output Generation: Saves the binary classification raster (\code{.tif}) for each polygon and generates a corresponding visualization map (\code{jpeg}). These are saved within the specified output directory (\code{dir_output}).
 }
