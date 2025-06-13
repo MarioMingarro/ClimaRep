@@ -281,7 +281,7 @@ This process generates several subfolders within the directory specified by `dir
 
 ```{r}
 list.files(tempdir())
- [1] ""Change"             "Charts"             "Mh_Raw_Pre"             ""Mh_Raw_Fut"
+ [1] "Change"             "Charts"             "Mh_Raw_Pre"             "Mh_Raw_Fut"
 
 ```
 
@@ -337,8 +337,7 @@ The `mh_overlay` function counting, for each cell, how many of the input rasters
 
 ```{r}
 mh_overlay(
-  folder_path = file.path(tempdir(), "Change"),
-  add_to_environment = TRUE)
+  folder_path = file.path(tempdir(), "Change"))
 terra::plot(climarep_img)
 ```
 <img src="man/figures/F_12.jpeg" alt="Retained" width="600">
