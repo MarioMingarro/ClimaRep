@@ -108,23 +108,25 @@ r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 --- VIF Filtering Summary ---
 VIF filtering completed.
 Kept layers: varA, varC, varE, varF, varG 
-Excluded layers:  
+Excluded layers: varD, varB 
 
 Pearson correlation matrix of original data:
-        varA   varC    varE    varF   varG
-varA  1.0000 0.0087 -0.0745  0.5854 0.0028
-varC  0.0087 1.0000  0.0517  0.5694 0.8372
-varE -0.0745 0.0517  1.0000 -0.0256 0.0650
-varF  0.5854 0.5694 -0.0256  1.0000 0.6350
-varG  0.0028 0.8372  0.0650  0.6350 1.0000
+        varA    varB   varC   varD    varE    varF   varG
+varA  1.0000  0.8870 0.0087 0.0938 -0.0745  0.5816 0.0028
+varB  0.8870  1.0000 0.0043 0.0997 -0.0769  0.6513 0.0003
+varC  0.0087  0.0043 1.0000 0.8523  0.0517  0.5676 0.8341
+varD  0.0938  0.0997 0.8523 1.0000  0.0576  0.7077 0.9529
+varE -0.0745 -0.0769 0.0517 0.0576  1.0000 -0.0256 0.0653
+varF  0.5816  0.6513 0.5676 0.7077 -0.0256  1.0000 0.6305
+varG  0.0028  0.0003 0.8341 0.9529  0.0653  0.6305 1.0000
 
 Final VIF values for kept variables:
         VIF
-varA 2.3475
-varC 3.3954
+varA 2.2832
+varC 3.3473
 varE 1.0121
-varF 3.9725
-varG 4.5054
+varF 3.8325
+varG 4.3545
 ----------------------------
 
 terra::plot(r_clim_present_filtered)
@@ -205,7 +207,7 @@ list.files(file.path(tempdir(), "Charts"))
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
-mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "MahalanobisRaw"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -356,64 +358,61 @@ Variables with VIF above the threshold are iteratively removed until all remaini
 
 **mh_rep()**
 
-Estimates the current climate representativeness of the areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
+Estimates the current climate representativeness of areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
 It calculates Mahalanobis distance for each cell from the climate centroid of the input `polygon` and identifies cells within a specified threshold distance or percentile as "representativeness".
 
 `mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
 
-> `polygon`: An `sf` object containing the input polygon/s.
+> `polygon`: An `sf` object containing the input polygon(s) for which representativeness will be assessed.
 
-> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
+> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input `polygon`.
 
-> `climate_variables`: A `SpatRaster` object with the climate layers.
+> `climate_variables`: A `SpatRaster` object with the climate layers (typically pre-filtered using `vif_filter`).
 
 > `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
-> `dir_output`: Path to the `directory` where output rasters and charts will be saved.
+> `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
 
-> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster for each input `polygon`.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster (`Mh_Raw`) for each input `polygon`.
 
 **mh_rep_ch()**
 
 Estimates the change in climate representativeness for the areas defined by `polygon` between present (`present_climate_variables`) and future (`future_climate_variables`) climate conditions. 
-For each input `polygon`, it compares the representativeness climate conditions across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
+For each input `polygon`, it compares the representativeness across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
 
 `mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
 
-> `polygon`: An `sf` object containing the input polygon/s.
+> `polygon`: An `sf` object containing the input polygon/s for which representativeness change will be assessed.
 
-> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input area.
+> `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input `polygon`.
 
-> `present_climate_variables`: A `SpatRaster` object with the present climate layers (typically filtered).
+> `present_climate_variables`: A `SpatRaster` object with the present climate layers (typically pre-filtered using `vif_filter`).
 
-> `future_climate_variables`: A `SpatRaster` object with the future climate layers.
+> `future_climate_variables`: A `SpatRaster` object with the future climate layers (usually same as `present_climate_variables`).
 
 > `study_area`: An `sf` object defining the overall study region.
 
-> `th`: The percentile `threshold` for determining representativeness in both scenarios.
+> `th`: The percentile `threshold` for determining representativeness in both scenarios (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
-> `model`: `Character string` identifying the climate model (e.g., "MIROC6"). Used in output filenames.
+> `model`: `Character string` identifying the climate model (e.g., "MIROC6"). This is used in output filenames for clear identification.
 
-> `year`: `Character string` identifying the future period (e.g., "2050"). Used in output filenames.
+> `year`: `Character string` identifying the future period (e.g., "2050"). This is used in output filenames for clear identification.
 
-> `dir_output`: Path to the `directory` where output rasters and charts will be saved.
+> `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
 
-> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters for both present and future scenarios within the study area extent.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters (`Mh_Raw`) for both present and future scenarios within the study area extent.
 
 **mh_overlay()**
 
-Combines multiple single-layer rasters (`.tif`) into a single multi-layered raster stack. 
-Each layer in the output represents the count of how many input rasters had a specific category value (e.g., Represented/Retained, Lost, Novel) at each grid cell, allowing visualization of spatial accumulation of change types across `study_area`.
+Combines multiple single-layer rasters (`.tif`, outputs from `mh_rep` or `mh_rep_ch`) into a single multi-layered `SpatRaster` stack specifically designed for RGB visualization. 
+The output layers consistently represent the cumulative counts for 'Lost' (Red channel), 'Retained' (Green channel), and 'Novel' (Blue channel) categories across all rasters (obtained from `mh_rep_ch()`). 
+This function automatically handles inputs that may only contain 'Retained' areas (obtained from `mh_rep()`).
 
-`mh_overlay(folder_path, output_filename, category_values, add_to_environment)`
+`mh_overlay(folder_path, add_to_environment)`
 
-> `folder_path`: Character string. Path to the directory containing the input single-layer GeoTIFF classification rasters (e.g., outputs from `mh_rep_ch`).
+> `folder_path`: Character string. Path to the directory containing the input single-layer GeoTIFF classification rasters (outputs from `mh_rep_ch()` or `mh_rep()`).
 
-> `output_filename`: Character string. The name for the output combined multi-layered GeoTIFF file. The file will be saved within the `folder_path`.
-
-> `category_values`: Numeric vector. A vector specifying the specific pixel values (categories like 0, 1, 2, 3) to count in the input rasters (0 = Non-representativeness, 1 = Represented/Retained, 2 = Lost, 3 = Novel).
-
-> `add_to_environment`: Logical. If `TRUE`, the resulting multi-layered SpatRaster object is assigned to a variable named `climarep_img` in the calling R environment.
+> `add_to_environment`: Logical. If `TRUE`, the resulting multi-layered SpatRaster object is assigned to a variable named `climarep_rgb`  in the global R environment.
 
 
 ## Citation
@@ -427,14 +426,12 @@ If the package itself is formally cited (e.g., on CRAN), please include the pack
 > Mingarro & Lobo (2018) Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change. *Animal Biodiversity and Conservation*, 41(2): 333–344. doi.org/10.32800/abc.2018.41.0333
 
 
-Contributing
 
-
-Getting Help
+## Getting Help
 If you encounter issues or have questions, please contact.
 
-License
-[Specify the package license, e.g., MIT, GPL-3]
+##License
+MIT, GPL-3
 
 
 

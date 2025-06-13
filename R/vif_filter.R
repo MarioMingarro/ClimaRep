@@ -3,12 +3,12 @@
 #' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
 #'
 #' @param x A `SpatRaster` object containing the layers (variables) to filter.
-#'   Must contain two or more layers.
+#'    Must contain two or more layers.
 #' @param th A numeric value specifying the Variance Inflation Factor (VIF)
-#'   threshold. Layers whose VIF exceeds this threshold are candidates for
-#'   removal in each iteration (default: 10).
+#'    threshold. Layers whose VIF exceeds this threshold are candidates for
+#'    removal in each iteration (default: 10).
 #'
-#' @return A [SpatRaster] object containing onlythe layers from the input
+#' @return A [SpatRaster] object containing only the layers from the input
 #' `x` that were retained by the VIF filtering process. The layers are returned
 #' in their original order. If no layers meet the VIF threshold criterion
 #' (all are excluded) or if the input becomes empty after removing NA values, an empty `SpatRaster` object is returned.
@@ -21,12 +21,13 @@
 #'
 #' Here are the key steps:
 #' \enumerate{
-#'   \item Convert the input `SpatRaster` (`x`) to a `data.frame`.
-#'   \item Remove rows containing any `NA` values across all variables from the `data.frame`.
-#'   \item In each iteration, calculate the Variance Inflation Factor (VIF) for all variables currently remaining in the dataset.
-#'   \item Identify the variable with the highest VIF among the remaining variables.
-#'   \item If this highest VIF value is greater than the specified threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
-#'   \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains in the dataset.
+#'    \item Validate inputs: Ensures `x` is a `SpatRaster` with at least two layers and `th` is a valid numeric value.
+#'    \item Convert the input `SpatRaster` (`x`) to a `data.frame`, retaining only unique rows if `x` has many cells and few unique climate values (for performance).
+#'    \item Remove rows containing any `NA` values across all variables from the `data.frame`.
+#'    \item In each iteration, calculate the Variance Inflation Factor (VIF) for all variables currently remaining in the dataset.
+#'    \item Identify the variable with the highest VIF among the remaining variables.
+#'    \item If this highest VIF value is greater than the specified threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
+#'    \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains in the dataset.
 #' }
 #'
 #' Finally, the function returns a new `SpatRaster` object containing only the variables that were kept.
@@ -46,10 +47,9 @@
 #' References:
 #' O’brien, R.M. A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690 (2007). https://doi.org/10.1007/s11135-006-9018-6
 #'
-#' @importFrom terra as.data.frame subset
+#' @importFrom terra as.data.frame subset rast
 #' @importFrom stats cov var lm as.formula cor
 #' @importFrom utils packageVersion
-#'
 #'
 #' @examples
 #' \dontrun{
@@ -58,26 +58,24 @@
 #'
 #' set.seed(2458)
 #' n_cells <- 100 * 100
-#' r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
-#' values(r_clim_present) <- c(
-#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-#'   (rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-#'   (colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-#'   (colFromCell(r_clim_present, 1:n_cells) +
-#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (colFromCell(r_clim_present, 1:n_cells) /
-#'     (rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (colFromCell(r_clim_present, 1:n_cells) *
-#'     (rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)),
-#'   (colFromCell(r_clim_present, 1:n_cells) *
-#'     (colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))
-#' )
+#' r_clim <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
+#' values(r_clim) <- c(
+#'   (rowFromCell(r_clim, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+#'   (rowFromCell(r_clim, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+#'   (colFromCell(r_clim, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+#'   (colFromCell(r_clim, 1:n_cells) +
+#'      (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim, 1:n_cells) /
+#'      (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+#'   (colFromCell(r_clim, 1:n_cells) *
+#'      (rowFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))),
+#'   (colFromCell(r_clim, 1:n_cells) *
+#'      (colFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))))
 #' names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim) <- "EPSG:4326"
 #' terra::plot(r_clim)
 #' r_clim_filtered <- vif_filter(r_clim, th = 5)
 #' terra::plot(r_clim_filtered)
-#'
 #'}
 #' @export
 #'
