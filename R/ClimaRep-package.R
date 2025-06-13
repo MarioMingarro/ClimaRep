@@ -1,10 +1,9 @@
 #' @keywords internal
-#' @docType package
-#' @name ClimaRep-package
 #' @aliases ClimaRep
-#' @title Estimating Climate Representativeness
-#' @description
-#' The `ClimaRep` package offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
+"_PACKAGE"
+
+#' @title ClimaRep: Estimating Climate Representativeness
+#' @description The `ClimaRep` package offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
 #' @details
 #' ## Overview
 #' The primary goal of `ClimaRep` is to quantify how well the climate within specific polygons (`sf`) represents the broader climate space defined by climate variables (`SpatRaster`) within a study area (`sf`).
@@ -19,4 +18,8 @@
 #'
 #' ## More Details
 #' https://github.com/MarioMingarro/ClimaRep
+#'
+#' @author Mario Mingarro Lopez
+#' @docType package
+#' @name ClimaRep-package
 #'
