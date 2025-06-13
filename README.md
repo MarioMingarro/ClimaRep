@@ -441,7 +441,8 @@ If the package itself is formally cited (e.g., on CRAN), please include the pack
 
 If you encounter issues or have questions, please contact.
 
-##License
+
+## License
 
 MIT, GPL-3
 
