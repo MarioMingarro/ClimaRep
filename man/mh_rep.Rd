@@ -31,7 +31,7 @@ Invisibly returns NULL. Writes the following outputs to disk within subdirectori
 \itemize{
 \item Classification (\code{.tif} ) rasters: Binary rasters (\code{1} for Representative and \code{0} for Non-representative) for each input \code{polygon} are saved in the \verb{Representativeness/} subdirectory.
 \item Visualization (\code{.jpeg}) maps: Image files visualizing the classification results for each \code{polygon} are saved in the \verb{Charts/} subdirectory.
-\item Raw Mahalanobis distance rasters: \emph{Optionally} saved as \code{.tif} files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
+\item Raw Mahalanobis distance rasters: Optionally saved as \code{.tif} files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
 }
 }
 \description{
@@ -39,26 +39,25 @@ Calculates Mahalanobis-based climate representativeness for input \code{polygon}
 Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space \code{climate_variables} defined by the climate conditions within the input \code{polygon}.
 }
 \details{
-This function performs a multivariate analysis using Mahalanobis distance to assess
-the climate representativeness of input polygons based on climate data from a single time period.
+This function performs a multivariate analysis using Mahalanobis distance to assess the climate representativeness of input polygons based on climate data from a single time period.
 
-\strong{Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{climate_variables}) are already correctly aligned and share the same Coordinate Reference System (CRS). If inputs do not meet these criteria, the function will stop with an informative error.}
+Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{climate_variables}) are already correctly aligned and share the same Coordinate Reference System (CRS). If inputs do not meet these criteria, the function will stop with an informative error.
 
 Here are the key steps:
 \enumerate{
-\item \strong{Pre-check of spatial inputs}: Ensures that \code{polygon} and \code{climate_variables} have matching CRSs.
+\item Pre-check of spatial inputs: Ensures that \code{polygon} and \code{climate_variables} have matching CRSs.
 \item For each polygon in the \code{polygon} object:
 \itemize{
 \item Crop and mask the climate variables raster (\code{climate_variables}) to the boundary of the current polygon.
-\item Calculate the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions for the current polygon.
-\item Calculate the Mahalanobis distance for each cell within the \code{climate_variables}' extent relative to the multivariate centroid and covariance matrix calculated for the current polygon. The generated Mahalanobis raster is created to ensure perfect alignment with the input climate raster.
-\item Apply the specified threshold (\code{th}) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is typically a percentile of the Mahalanobis distances calculated for the cells originally within the current polygon.
+\item Calculate the multivariate mean using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions or centroid for the current polygon.
+\item Calculate the Mahalanobis distance for each cell within the \code{climate_variables} extent relative to the multivariate centroid and covariance matrix calculated.
+\item Apply the specified threshold (\code{th}) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
 \item Classify each cell within the \code{climate_variables}' extent as \code{Representative = 1} (Mahalanobis distance \eqn{\le} \code{th}) or \code{Non-Representative = 0} (Mahalanobis distance $>$ \code{th}).
 }
 \item Output Generation: Saves the binary classification raster (\code{.tif}) for each polygon and generates a corresponding visualization map (\code{.jpeg}). These are saved within the specified output directory (\code{dir_output}).
 }
 
-It is important to note that Mahalanobis distance assumes multivariate normality and is sensitive to collinearity among variables.
+It is important to note that Mahalanobis distance is sensitive to collinearity among variables.
 While the covariance matrix accounts for correlations, it is strongly recommended that the \code{climate_variables} are not strongly correlated.
 Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter} function from this package.
 }
