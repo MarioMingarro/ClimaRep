@@ -45,7 +45,6 @@ This section provides a brief example demonstrating the core workflow of the pac
 
 <img src="man/figures/workflow.jpeg" alt="workflow" width="600">
 
-*Figure 1: Example of workflow.*
 
 First, load the package:
 
