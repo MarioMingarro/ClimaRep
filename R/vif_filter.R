@@ -6,20 +6,19 @@
 #'    Must contain two or more layers.
 #' @param th A numeric value specifying the Variance Inflation Factor (VIF)
 #'    threshold. Layers whose VIF exceeds this threshold are candidates for
-#'    removal in each iteration (default: 10).
+#'    removal in each iteration (default: 5).
 #'
 #' @return A [SpatRaster] object containing only the layers from the input
 #' `x` that were retained by the VIF filtering process. The layers are returned
-#' in their original order. If no layers meet the VIF threshold criterion
-#' (all are excluded) or if the input becomes empty after removing NA values, an empty `SpatRaster` object is returned.
+#' in their original order.
 #'
 #' @details This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 #' The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
 #' Conceptually, it is based on the proportion of variance that predictor shares with the other independent variables.
 #' A high VIF value suggests a high degree of collinearity with other predictors (values exceeding `5` or `10` are often considered problematic; see O'Brien, 2007).
-#' In this context, the function provides the Pearson correlation matrix between all initial variables, and a threshold parameter (`th`) is available to specify the critical VIF value for addressing multicollinearity.
+#' In this context, the function also provides the Pearson correlation matrix between all initial variables.
 #'
-#' Here are the key steps:
+#' Key steps:
 #' \enumerate{
 #'    \item Validate inputs: Ensures `x` is a `SpatRaster` with at least two layers and `th` is a valid numeric value.
 #'    \item Convert the input `SpatRaster` (`x`) to a `data.frame`, retaining only unique rows if `x` has many cells and few unique climate values (for performance).
@@ -27,7 +26,7 @@
 #'    \item In each iteration, calculate the Variance Inflation Factor (VIF) for all variables currently remaining in the dataset.
 #'    \item Identify the variable with the highest VIF among the remaining variables.
 #'    \item If this highest VIF value is greater than the specified threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
-#'    \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains in the dataset.
+#'    \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} `th`, or until only one variable remains in the dataset.
 #' }
 #'
 #' Finally, the function returns a new `SpatRaster` object containing only the variables that were kept.
@@ -49,7 +48,6 @@
 #'
 #' @importFrom terra as.data.frame subset rast
 #' @importFrom stats cov var lm as.formula cor
-#' @importFrom utils packageVersion
 #'
 #' @examples
 #' \dontrun{
@@ -60,16 +58,16 @@
 #' n_cells <- 100 * 100
 #' r_clim <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
 #' values(r_clim) <- c(
-#'   (rowFromCell(r_clim, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-#'   (rowFromCell(r_clim, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-#'   (colFromCell(r_clim, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-#'   (colFromCell(r_clim, 1:n_cells) +
+#'    (rowFromCell(r_clim, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+#'    (rowFromCell(r_clim, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+#'    (colFromCell(r_clim, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+#'    (colFromCell(r_clim, 1:n_cells) +
 #'      (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (colFromCell(r_clim, 1:n_cells) /
+#'    (colFromCell(r_clim, 1:n_cells) /
 #'      (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (colFromCell(r_clim, 1:n_cells) *
+#'    (colFromCell(r_clim, 1:n_cells) *
 #'      (rowFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))),
-#'   (colFromCell(r_clim, 1:n_cells) *
+#'    (colFromCell(r_clim, 1:n_cells) *
 #'      (colFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))))
 #' names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim) <- "EPSG:4326"
@@ -78,7 +76,6 @@
 #' terra::plot(r_clim_filtered)
 #'}
 #' @export
-#'
 vif_filter <- function(x, th = 5) {
   if (!inherits(x, 'SpatRaster')) {
     stop("Input 'x' must be a SpatRaster object to return a filtered raster.")

@@ -1,7 +1,7 @@
 #' @title Multivariate Climate Representativeness Analysis
 #'
 #' @description Calculates Mahalanobis-based climate representativeness for input `polygon` within a defined area.
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space defined by the climate conditions within the input `polygon`.
+#' Representativeness is assessed by comparing the multivariate climate conditions of each cell to the reference climate space `climate_variables` defined by the climate conditions within the input `polygon`.
 #'
 #' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as `climate_variables`.**
 #' @param col_name `Character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
@@ -32,7 +32,7 @@
 #'    \item Calculate the multivariate mean and covariance matrix using the climate data from the clipped and masked raster (handling NA values). This defines the reference climate conditions for the current polygon.
 #'    \item Calculate the Mahalanobis distance for each cell within the `climate_variables`' extent relative to the multivariate centroid and covariance matrix calculated for the current polygon. The generated Mahalanobis raster is created to ensure perfect alignment with the input climate raster.
 #'    \item Apply the specified threshold (`th`) to the calculated Mahalanobis distances to determine which cells are considered representative. This threshold is typically a percentile of the Mahalanobis distances calculated for the cells originally within the current polygon.
-#'    \item Classify each cell within the `climate_variables`' extent as `Representative = 1` (Mahalanobis distance $\leq$ `th`) or `Non-Representative = 0` (Mahalanobis distance $>$ `th`).
+#'    \item Classify each cell within the `climate_variables`' extent as `Representative = 1` (Mahalanobis distance \eqn{\le} `th`) or `Non-Representative = 0` (Mahalanobis distance $>$ `th`).
 #'  }
 #'  \item Output Generation: Saves the binary classification raster (`.tif`) for each polygon and generates a corresponding visualization map (`.jpeg`). These are saved within the specified output directory (`dir_output`).
 #' }
@@ -41,7 +41,7 @@
 #' While the covariance matrix accounts for correlations, it is strongly recommended that the `climate_variables` are not strongly correlated.
 #' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter` function from this package.
 #'
-#' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell compareGeom resample
+#' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell compareGeom
 #' @importFrom sf st_crs st_transform st_geometry st_as_sf st_make_grid
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_manual ggtitle theme_minimal ggsave element_text
 #' @importFrom tidyterra geom_spatraster
@@ -57,16 +57,16 @@
 #' n_cells <- 100 * 100
 #' r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
 #' values(r_clim_present) <- c(
-#'   (terra::rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
-#'   (terra::rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
-#'   (terra::colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
-#'   (terra::colFromCell(r_clim_present, 1:n_cells) +
+#'    (terra::rowFromCell(r_clim_present, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+#'    (terra::rowFromCell(r_clim_present, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+#'    (terra::colFromCell(r_clim_present, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+#'    (terra::colFromCell(r_clim_present, 1:n_cells) +
 #'      (terra::rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (terra::colFromCell(r_clim_present, 1:n_cells) /
+#'    (terra::colFromCell(r_clim_present, 1:n_cells) /
 #'      (terra::rowFromCell(r_clim_present, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
-#'   (terra::colFromCell(r_clim_present, 1:n_cells) *
+#'    (terra::colFromCell(r_clim_present, 1:n_cells) *
 #'      (terra::rowFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))),
-#'   (terra::colFromCell(r_clim_present, 1:n_cells) *
+#'    (terra::colFromCell(r_clim_present, 1:n_cells) *
 #'      (terra::colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4)))
 #' )
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
@@ -79,11 +79,11 @@
 #'
 #' # Create a hexagonal grid and select polygons
 #' hex_grid <- sf::st_sf(
-#'   sf::st_make_grid(
-#'     sf::st_as_sf(
-#'       terra::as.polygons(
-#'         terra::ext(r_clim_present))),
-#'     square = FALSE))
+#'    sf::st_make_grid(
+#'      sf::st_as_sf(
+#'        terra::as.polygons(
+#'          terra::ext(r_clim_present))),
+#'      square = FALSE))
 #' sf::st_crs(hex_grid) <- "EPSG:4326"
 #'
 #' # Select 2 random polygons and assign names
@@ -96,12 +96,12 @@
 #'
 #' # Run the mh_rep function
 #' mh_rep(
-#'   polygon = polygons,
-#'   col_name = "name",
-#'   climate_variables = r_clim_filtered,
-#'   th = 0.95,
-#'   dir_output = file.path(tempdir(), "ClimaRepSingle"),
-#'   save_raw = TRUE
+#'    polygon = polygons,
+#'    col_name = "name",
+#'    climate_variables = r_clim_filtered,
+#'    th = 0.95,
+#'    dir_output = file.path(tempdir(), "ClimaRepSingle"),
+#'    save_raw = TRUE
 #' )
 #'
 #' # List files in the output directory to confirm (optional)
@@ -157,8 +157,19 @@ mh_rep <- function(polygon,
   }
   message("Starting per-polygon processing...")
   data_p <- na.omit(terra::as.data.frame(climate_variables, xy = TRUE))
-  data_p$Period <- "Present"
-  cov_matrix <- cov(data_p[, 3:(ncol(data_p) - 1)], use = "complete.obs")
+  if (ncol(data_p) < 3) {
+    stop(
+      "Not enough climate variables in 'climate_variables' to calculate Mahalanobis distance."
+    )
+  }
+  climate_data_cols <- 3:(ncol(data_p) - 0)
+  cov_matrix <- cov(data_p[, climate_data_cols], use = "complete.obs")
+  if (inherits(try(solve(cov_matrix), silent = TRUE)
+               , "try-error")) {
+    stop(
+      "Covariance matrix is singular. This can happen if variables are perfectly correlated or there's insufficient data. Consider filtering variables or checking data quality."
+    )
+  }
   for (j in 1:nrow(polygon)) {
     pol <- polygon[j, ]
     pol_name <- as.character(pol[[col_name]])
@@ -180,15 +191,10 @@ mh_rep <- function(polygon,
       next
     }
     mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
-    calculate_mh <- function(data) {
-      coords <- data[, 1:2]
-      climate_data <- as.matrix(data[, 3:(ncol(data) - 1)])
-      mh_values <- mahalanobis(climate_data, mu, cov_matrix)
-      terra::rast(cbind(coords, mh_values),
-                  type = "xyz",
-                  crs = reference_system)
-    }
-    mh_present <- calculate_mh(data_p)
+    mh_values <- mahalanobis(as.matrix(data_p[, climate_data_cols]), mu, cov_matrix)
+    mh_present <- terra::rast(cbind(data_p$x, data_p$y, mh_values),
+                              type = "xyz",
+                              crs = reference_system)
     if (save_raw) {
       terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("MH_rep_", pol_name, ".tif")), overwrite = TRUE)
     }
@@ -196,8 +202,10 @@ mh_rep <- function(polygon,
     th_value <- quantile(terra::values(mh_poly),
                          probs = th,
                          na.rm = TRUE)
-    if (anyNA(th_value)) {
-      warning("No threshold was obtained for: ", pol_name, ". Skipping...")
+    if (anyNA(th_value) || is.infinite(th_value)) {
+      warning("No valid threshold was obtained for: ",
+              pol_name,
+              ". Skipping...")
       next
     }
     classify_mh <- function(mh_raster, threshold) {
@@ -212,10 +220,10 @@ mh_rep <- function(polygon,
                          paste0("TH_Rep_", pol_name, ".tif")
                        ),
                        overwrite = TRUE)
-    raster_final <- terra::as.factor(raster_final)
+    raster_final_factor <- terra::as.factor(raster_final)
     p <- suppressMessages(
       ggplot2::ggplot() +
-        tidyterra::geom_spatraster(data = raster_final) +
+        tidyterra::geom_spatraster(data = raster_final_factor) +
         ggplot2::geom_sf(
           data = pol,
           color = "black",
@@ -230,14 +238,11 @@ mh_rep <- function(polygon,
           drop = FALSE
         ) +
         ggplot2::ggtitle(pol_name) +
-        ggplot2::theme_minimal()
+        ggplot2::theme_minimal() +
+        ggplot2::theme(plot.title = element_text(hjust = 0.5))
     )
     ggplot2::ggsave(
-      filename = file.path(
-        dir_output,
-        "Charts",
-        paste0(pol_name, "_rep.jpeg")
-      ),
+      filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep.jpeg")),
       plot = p,
       width = 10,
       height = 10,
@@ -245,6 +250,6 @@ mh_rep <- function(polygon,
     )
   }
   message("All processes were completed")
-  cat(paste("Output files in:", dir_output))
+  cat(paste("Output files in:", dir_output, "\n"))
   return(invisible(NULL))
 }

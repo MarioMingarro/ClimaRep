@@ -333,10 +333,9 @@ After obtaining the representativeness change rasters for multiple polygons usin
 The `mh_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
 ```{r}
-mh_overlay(folder_path = file.path(tempdir(), "Change"),
-output_filename = "combined_category_counts.tif",
-category_values = c(1, 2, 3),
-add_to_environment = TRUE)
+mh_overlay(
+  folder_path = file.path(tempdir(), "Change"),
+  add_to_environment = TRUE)
 terra::plot(climarep_img)
 ```
 <img src="man/figures/F_12.jpeg" alt="Retained" width="600">
