@@ -59,7 +59,7 @@ Next, prepare the essential input data:
 
 2. **Polygon** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
 
-3. **Study area** as a single `sf` object, representing the overall geographical region for analysis and thus the **climate space** being worked on.
+3. **Study area** as a single `sf` object, representing the overall geographical region for analysis and thus the climate space being worked on.
 
 
 Here is a practical example using simulated data:
@@ -93,7 +93,7 @@ terra::plot(r_clim_present)
 *Figure 1: Example of simulated climate raster layers (r_clim_present).*
 
 
-### 1. Filter climate Variables
+### 1. Filter Climate Variables
 
 A crucial first step in processing the climate variables is often to address multicollinearity. Multicollinearity among climate variables can affect multivariate analyses.
 
@@ -415,7 +415,7 @@ For each input `polygon`, it compares the representativeness across the two scen
 **mh_overlay()**
 
 Combines multiple single-layer rasters (`.tif`, outputs from `mh_rep` or `mh_rep_ch`) into a single multi-layered `SpatRaster` stack specifically designed for RGB visualization. 
-The output layers consistently represent the cumulative counts for 'Lost' (Red channel), 'Retained' (Green channel), and 'Novel' (Blue channel) categories across all rasters (obtained from `mh_rep_ch()`). 
+The output layers consistently represent the cumulative counts for 'Lost' (Red), 'Retained' (Green), and 'Novel' (Blue) categories across all rasters (obtained from `mh_rep_ch()`). 
 This function automatically handles inputs that may only contain 'Representativeness' areas (obtained from `mh_rep()`).
 A new subfolder named `overlay/` will be created within the `folder_path` provided.
 
@@ -434,6 +434,7 @@ If the package itself is formally cited (e.g., on CRAN), please include the pack
 
 > Mingarro & Lobo (2018) Environmental representativeness and the role of emitter and recipient areas in the future trajectory of a protected area under climate change. *Animal Biodiversity and Conservation*, 41(2): 333–344. doi.org/10.32800/abc.2018.41.0333
 
+> Farber & Kadmon (2003) Assessment of alternative approaches for bioclimatic modeling with special emphasis on the Mahalanobis distance. *Ecological Modelling*, 160: 115–130. doi:10.1016/S0304-3800(02)00327-7 
 
 
 ## Getting Help
