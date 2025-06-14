@@ -7,7 +7,7 @@ Authors@R:
     comment = c(ORCID = "0000-0003-3977-7944"),
     email = "mario_mingarro@mncn.csic.es", 
     role = c("aut", "cre"))
-Description: The **ClimaRep** package offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
+Description: The ClimaRep package offers tools to estimate the Climate Representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
