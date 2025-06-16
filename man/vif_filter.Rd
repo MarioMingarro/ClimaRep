@@ -55,7 +55,7 @@ perfect collinearity among variables, which could otherwise lead to errors
 as having infinite VIF due to perfect collinearity are prioritized for removal.
 
 References:
-O’brien, R.M. A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690 (2007). https://doi.org/10.1007/s11135-006-9018-6
+O’brien, R.M. (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690. doi:10.1007/s11135-006-9018-6
 }
 \examples{
 \dontrun{

@@ -44,7 +44,7 @@
 #' as having infinite VIF due to perfect collinearity are prioritized for removal.
 #'
 #' References:
-#' O’brien, R.M. A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690 (2007). https://doi.org/10.1007/s11135-006-9018-6
+#' O’brien, R.M. (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690. doi:10.1007/s11135-006-9018-6
 #'
 #' @importFrom terra as.data.frame subset rast
 #' @importFrom stats cov var lm as.formula cor
@@ -78,18 +78,13 @@
 #' @export
 vif_filter <- function(x, th = 5) {
   if (!inherits(x, 'SpatRaster')) {
-    stop("Input 'x' must be a SpatRaster object to return a filtered raster.")
+    stop("Input 'x' must be a SpatRaster.")
   }
   if (!is.numeric(th)) {
     stop("Parameter 'th' must be numeric.")
   }
   original_raster <- x
   x_df <- terra::as.data.frame(x, na.rm = TRUE)
-  if (nrow(x_df) == 0 || ncol(x_df) == 0) {
-    warning(
-      "Data frame is empty after removing NAs. Cannot perform VIF calculation. Returning an empty SpatRaster.")
-    return(original_raster[[character(0)]])
-  }
   original_cor_matrix <- NULL
   if (ncol(x_df) > 1) {
     original_cor_matrix <- round(cor(x_df, method = "pearson"), 4)
@@ -169,7 +164,6 @@ vif_filter <- function(x, th = 5) {
     final_vif_data <- "No variables kept."
   }
   cat("--- VIF Filtering Summary ---\n")
-  cat("VIF filtering completed.\n")
   cat("Kept layers:", paste(kept_vars, collapse = ", "), "\n")
   cat("Excluded layers:", paste(exc, collapse = ", "), "\n")
   cat("\nPearson correlation matrix of original data:\n")
@@ -190,5 +184,6 @@ vif_filter <- function(x, th = 5) {
     return(original_raster[[character(0)]])
   }
   result_raster <- subset(original_raster, kept_vars)
+  cat("VIF filtering completed.\n")
   return(result_raster)
 }

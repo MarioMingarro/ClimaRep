@@ -45,7 +45,7 @@ testthat::test_that("mh_rep_ch works correctly", {
     lwd = 3,
     border = "red")
 
-  output_dir <- file.path(tempdir(), "ClimaRepOutput_mh_rep_ch_test")
+  output_dir <- file.path(tempdir(), "mh_rep_ch_test")
   if (dir.exists(output_dir)) {
     unlink(output_dir, recursive = TRUE)
   }
@@ -73,7 +73,6 @@ testthat::test_that("mh_rep_ch works correctly", {
   expect_true(dir.exists(mh_raw_pre_dir), label = "Mh_Raw_Pre directory exists")
   expect_true(dir.exists(mh_raw_fut_dir), label = "Mh_Raw_Fut directory exists")
 
-  # Comprobar que las carpetas no están vacías
   expect_gt(length(list.files(change_dir)), 0, label = "Change directory is not empty")
   expect_gt(length(list.files(charts_dir)), 0, label = "Charts directory is not empty")
   expect_gt(length(list.files(mh_raw_pre_dir)), 0, label = "Mh_Raw_Pre directory is not empty")

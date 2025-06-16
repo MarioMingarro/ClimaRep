@@ -194,7 +194,7 @@ Output files in: C:\Users\AppData\Local\Temp\RtmpY1rKKD
 This process generates 3 subfolders within the directory specified by `dir_output` (e.g., `tempdir()`).
 ```{r}
 list.files(tempdir())
- [1] "Charts"             "Mh_Raw"             "Representativeness"
+ [1] "Charts"             "Mh_raw"             "Representativeness"
 ```
 
 1. The `Charts` subfolder contains the **binary representativeness** image files (`.jpeg`) for each input `polygon`.
@@ -207,11 +207,11 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 4: Example of binary representativeness map for Pol_1 (pol_1_rep.jpeg).*
 
-2. The `Mh_Raw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
+2. The `Mh_raw` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for each input `polygon`. 
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
-mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "Mh_raw"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -285,7 +285,7 @@ This process generates several subfolders within the directory specified by `dir
 
 ```{r}
 list.files(tempdir())
- [1] "Change"             "Charts"             "Mh_Raw_Pre"             "Mh_Raw_Fut"
+ [1] "Change"             "Charts"             "Mh_raw_Pre"             "Mh_raw_Fut"
 
 ```
 
@@ -315,27 +315,27 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 9: Example of summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
 
-The `Mh_Raw_Pre` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
+The `Mh_raw_Pre` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
-Mh_Raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(Mh_Raw_Pre_result[[2]])
+Mh_raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(Mh_raw_Pre_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
-<img src="man/figures/F_10.jpeg" alt="Raw_pre_pol2" width="600">
+<img src="man/figures/F_10.jpeg" alt="raw_pre_pol2" width="600">
 
 *Figure 10: Example continuous present-day Mahalanobis distance raster (within study area) for Pol_2.*
 
-The `Mh_Raw_Fut` subfolder contains the **continuous raw Mahalanobis distance** rasters (`.tif`) for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
+The `Mh_raw_Fut` subfolder contains the **continuous raw Mahalanobis distance** rasters (`.tif`) for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
-Mh_Raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
-terra::plot(Mh_Raw_Fut_result[[2]])
+Mh_raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plot(Mh_raw_Fut_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
-<img src="man/figures/F_11.jpeg" alt="Raw_fut_pol2" width="600">
+<img src="man/figures/F_11.jpeg" alt="raw_fut_pol2" width="600">
 
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
@@ -368,7 +368,7 @@ Variables with VIF above the threshold are iteratively removed until all remaini
 
 **mh_rep()**
 
-Estimates the current Climate Representativeness of areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
+Estimates the Current Climate Representativeness of areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
 It calculates Mahalanobis distance for each cell from the climate centroid of the input `polygon` and identifies cells within a specified threshold (`th`) distance or percentile as "Representativeness".
 
 `mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
@@ -383,11 +383,11 @@ It calculates Mahalanobis distance for each cell from the climate centroid of th
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
 
-> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster (`Mh_Raw`) for each input `polygon`.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance raster (`Mh_raw`) for each input `polygon`.
 
 **mh_rep_ch()**
 
-Estimates the change in Climate Representativeness for the areas defined by `polygon` between present (`present_climate_variables`) and future (`future_climate_variables`) climate conditions. 
+Estimates the Change in Climate Representativeness for the areas defined by `polygon` between present (`present_climate_variables`) and future (`future_climate_variables`) climate conditions. 
 For each input `polygon`, it compares the representativeness across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
 
 `mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
@@ -410,7 +410,7 @@ For each input `polygon`, it compares the representativeness across the two scen
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
 
-> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters (`Mh_Raw`) for both present and future scenarios within the study area extent.
+> `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters (`Mh_raw`) for both present and future scenarios within the study area extent.
 
 **mh_overlay()**
 

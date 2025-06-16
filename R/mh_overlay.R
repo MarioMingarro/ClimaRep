@@ -61,7 +61,7 @@ mh_overlay <- function(folder_path) {
   rgb_channel_names <- c("Lost_Count_R", "Retained_Count_G", "Novel_Count_B")
   raster_files <- list.files(folder_path, pattern = "\\.tif$", full.names = TRUE)
   if (length(raster_files) == 0) {
-    warning("No .tif files found in the specified folder: ",
+    warning("No '.tif files' found in the specified folder: ",
             folder_path,
             ". Returning NULL.")
     return(invisible(NULL))
@@ -70,8 +70,7 @@ mh_overlay <- function(folder_path) {
     "Processing ",
     length(raster_files),
     " classification rasters from ",
-    folder_path,
-    "..."
+    folder_path
   )
   first_raster <- terra::rast(raster_files[1])
   count_rasters_for_rgb <- vector("list", length = length(rgb_category_map))
@@ -79,11 +78,11 @@ mh_overlay <- function(folder_path) {
   all_binary_layers <- list()
   for (cat_name in names(rgb_category_map)) {
     category_value <- rgb_category_map[cat_name]
-    message("  Calculating counts for category: ",
+    message("Calculating counts for category: ",
             cat_name,
             " (value = ",
             category_value,
-            ")...")
+            ") ")
     current_category_binary_layers <- list()
     for (i in seq_along(raster_files)) {
       file_path <- raster_files[i]
@@ -104,19 +103,18 @@ mh_overlay <- function(folder_path) {
                        count_rasters_for_rgb[["Retained"]],
                        count_rasters_for_rgb[["Novel"]])
   names(final_rgb_stack) <- rgb_channel_names
-  message("Finished processing. Three-layered ordered SpatRaster created.")
   overlay_dir <- file.path(folder_path, "overlay")
   if (!dir.exists(overlay_dir)) {
     dir.create(overlay_dir,
                recursive = TRUE,
                showWarnings = FALSE)
-    message("Created 'overlay' directory at: ", overlay_dir)
   }
-  output_file_path <- file.path(overlay_dir, "climarep_overlay.tif")
+  dir_output <- file.path(overlay_dir, "climarep_overlay.tif")
   terra::writeRaster(final_rgb_stack,
-                     output_file_path,
+                     dir_output,
                      overwrite = TRUE,
                      datatype = "INT2U")
-  message("Combined raster saved to: ", output_file_path)
+  cat("All processes were completed")
+  cat(paste("Output files in: ", dir_output, "\n"))
   return(invisible(final_rgb_stack))
 }

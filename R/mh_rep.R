@@ -14,7 +14,7 @@
 #' \itemize{
 #'  \item Classification (`.tif` ) rasters: Binary rasters (`1` for Representative and `0` for Non-representative) for each input `polygon` are saved in the `Representativeness/` subdirectory.
 #'  \item Visualization (`.jpeg`) maps: Image files visualizing the classification results for each `polygon` are saved in the `Charts/` subdirectory.
-#'  \item Raw Mahalanobis distance rasters: Optionally saved as `.tif` files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
+#'  \item raw Mahalanobis distance rasters: Optionally saved as `.tif` files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
 #' }
 #'
 #' @details
@@ -132,7 +132,7 @@ mh_rep <- function(polygon,
   }
   if (terra::nlyr(climate_variables) < 2) {
     warning(
-      "climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable."
+      "climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
     )
   }
   dir_rep <- file.path(dir_output, "Representativeness")
@@ -147,26 +147,24 @@ mh_rep <- function(polygon,
       dir.create(dir, recursive = TRUE, showWarnings = FALSE)
     }
   })
-  message("Validating and adjusting Coordinate Reference Systems (CRS)...")
+  message("Validating and adjusting Coordinate Reference Systems (CRS)")
   reference_system_check <- terra::crs(climate_variables, describe = TRUE)$code
   reference_system <- terra::crs(climate_variables)
   if (sf::st_crs(polygon)$epsg != reference_system_check) {
     message("Adjusting CRS of polygon to match reference system.")
     polygon <- sf::st_transform(polygon, reference_system)
   }
-  message("Starting per-polygon processing...")
+  message("Starting per-polygon processing:")
   data_p <- na.omit(terra::as.data.frame(climate_variables, xy = TRUE))
   if (ncol(data_p) < 3) {
-    stop(
-      "Not enough climate variables in 'climate_variables' to calculate Mahalanobis distance."
-    )
+    stop("Not enough variables in 'climate_variables' to calculate Mahalanobis distance.")
   }
   climate_data_cols <- 3:(ncol(data_p) - 0)
   cov_matrix <- cov(data_p[, climate_data_cols], use = "complete.obs")
   if (inherits(try(solve(cov_matrix), silent = TRUE)
                , "try-error")) {
     stop(
-      "Covariance matrix is singular. This can happen if variables are perfectly correlated or there's insufficient data. Consider filtering variables or checking data quality."
+      "Covariance matrix is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'."
     )
   }
   for (j in 1:nrow(polygon)) {
@@ -186,7 +184,7 @@ mh_rep <- function(polygon,
             ")")
     raster_polygon <- terra::mask(terra::crop(climate_variables, pol), pol)
     if (all(is.na(terra::values(raster_polygon)))) {
-      warning("No available data for: ", pol_name, ". Skipping...")
+      warning("No available data for: ", pol_name, ". Skipping.")
       next
     }
     mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
@@ -195,7 +193,7 @@ mh_rep <- function(polygon,
                               type = "xyz",
                               crs = reference_system)
     if (save_raw) {
-      terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("MH_rep_", pol_name, ".tif")), overwrite = TRUE)
+      terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("Mh_raw_", pol_name, ".tif")), overwrite = TRUE)
     }
     mh_poly <- terra::mask(mh_present, pol)
     th_value <- quantile(terra::values(mh_poly),
@@ -204,7 +202,7 @@ mh_rep <- function(polygon,
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
-              ". Skipping...")
+              ". Skipping.")
       next
     }
     classify_mh <- function(mh_raster, threshold) {
@@ -216,7 +214,7 @@ mh_rep <- function(polygon,
                        file.path(
                          dir_output,
                          "Representativeness",
-                         paste0("TH_Rep_", pol_name, ".tif")
+                         paste0("Th_rep_", pol_name, ".tif")
                        ),
                        overwrite = TRUE)
     raster_final_factor <- terra::as.factor(raster_final)
@@ -248,7 +246,7 @@ mh_rep <- function(polygon,
       dpi = 300
     )
   }
-  message("All processes were completed")
+  cat("All processes were completed\n")
   cat(paste("Output files in:", dir_output, "\n"))
   return(invisible(NULL))
 }

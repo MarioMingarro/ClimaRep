@@ -42,7 +42,7 @@ testthat::test_that("mh_overlay works correctly", {
     col = "transparent",
     lwd = 3,
     border = "red")
-  output_dir <- file.path(tempdir(), "ClimaRepOutput_mh_rep_ch_test")
+  output_dir <- file.path(tempdir(), "mh_overlay_test")
   if (dir.exists(output_dir)) {
     unlink(output_dir, recursive = TRUE)
   }

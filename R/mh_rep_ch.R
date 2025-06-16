@@ -20,7 +20,7 @@
 #' \itemize{
 #'  \item Classification (`.tif` ) change raster: Change category rasters (`0` for **Non-representative**, `1` for **Retained**, `2` for **Lost** and `3` for **Novel**) for each input `polygon` are saved in the `Change/` subdirectory.
 #'  \item Visualization (`.jpeg`) maps: Image files visualizing the change classification results for each `polygon` are saved in the `Charts/` subdirectory.
-#'  \item Raw Mahalanobis Distance Rasters: Optionally, they are saved as `.tif` files in the `Mh_Raw_Pre/` and `Mh_Raw_Fut/` subdirectories if `save_raw = TRUE`.
+#'  \item raw Mahalanobis Distance Rasters: Optionally, they are saved as `.tif` files in the `Mh_Raw_Pre/` and `Mh_Raw_Fut/` subdirectories if `save_raw = TRUE`.
 #' }
 #'
 #' @details
@@ -157,7 +157,7 @@ mh_rep_ch <- function(polygon,
   }
   if (terra::nlyr(present_climate_variables) < 2) {
     warning(
-      "present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables. Proceeding with single variable analysis if applicable."
+      "present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
     )
   }
   if (terra::nlyr(present_climate_variables) != terra::nlyr(future_climate_variables)) {
@@ -165,7 +165,7 @@ mh_rep_ch <- function(polygon,
       "Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same."
     )
   }
-  message("Validating CRS and spatial alignment of inputs...")
+  message("Validating Coordinate Reference Systems (CRS)")
   ref_crs <- terra::crs(present_climate_variables, describe = TRUE)$code
   if (is.na(ref_crs) || ref_crs == "") {
     stop("CRS for 'present_climate_variables' is undefined. Please set a valid CRS.")
@@ -202,7 +202,8 @@ mh_rep_ch <- function(polygon,
                                           study_area)
   data_p_study <- na.omit(terra::as.data.frame(present_study_area_masked, xy = TRUE))
   data_f_study <- na.omit(terra::as.data.frame(future_study_area_masked, xy = TRUE))
-  if (nrow(data_p_study) == 0 || nrow(data_f_study) == 0) {
+  if (nrow(data_p_study) == 0 ||
+      nrow(data_f_study) == 0) {
     stop(
       "No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix."
     )
@@ -211,16 +212,14 @@ mh_rep_ch <- function(polygon,
   data_p_study_clim <- data_p_study[, climate_var_names, drop = FALSE]
   data_f_study_clim <- data_f_study[, climate_var_names, drop = FALSE]
   if (ncol(data_p_study_clim) < 2) {
-    stop(
-      "Not enough climate variables (layers) to calculate a multivariate Mahalanobis distance. Need at least 2 layers."
-    )
+    stop("Not enough variables to calculate Mahalanobis distance. Need at least 2 layers.")
   }
   data_combined_clim <- rbind(data_p_study_clim, data_f_study_clim)
   cov_matrix <- cov(data_combined_clim, use = "complete.obs")
   if (inherits(try(solve(cov_matrix), silent = TRUE)
                , "try-error")) {
     stop(
-      "Covariance matrix (calculated from combined present/future study area data) is singular. This can happen if variables are perfectly correlated or there's insufficient unique data points. Consider filtering collinear variables or checking data quality within the study area."
+      "Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'."
     )
   }
   full_data_present <- na.omit(terra::as.data.frame(present_climate_variables, xy = TRUE))
@@ -248,7 +247,7 @@ mh_rep_ch <- function(polygon,
     if (all(is.na(terra::values(raster_polygon_present)))) {
       warning("No available data for: ",
               pol_name,
-              " in the present period. Skipping...")
+              " in the present period. Skipping.")
       next
     }
     mu_present_polygon <- terra::global(raster_polygon_present, "mean", na.rm = TRUE)$mean
@@ -271,21 +270,10 @@ mh_rep_ch <- function(polygon,
     mh_present <- terra::mask(mh_present_full, study_area)
     mh_future <- terra::mask(mh_future_full, study_area)
     if (save_raw) {
-      terra::writeRaster(mh_present, file.path(
-        dir_present,
-        paste0("MahalanobisRaw_Pre_", pol_name, ".tif")
-      ), overwrite = TRUE)
+      terra::writeRaster(mh_present, file.path(dir_present, paste0("Mh_raw_Pre_", pol_name, ".tif")), overwrite = TRUE)
       terra::writeRaster(mh_future, file.path(
         dir_future,
-        paste0(
-          "MahalanobisRaw_Fut_",
-          model,
-          "_",
-          year,
-          "_",
-          pol_name,
-          ".tif"
-        )
+        paste0("Mh_raw_Fut_", model, "_", year, "_", pol_name, ".tif")
       ), overwrite = TRUE)
     }
     mh_poly_for_th <- terra::mask(mh_present_full, pol)
@@ -295,7 +283,7 @@ mh_rep_ch <- function(polygon,
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
-              ". Skipping...")
+              ". Skipping.")
       next
     }
     classify_mh <- function(mh_raster, threshold) {
@@ -310,7 +298,7 @@ mh_rep_ch <- function(polygon,
                        file.path(
                          dir_output,
                          "Change",
-                         paste0("TH_change_", model, "_", year, "_", pol_name, ".tif")
+                         paste0("Th_change_", model, "_", year, "_", pol_name, ".tif")
                        ),
                        overwrite = TRUE)
     raster_final_factor <- terra::as.factor(raster_final)
@@ -327,45 +315,35 @@ mh_rep_ch <- function(polygon,
           data = pol,
           color = "black",
           fill = NA
-        ) +
+        )+
         ggplot2::scale_fill_manual(
           name = " ",
           values = c(
-            "0" = "grey90",
-            # Non-represented
-            "1" = "aquamarine4",
-            # Retained
-            "2" = "coral1",
-            # Lost
-            "3" = "aquamarine2"     # Novel
+            "0" = "grey90",# Non-represented
+            "1" = "aquamarine4",# Retained
+            "2" = "coral1",# Lost
+            "3" = "steelblue2"# Novel
           ),
           labels = c(
             "0" = "Non-represented",
             "1" = "Retained",
             "2" = "Lost",
             "3" = "Novel"
-          ),
-          na.value = "transparent",
-          na.translate = FALSE,
-          drop = FALSE
+          ), na.value = "transparent", na.translate = FALSE, drop = FALSE
         ) +
         ggplot2::ggtitle(pol_name) +
         ggplot2::theme_minimal() +
         ggplot2::theme(plot.title = element_text(hjust = 0.5))
     )
     ggplot2::ggsave(
-      filename = file.path(
-        dir_output,
-        "Charts",
-        paste0(pol_name, "_rep_change.jpeg")
-      ),
+      filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep_change.jpeg")),
       plot = p,
       width = 10,
       height = 8,
       dpi = 300
     )
   }
-  message("All processes were completed")
+  cat("All processes were completed")
   cat(paste("Output files in: ", dir_output, "\n"))
   return(invisible(NULL))
 }

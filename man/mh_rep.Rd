@@ -31,7 +31,7 @@ Invisibly returns NULL. Writes the following outputs to disk within subdirectori
 \itemize{
 \item Classification (\code{.tif} ) rasters: Binary rasters (\code{1} for Representative and \code{0} for Non-representative) for each input \code{polygon} are saved in the \verb{Representativeness/} subdirectory.
 \item Visualization (\code{.jpeg}) maps: Image files visualizing the classification results for each \code{polygon} are saved in the \verb{Charts/} subdirectory.
-\item Raw Mahalanobis distance rasters: Optionally saved as \code{.tif} files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
+\item raw Mahalanobis distance rasters: Optionally saved as \code{.tif} files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
 }
 }
 \description{

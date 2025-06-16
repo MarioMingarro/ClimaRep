@@ -43,7 +43,7 @@ Invisibly returns NULL. Writes the following outputs to disk within subdirectori
 \itemize{
 \item Classification (\code{.tif} ) change raster: Change category rasters (\code{0} for \strong{Non-representative}, \code{1} for \strong{Retained}, \code{2} for \strong{Lost} and \code{3} for \strong{Novel}) for each input \code{polygon} are saved in the \verb{Change/} subdirectory.
 \item Visualization (\code{.jpeg}) maps: Image files visualizing the change classification results for each \code{polygon} are saved in the \verb{Charts/} subdirectory.
-\item Raw Mahalanobis Distance Rasters: Optionally, they are saved as \code{.tif} files in the \verb{Mh_Raw_Pre/} and \verb{Mh_Raw_Fut/} subdirectories if \code{save_raw = TRUE}.
+\item raw Mahalanobis Distance Rasters: Optionally, they are saved as \code{.tif} files in the \verb{Mh_Raw_Pre/} and \verb{Mh_Raw_Fut/} subdirectories if \code{save_raw = TRUE}.
 }
 }
 \description{
