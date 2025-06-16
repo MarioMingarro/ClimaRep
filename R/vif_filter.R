@@ -2,15 +2,10 @@
 #'
 #' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
 #'
-#' @param x A `SpatRaster` object containing the layers (variables) to filter.
-#'    Must contain two or more layers.
-#' @param th A numeric value specifying the Variance Inflation Factor (VIF)
-#'    threshold. Layers whose VIF exceeds this threshold are candidates for
-#'    removal in each iteration (default: 5).
+#' @param x A [SpatRaster] object containing the layers (variables) to filter. Must contain two or more layers.
+#' @param th A [numeric] value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each iteration (default: 5).
 #'
-#' @return A [SpatRaster] object containing only the layers from the input
-#' `x` that were retained by the VIF filtering process. The layers are returned
-#' in their original order.
+#' @return A [SpatRaster] object containing only the layers retained by the VIF filtering process.
 #'
 #' @details This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 #' The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
@@ -20,21 +15,22 @@
 #'
 #' Key steps:
 #' \enumerate{
-#'    \item Validate inputs: Ensures `x` is a `SpatRaster` with at least two layers and `th` is a valid numeric value.
-#'    \item Convert the input `SpatRaster` (`x`) to a `data.frame`, retaining only unique rows if `x` has many cells and few unique climate values (for performance).
+#'    \item Validate inputs: Ensures `x` is a `SpatRaster` with at least two layers and `th` is a valid `numeric` value.
+#'    \item Convert the input `SpatRaster` (`x`) to a `data.frame`, retaining only unique rows if `x` has many cells and few unique climate values.
 #'    \item Remove rows containing any `NA` values across all variables from the `data.frame`.
-#'    \item In each iteration, calculate the Variance Inflation Factor (VIF) for all variables currently remaining in the dataset.
+#'    \item In each iteration, calculate the VIF for all variables currently remaining in the dataset.
 #'    \item Identify the variable with the highest VIF among the remaining variables.
-#'    \item If this highest VIF value is greater than the specified threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
-#'    \item This iterative process (steps 3-5) repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} `th`, or until only one variable remains in the dataset.
+#'    \item If this highest VIF value is greater than the threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
+#'    \item This iterative process repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} `th`, or until only one variable remains in the dataset.
 #' }
 #'
 #' Finally, the function returns a new `SpatRaster` object containing only the variables that were kept.
+#'
 #' It also prints a summary including:
 #' \itemize{
 #' \item The original Pearson's correlation matrix between all initial variables.
-#' \item The lists of variables that were kept and those that were excluded.
-#' \item The final VIF values for the variables that were retained after the filtering process.
+#' \item The variables names that were kept and those that were excluded.
+#' \item The final VIF values for the variables retained after the process.
 #' }
 #'
 #' The internal VIF calculation includes checks to handle potential numerical
@@ -44,7 +40,7 @@
 #' as having infinite VIF due to perfect collinearity are prioritized for removal.
 #'
 #' References:
-#' O’brien, R.M. (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Qual Quant 41, 673–690. doi:10.1007/s11135-006-9018-6
+#' O’brien (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Quality & Quantity, 41: 673–690. doi:10.1007/s11135-006-9018-6
 #'
 #' @importFrom terra as.data.frame subset rast
 #' @importFrom stats cov var lm as.formula cor
@@ -72,7 +68,11 @@
 #' names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim) <- "EPSG:4326"
 #' terra::plot(r_clim)
-#' r_clim_filtered <- vif_filter(r_clim, th = 5)
+#'
+#' r_clim_filtered <-
+#'   ClimaRep::vif_filter(r_clim,
+#'                        th = 5)
+#'
 #' terra::plot(r_clim_filtered)
 #'}
 #' @export
