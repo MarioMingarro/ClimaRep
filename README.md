@@ -1,10 +1,11 @@
 # ClimaRep: Estimating Climate Representativeness
 
-[![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
-
-<p align="right">
+<p align="center">
   <img src="man/figures/ClimaRep_logo.png" alt="workflow" width="300">
 </p>
+
+[![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
+
 
 ## Overview
 
