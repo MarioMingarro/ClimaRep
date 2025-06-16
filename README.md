@@ -48,7 +48,7 @@ These dependencies will be installed automatically when you install `ClimaRep`.
 
 This section provides a brief example demonstrating the core workflow of the package.
 
-<img src="man/figures/workflow.jpg" alt="workflow" width="600">
+<img src="man/figures/workflow.jpg" alt="workflow" width="300">
 
 
 First, load the package:
