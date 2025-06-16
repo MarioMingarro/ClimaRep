@@ -366,7 +366,7 @@ terra::plotRGB(ClimaRep_overlay, stretch = "lin")
 
 <img src="man/figures/F_12.jpeg" alt="Retained" width="600">
 
-*Figure 11: Visualisation of accumulated Lost (R), Retained (G) and Novel (B) cells.*
+*Figure 12: Visualisation of accumulated Lost (R), Retained (G) and Novel (B) cells.*
 
 
 ```{r}
@@ -377,7 +377,7 @@ terra::plot(kk[[3]])
 
 <img src="man/figures/F_13.jpeg" alt="Retained" width="600">
 
-*Figure 12: Example of accumulate Lost (1), Retained (2) or Novel (3) cells.*
+*Figure 13: Example of accumulate Lost (1), Retained (2) or Novel (3) cells.*
 
 
 ## Functions Reference
