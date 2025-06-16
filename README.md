@@ -352,11 +352,27 @@ The `mh_overlay` function counting, for each cell, how many of the input rasters
 ```{r}
 mh_overlay(
   folder_path = file.path(tempdir(), "Change"))
-terra::plot(climarep_img)
+
+Processing 2 classification rasters from C:\Users\mario\AppData\Local\Temp\RtmpY1rKKD/Change
+Calculating counts for category: Lost (value = 2) 
+Calculating counts for category: Retained (value = 1) 
+Calculating counts for category: Novel (value = 3) 
+All processes were completed
+Output files in:  C:\Users\mario\AppData\Local\Temp\RtmpY1rKKD/Change/overlay/ClimaRep_overlay.tif 
+
+ClimaRep_overlay <- terra::rast(list.files(file.path(tempdir(), "Change/overlay"),  pattern = "\\.tif$", full.names = TRUE))
+terra::plotRGB(ClimaRep_overlay, stretch = "lin")
+```
+<img src="man/figures/F_11.jpeg" alt="Retained" width="600">
+*Figure 11: Visualisation of accumulated Lost (R), Retained (G) and Novel (B) cells.*
+
+```{r}
+terra::plot(kk[[1]])
+terra::plot(kk[[2]]) 
+terra::plot(kk[[3]]) 
 ```
 <img src="man/figures/F_12.jpeg" alt="Retained" width="600">
-
-*Figure 11: Example of accumulate Retained (1), Lost (2) or Novel (3) cells.*
+*Figure 12: Example of accumulate Lost (1), Retained (2) or Novel (3) cells.*
 
 ## Functions Reference
 

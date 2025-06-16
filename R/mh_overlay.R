@@ -62,7 +62,7 @@ mh_overlay <- function(folder_path) {
   message(
     "Processing ",
     length(raster_files),
-    " classification rasters from ",
+    " rasters from ",
     folder_path
   )
   first_raster <- terra::rast(raster_files[1])
