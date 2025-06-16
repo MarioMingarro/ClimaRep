@@ -2,6 +2,10 @@
 
 [![CRAN Status](https://www.r-pkg.org/badges/version/ClimaRep)](https://cran.r-project.org/package=ClimaRep)
 
+<p align="right">
+  <img src="man/figures/ClimaRep_logo.png" alt="workflow" width="300">
+</p>
+
 ## Overview
 
 The `ClimaRep` package offers tools to analyze the **Climate Representativeness** of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
@@ -43,7 +47,7 @@ These dependencies will be installed automatically when you install `ClimaRep`.
 
 This section provides a brief example demonstrating the core workflow of the package.
 
-<img src="man/figures/workflow.jpeg" alt="workflow" width="600">
+<img src="man/figures/workflow.jpg" alt="workflow" width="600">
 
 
 First, load the package:
