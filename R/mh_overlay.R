@@ -9,7 +9,7 @@
 #'  Category `0` (Non-represented) will be ignored for the RGB output.
 #'
 #' @return Writes the multi-layered (`ClimaRep_overlay.tif`) outputs to disk in a new `overlay` subfolder within the `folder_path`.
-#' When `mh_rep_ch` results are used, the output layers consistently represent counts for **Lost** (Red), **Retained** (Green), and **Novel** (Blue channel) categories across all input rasters. Designed for direct RGB plotting.
+#' When `mh_rep_ch` results are used, the output layers consistently represent counts for **Lost** (Red), **Retained** (Green), and **Novel** (Blue) categories across all input rasters. Designed for direct RGB plotting.
 #' When `mh_rep` results are used, the output layers consistently represent counts for **Represented** categories across all input rasters.
 #'
 #' @details
