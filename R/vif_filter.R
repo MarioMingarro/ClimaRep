@@ -184,6 +184,6 @@ vif_filter <- function(x, th = 5) {
     return(original_raster[[character(0)]])
   }
   result_raster <- subset(original_raster, kept_vars)
-  cat("VIF filtering completed.\n")
+  cat("VIF filtering completed\n")
   return(result_raster)
 }
