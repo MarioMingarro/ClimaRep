@@ -195,7 +195,7 @@ mh_rep_ch <- function(polygon,
       dir.create(dir, recursive = TRUE, showWarnings = FALSE)
     }
   })
-  message("Starting process")
+  message("Starting per-polygon processing:")
   present_study_area_masked <- terra::mask(terra::crop(present_climate_variables, study_area),
                                            study_area)
   future_study_area_masked <- terra::mask(terra::crop(future_climate_variables, study_area),
@@ -343,7 +343,7 @@ mh_rep_ch <- function(polygon,
       dpi = 300
     )
   }
-  cat("All processes were completed")
+  cat("All processes were completed\n")
   cat(paste("Output files in: ", dir_output, "\n"))
   return(invisible(NULL))
 }

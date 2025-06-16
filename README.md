@@ -183,8 +183,8 @@ mh_rep(
   save_raw = TRUE)
   
 ----------------------------
-Validating and adjusting Coordinate Reference Systems (CRS)...
-Starting per-polygon processing...
+Validating and adjusting Coordinate Reference Systems (CRS)
+Starting per-polygon processing:
 
 Processing polygon: area_1 (1 of 2)
 
@@ -199,7 +199,7 @@ Output files in: C:\Users\AppData\Local\Temp\RtmpY1rKKD
 This process generates 3 subfolders within the directory specified by `dir_output` (e.g., `tempdir()`).
 ```{r}
 list.files(tempdir())
- [1] "Charts"             "Mh_raw"             "Representativeness"
+ [1] "Charts"             "Mh_Raw"             "Representativeness"
 ```
 
 1. The `Charts` subfolder contains the **binary representativeness** image files (`.jpeg`) for each input `polygon`.
@@ -216,7 +216,7 @@ list.files(file.path(tempdir(), "Charts"))
 Lower values indicate climates more similar to the polygon's centroid.
 
 ```{r}
-mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "Mh_raw"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_raw <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_raw[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -273,8 +273,8 @@ year = "2070",
 dir_output = tempdir(),
 save_raw = TRUE)
 
-Validating and adjusting Coordinate Reference Systems (CRS)...
-Starting process
+Validating and adjusting Coordinate Reference Systems (CRS).
+Starting per-polygon processing:
 
 Processing polygon: pol_1 (1 of 2)
 
@@ -290,7 +290,7 @@ This process generates several subfolders within the directory specified by `dir
 
 ```{r}
 list.files(tempdir())
- [1] "Change"             "Charts"             "Mh_raw_Pre"             "Mh_raw_Fut"
+ [1] "Change"             "Charts"             "Mh_Raw_Pre"             "Mh_Raw_Fut"
 
 ```
 
@@ -320,10 +320,10 @@ list.files(file.path(tempdir(), "Charts"))
 
 *Figure 9: Example of summary maps illustrating climate representativeness change for Pol_2 (pol_2_rep_change.jpeg).*
 
-The `Mh_raw_Pre` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
+The `Mh_Raw_Pre` subfolder contains the **continuous Mahalanobis distance** rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
-Mh_raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
+Mh_raw_Pre_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Pre"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(Mh_raw_Pre_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
@@ -332,10 +332,10 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 10: Example continuous present-day Mahalanobis distance raster (within study area) for Pol_2.*
 
-The `Mh_raw_Fut` subfolder contains the **continuous raw Mahalanobis distance** rasters (`.tif`) for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
+The `Mh_Raw_Fut` subfolder contains the **continuous raw Mahalanobis distance** rasters (`.tif`) for the **future** scenario, calculated within the `study_area` extent relative to the climate conditions within each input `polygon`.
 
 ```{r}
-Mh_raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
+Mh_raw_Fut_result <- terra::rast(list.files(file.path(tempdir(), "Mh_Raw_Fut"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(Mh_raw_Fut_result[[2]])
 terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
