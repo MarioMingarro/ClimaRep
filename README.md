@@ -116,7 +116,6 @@ It also prints a summary including:
 r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
 
 --- VIF Filtering Summary ---
-VIF filtering completed.
 Kept layers: varA, varC, varE, varF, varG 
 Excluded layers: varD, varB 
 
@@ -371,9 +370,7 @@ terra::plotRGB(ClimaRep_overlay, stretch = "lin")
 
 
 ```{r}
-terra::plot(ClimaRep_overlay[[1]])
-terra::plot(ClimaRep_overlay[[2]]) 
-terra::plot(ClimaRep_overlay[[3]]) 
+terra::plot(ClimaRep_overlay)
 ```
 
 <img src="man/figures/F_13.jpeg" alt="ClimaRep_overlay_2" width="600">
