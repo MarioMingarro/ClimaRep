@@ -1,5 +1,5 @@
-Package: ClimaRep
-Title: Estimating Climate Representativeness
+Package: climarep
+Title: Estimating climate representativeness
 Version: 0.2
 Authors@R: 
     person(given = "Mario", 
