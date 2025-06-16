@@ -36,6 +36,7 @@ Writes the following outputs to disk within subdirectories of \code{dir_output}:
 }
 \description{
 This function calculates Mahalanobis-based Climate Representativeness for input polygon within a defined area.
+
 Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (\code{climate_variables}), with the climate conditions within each specific input \code{polygon}.
 }
 \details{
