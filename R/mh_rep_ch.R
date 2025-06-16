@@ -6,16 +6,16 @@
 #'
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
 #'
-#' @param polygon An [sf] object containing the defined areas. **Must have the same CRS as** `present_climate_variables`.
-#' @param col_name [character]. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param present_climate_variables A [SpatRaster] stack of climate variables representing present conditions. Its CRS will be used as the reference system.
-#' @param future_climate_variables A [SpatRaster] stack containing the same climate variables as `present_climate_variables` but representing future projected conditions. **Must have the same CRS, extent, and resolution as** `present_climate_variables`.
-#' @param study_area A single [sf] polygon. **Must have the same CRS as** `present_climate_variables`.
-#' @param th [numeric] (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
-#' @param model [character]. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
-#' @param year [character]. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
-#' @param dir_output [character]. Path to the directory where output files will be saved. The function will create subdirectories within this path.
-#' @param save_raw [logical]. If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: `FALSE`).
+#' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as** `present_climate_variables`.
+#' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
+#' @param present_climate_variables A `SpatRaster` stack of climate variables representing present conditions. Its CRS will be used as the reference system.
+#' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions. **Must have the same CRS, extent, and resolution as** `present_climate_variables`.
+#' @param study_area A single `sf` polygon. **Must have the same CRS as** `present_climate_variables`.
+#' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
+#' @param model `character`. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
+#' @param year `character`. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
+#' @param dir_output `character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
+#' @param save_raw `logical`. If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: `FALSE`).
 #'
 #' @return Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{

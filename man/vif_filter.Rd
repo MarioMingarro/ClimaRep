@@ -7,12 +7,12 @@
 vif_filter(x, th = 5)
 }
 \arguments{
-\item{x}{A \link{SpatRaster} object containing the layers (variables) to filter. Must contain two or more layers.}
+\item{x}{A \code{SpatRaster} object containing the layers (variables) to filter. Must contain two or more layers.}
 
-\item{th}{A \link{numeric} value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each iteration (default: 5).}
+\item{th}{A \code{numeric} value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each iteration (default: 5).}
 }
 \value{
-A \link{SpatRaster} object containing only the layers retained by the VIF filtering process.
+A \code{SpatRaster} object containing only the layers retained by the VIF filtering process.
 }
 \description{
 This function iteratively filters layers from a \code{SpatRaster} object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (\code{th}).

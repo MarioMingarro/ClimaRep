@@ -14,17 +14,17 @@ mh_rep(
 )
 }
 \arguments{
-\item{polygon}{An \link{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{climate_variables}.}
+\item{polygon}{An \code{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{climate_variables}.}
 
-\item{col_name}{\link{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
+\item{col_name}{\code{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
 
-\item{climate_variables}{\link{character}. A raster stack of climate variables representing the conditions. Its CRS will be used as the reference system.}
+\item{climate_variables}{\code{character}. A raster stack of climate variables representing the conditions. Its CRS will be used as the reference system.}
 
-\item{th}{\link{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
+\item{th}{\code{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
 
-\item{dir_output}{\link{character}. Path to the directory where output files will be saved. The function will create subdirectories within this path.}
+\item{dir_output}{\code{character}. Path to the directory where output files will be saved. The function will create subdirectories within this path.}
 
-\item{save_raw}{\link{logical}. If \code{TRUE}, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: \code{FALSE}).}
+\item{save_raw}{\code{logical}. If \code{TRUE}, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: \code{FALSE}).}
 }
 \value{
 Writes the following outputs to disk within subdirectories of \code{dir_output}:

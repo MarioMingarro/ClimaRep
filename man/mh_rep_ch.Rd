@@ -18,25 +18,25 @@ mh_rep_ch(
 )
 }
 \arguments{
-\item{polygon}{An \link{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{present_climate_variables}.}
+\item{polygon}{An \code{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{present_climate_variables}.}
 
-\item{col_name}{\link{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
+\item{col_name}{\code{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
 
-\item{present_climate_variables}{A \link{SpatRaster} stack of climate variables representing present conditions. Its CRS will be used as the reference system.}
+\item{present_climate_variables}{A \code{SpatRaster} stack of climate variables representing present conditions. Its CRS will be used as the reference system.}
 
-\item{future_climate_variables}{A \link{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions. \strong{Must have the same CRS, extent, and resolution as} \code{present_climate_variables}.}
+\item{future_climate_variables}{A \code{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions. \strong{Must have the same CRS, extent, and resolution as} \code{present_climate_variables}.}
 
-\item{study_area}{A single \link{sf} polygon. \strong{Must have the same CRS as} \code{present_climate_variables}.}
+\item{study_area}{A single \code{sf} polygon. \strong{Must have the same CRS as} \code{present_climate_variables}.}
 
-\item{th}{\link{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
+\item{th}{\code{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
 
-\item{model}{\link{character}. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.}
+\item{model}{\code{character}. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.}
 
-\item{year}{\link{character}. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.}
+\item{year}{\code{character}. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.}
 
-\item{dir_output}{\link{character}. Path to the directory where output files will be saved. The function will create subdirectories within this path.}
+\item{dir_output}{\code{character}. Path to the directory where output files will be saved. The function will create subdirectories within this path.}
 
-\item{save_raw}{\link{logical}. If \code{TRUE}, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: \code{FALSE}).}
+\item{save_raw}{\code{logical}. If \code{TRUE}, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: \code{FALSE}).}
 }
 \value{
 Writes the following outputs to disk within subdirectories of \code{dir_output}:

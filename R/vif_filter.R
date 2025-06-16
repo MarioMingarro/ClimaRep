@@ -2,10 +2,10 @@
 #'
 #' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
 #'
-#' @param x A [SpatRaster] object containing the layers (variables) to filter. Must contain two or more layers.
-#' @param th A [numeric] value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each iteration (default: 5).
+#' @param x A `SpatRaster` object containing the layers (variables) to filter. Must contain two or more layers.
+#' @param th A `numeric` value specifying the Variance Inflation Factor (VIF) threshold. Layers whose VIF exceeds this threshold are candidates for removal in each iteration (default: 5).
 #'
-#' @return A [SpatRaster] object containing only the layers retained by the VIF filtering process.
+#' @return A `SpatRaster` object containing only the layers retained by the VIF filtering process.
 #'
 #' @details This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 #' The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
