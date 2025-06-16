@@ -385,8 +385,7 @@ terra::plot(ClimaRep_overlay[[3]])
 
 **vif_filter()**
 
-Filters variables in a `SpatRaster` object (`x`) based on their Variance Inflation Factor (VIF).
-Variables with VIF above the threshold are iteratively removed until all remaining variables have VIF below threshold (`th`).
+This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
 
 `vif_filter(x, th)`
 
@@ -396,8 +395,9 @@ Variables with VIF above the threshold are iteratively removed until all remaini
 
 **mh_rep()**
 
-Estimates the Current Climate Representativeness of areas defined by `polygon` relative to the climate space spanned by `climate_variables` across the `study_area`. 
-It calculates Mahalanobis distance for each cell from the climate centroid of the input `polygon` and identifies cells within a specified threshold (`th`) distance or percentile as "Representativeness".
+This function calculates Mahalanobis-based Climate Representativeness for input polygon within a defined area.
+
+Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`.
 
 `mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
 
@@ -405,7 +405,7 @@ It calculates Mahalanobis distance for each cell from the climate centroid of th
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input `polygon`.
 
-> `climate_variables`: A `SpatRaster` object with the climate layers (typically pre-filtered using `vif_filter`).
+> `climate_variables`: A `SpatRaster` object with the climate layers (pre-filtered using `vif_filter`).
 
 > `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
@@ -415,8 +415,11 @@ It calculates Mahalanobis distance for each cell from the climate centroid of th
 
 **mh_rep_ch()**
 
-Estimates the Change in Climate Representativeness for the areas defined by `polygon` between present (`present_climate_variables`) and future (`future_climate_variables`) climate conditions. 
-For each input `polygon`, it compares the representativeness across the two scenarios and classifies areas into change categories: Retained, Lost, or Novel.
+This function calculates Mahalanobis-based Climate Representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
+
+The function identifies areas of climate representativeness **Retained**, **Lost**, or **Novel**.
+
+Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
 
 `mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
 
@@ -424,7 +427,7 @@ For each input `polygon`, it compares the representativeness across the two scen
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each input `polygon`.
 
-> `present_climate_variables`: A `SpatRaster` object with the present climate layers (typically pre-filtered using `vif_filter`).
+> `present_climate_variables`: A `SpatRaster` object with the present climate layers (pre-filtered using `vif_filter`).
 
 > `future_climate_variables`: A `SpatRaster` object with the future climate layers (usually same as `present_climate_variables`).
 
@@ -442,10 +445,9 @@ For each input `polygon`, it compares the representativeness across the two scen
 
 **mh_overlay()**
 
-Combines multiple single-layer rasters (`.tif`, outputs from `mh_rep` or `mh_rep_ch`) into a single multi-layered `SpatRaster` stack specifically designed for RGB visualization. 
-The output layers consistently represent the cumulative counts for 'Lost' (Red), 'Retained' (Green), and 'Novel' (Blue) categories across all rasters (obtained from `mh_rep_ch()`). 
-This function automatically handles inputs that may only contain 'Representativeness' areas (obtained from `mh_rep()`).
-A new subfolder named `overlay/` will be created within the `folder_path` provided.
+Combines multiple single-layer rasters (`tif`), outputs from `mh_rep` or `mh_rep_ch` for different input polygons, into a multi-layered `SpatRaster`.
+
+This function handles inputs from both `mh_rep` (which primarily contains **Represented** areas) and `mh_rep_ch` (which includes **Retained**, **Lost**, and **Novel** areas). The output layers consistently represent counts of each input.
 
 `mh_overlay(folder_path)`
 

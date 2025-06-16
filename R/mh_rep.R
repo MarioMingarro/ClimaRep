@@ -1,6 +1,7 @@
 #' @title Multivariate Climate Representativeness Analysis
 #'
 #' @description This function calculates Mahalanobis-based Climate Representativeness for input polygon within a defined area.
+#'
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`.
 #'
 #' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as** `climate_variables`.
@@ -234,6 +235,6 @@ mh_rep <- function(polygon,
     )
   }
   cat("All processes were completed\n")
-  cat(paste("Output files in:", dir_output, "\n"))
+  cat(paste("Output files in: ", dir_output, "\n"))
   return(invisible(NULL))
 }

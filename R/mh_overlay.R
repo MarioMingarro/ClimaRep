@@ -107,7 +107,7 @@ mh_overlay <- function(folder_path) {
                      dir_output,
                      overwrite = TRUE,
                      datatype = "INT2U")
-  cat("All processes were completed")
+  cat("All processes were completed\n")
   cat(paste("Output files in: ", dir_output, "\n"))
   return(invisible(final_rgb_stack))
 }
