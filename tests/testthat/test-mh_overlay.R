@@ -31,23 +31,13 @@ testthat::test_that("mh_overlay works correctly", {
   polygons$name <- c("Pol_1", "Pol_2")
   study_area_polygon <- sf::st_as_sf(terra::as.polygons(terra::ext(r_clim_present)))
   sf::st_crs(study_area_polygon) <- "EPSG:4326"
-  terra::plot(r_clim_present[[1]])
-  terra::plot(polygons,
-              add = TRUE,
-              color = "transparent",
-              lwd = 3)
-  terra::plot(
-    study_area_polygon,
-    add = TRUE,
-    col = "transparent",
-    lwd = 3,
-    border = "red")
+
   output_dir <- file.path(tempdir(), "mh_overlay_test")
   if (dir.exists(output_dir)) {
     unlink(output_dir, recursive = TRUE)
   }
   dir.create(output_dir, showWarnings = FALSE)
-  output_mh_rep_ch <- mh_rep_ch(
+  mh_rep_ch(
     polygon = polygons,
     col_name = "name",
     present_climate_variables = r_clim_present_filtered,
@@ -58,11 +48,14 @@ testthat::test_that("mh_overlay works correctly", {
     year = "2070",
     dir_output = output_dir,
     save_raw = TRUE)
+
   overlay_input_folder <- file.path(output_dir, "Change")
-  output_raster_stack <- mh_overlay(
+
+  mh_overlay(
     folder_path = overlay_input_folder)
+
   overlay_output_dir <- file.path(overlay_input_folder, "overlay")
-  overlay_output_file <- file.path(overlay_output_dir, "climarep_overlay.tif")
+  overlay_output_file <- file.path(overlay_output_dir, "ClimaRep_overlay.tif")
   expect_true(dir.exists(overlay_output_dir))
   expect_true(file.exists(overlay_output_file))
   expect_gt(file.size(overlay_output_file), 0)
