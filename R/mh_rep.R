@@ -5,7 +5,7 @@
 #'
 #' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as** `climate_variables`.
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param climate_variables `character`. A raster stack of climate variables representing the conditions. Its CRS will be used as the reference system.
+#' @param climate_variables A `SpatRaster` stack of climate variables representing the conditions. Its CRS will be used as the reference system.
 #' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
 #' @param dir_output `character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
 #' @param save_raw `logical`. If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: `FALSE`).
