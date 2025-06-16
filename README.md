@@ -363,7 +363,7 @@ Output files in:  C:\Users\mario\AppData\Local\Temp\RtmpY1rKKD/Change/overlay/Cl
 ClimaRep_overlay <- terra::rast(list.files(file.path(tempdir(), "Change/overlay"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plotRGB(ClimaRep_overlay, stretch = "lin")
 ```
-<img src="man/figures/F_11.jpeg" alt="Retained" width="600">
+<img src="man/figures/F_12.jpeg" alt="Retained" width="600">
 *Figure 11: Visualisation of accumulated Lost (R), Retained (G) and Novel (B) cells.*
 
 ```{r}
@@ -371,7 +371,7 @@ terra::plot(kk[[1]])
 terra::plot(kk[[2]]) 
 terra::plot(kk[[3]]) 
 ```
-<img src="man/figures/F_12.jpeg" alt="Retained" width="600">
+<img src="man/figures/F_13.jpeg" alt="Retained" width="600">
 *Figure 12: Example of accumulate Lost (1), Retained (2) or Novel (3) cells.*
 
 ## Functions Reference
