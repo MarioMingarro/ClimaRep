@@ -4,9 +4,9 @@
 \name{ClimaRep-package}
 \alias{ClimaRep-package}
 \alias{ClimaRep}
-\title{ClimaRep: Estimating climate representativeness}
+\title{ClimaRep: Estimating Climate Representativeness}
 \description{
-The package offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
+Offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) \url{https://doi.org/10.32800/abc.2018.41.0333} and Mingarro, Aguilera-Benavente, and Lobo (2020) \url{https://doi.org/10.1080/09640568.2020.1782859}.
 
 \subsection{Overview}{
 

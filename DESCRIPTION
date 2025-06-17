@@ -1,5 +1,5 @@
 Package: ClimaRep
-Title: Estimating climate representativeness
+Title: Estimating Climate Representativeness
 Version: 0.2
 Authors@R: 
     person(given = "Mario", 
@@ -7,7 +7,7 @@ Authors@R:
     comment = c(ORCID = "0000-0003-3977-7944"),
     email = "mario_mingarro@mncn.csic.es", 
     role = c("aut", "cre"))
-Description: The package offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios.
+Description: Offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) <https://doi.org/10.32800/abc.2018.41.0333> and Mingarro, Aguilera-Benavente, and Lobo (2020) <https://doi.org/10.1080/09640568.2020.1782859>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
