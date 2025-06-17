@@ -6,7 +6,7 @@
 \alias{ClimaRep}
 \title{ClimaRep: Estimating Climate Representativeness}
 \description{
-Offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) \url{https://doi.org/10.32800/abc.2018.41.0333} and Mingarro, Aguilera-Benavente, and Lobo (2020) \url{https://doi.org/10.1080/09640568.2020.1782859}.
+Offers tools to estimate the climate representativeness of defined areas and quantifies and analyzes its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) \doi{10.32800/abc.2018.41.0333}, Mingarro, Aguilera-Benavente, and Lobo (2020) \doi{10.1080/09640568.2020.1782859} and Mingarro and Lobo (2022) \doi{10.1017/S037689292100014X}.
 
 \subsection{Overview}{
 
