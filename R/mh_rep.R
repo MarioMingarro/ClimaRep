@@ -50,7 +50,7 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(terra)
 #' library(sf)
 #' set.seed(2458)
@@ -101,9 +101,6 @@ mh_rep <- function(polygon,
                    th = 0.95,
                    dir_output = file.path(tempdir(), "ClimaRep"),
                    save_raw = FALSE) {
-  old_warn <- getOption("warn")
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
   if (!inherits(polygon, "sf"))
     stop("Parameter 'polygon' must be an sf object.")
   if (!is.character(col_name) ||
@@ -120,7 +117,7 @@ mh_rep <- function(polygon,
   }
   if (terra::nlyr(climate_variables) < 2) {
     warning(
-      "climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
+      "Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
     )
   }
   dir_rep <- file.path(dir_output, "Representativeness")
@@ -148,7 +145,7 @@ mh_rep <- function(polygon,
     stop("Not enough variables in 'climate_variables' to calculate Mahalanobis distance.")
   }
   climate_data_cols <- 3:(ncol(data_p) - 0)
-  cov_matrix <- cov(data_p[, climate_data_cols], use = "complete.obs")
+  cov_matrix <- suppressWarnings(cov(data_p[, climate_data_cols], use = "complete.obs"))
   if (inherits(try(solve(cov_matrix), silent = TRUE)
                , "try-error")) {
     stop(
@@ -184,9 +181,9 @@ mh_rep <- function(polygon,
       terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("Mh_raw_", pol_name, ".tif")), overwrite = TRUE)
     }
     mh_poly <- terra::mask(mh_present, pol)
-    th_value <- quantile(terra::values(mh_poly),
+    th_value <- suppressWarnings(quantile(terra::values(mh_poly),
                          probs = th,
-                         na.rm = TRUE)
+                         na.rm = TRUE))
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
@@ -234,7 +231,7 @@ mh_rep <- function(polygon,
       dpi = 300
     )
   }
-  cat("All processes were completed\n")
-  cat(paste("Output files in: ", dir_output, "\n"))
+  message("All processes were completed")
+  message(paste("Output files in: ", dir_output))
   return(invisible(NULL))
 }

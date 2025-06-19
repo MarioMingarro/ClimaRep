@@ -38,7 +38,7 @@
 #' @importFrom terra rast ifel app writeRaster nlyr values
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ClimaRep::mh_overlay(folder_path = temp_dir)
 #' terra::plot(climarep_img)
 #' }
@@ -107,7 +107,7 @@ mh_overlay <- function(folder_path) {
                      dir_output,
                      overwrite = TRUE,
                      datatype = "INT2U")
-  cat("All processes were completed\n")
-  cat(paste("Output files in: ", dir_output, "\n"))
+  message("All processes were completed")
+  message(paste("Output files in: ", dir_output))
   return(invisible(final_rgb_stack))
 }

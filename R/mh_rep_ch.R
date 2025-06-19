@@ -66,7 +66,7 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(terra)
 #' library(sf)
 #' set.seed(2458)
@@ -128,9 +128,7 @@ mh_rep_ch <- function(polygon,
                       year,
                       dir_output = file.path(tempdir(), "ClimaRep"),
                       save_raw = FALSE) {
-  old_warn <- getOption("warn")
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
+
   if (!inherits(polygon, "sf"))
     stop("Parameter 'polygon' must be an sf object.")
   if (!is.character(col_name) ||
@@ -181,7 +179,6 @@ mh_rep_ch <- function(polygon,
   if (sf::st_crs(study_area)$epsg != ref_crs) {
     stop("CRS mismatch: 'study_area' must have the same CRS as 'present_climate_variables'.")
   }
-
   dir_present <- file.path(dir_output, "Mh_Raw_Pre")
   dir_future <- file.path(dir_output, "Mh_Raw_Fut")
   dir_change <- file.path(dir_output, "Change")
@@ -215,7 +212,7 @@ mh_rep_ch <- function(polygon,
     stop("Not enough variables to calculate Mahalanobis distance. Need at least 2 layers.")
   }
   data_combined_clim <- rbind(data_p_study_clim, data_f_study_clim)
-  cov_matrix <- cov(data_combined_clim, use = "complete.obs")
+  cov_matrix <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
   if (inherits(try(solve(cov_matrix), silent = TRUE)
                , "try-error")) {
     stop(
@@ -277,9 +274,9 @@ mh_rep_ch <- function(polygon,
       ), overwrite = TRUE)
     }
     mh_poly_for_th <- terra::mask(mh_present_full, pol)
-    th_value <- quantile(terra::values(mh_poly_for_th),
+    th_value <- suppressWarnings(quantile(terra::values(mh_poly_for_th),
                          probs = th,
-                         na.rm = TRUE)
+                         na.rm = TRUE))
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
@@ -343,7 +340,7 @@ mh_rep_ch <- function(polygon,
       dpi = 300
     )
   }
-  cat("All processes were completed\n")
-  cat(paste("Output files in: ", dir_output, "\n"))
+  message("All processes were completed")
+  message(paste("Output files in: ", dir_output))
   return(invisible(NULL))
 }

@@ -46,7 +46,7 @@
 #' @importFrom stats cov var lm as.formula cor
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(terra)
 #' library(sf)
 #'
@@ -89,7 +89,7 @@ vif_filter <- function(x, th = 5) {
   if (ncol(x_df) > 1) {
     original_cor_matrix <- round(cor(x_df, method = "pearson"), 4)
   } else {
-    original_cor_matrix <- "Correlation matrix not applicable (less than 2 original variables after removing NAs)."
+    original_cor_matrix <- "Correlation matrix not applicable (less than 2 variables)."
   }
   calc_vif <- function(df) {
     if (ncol(df) <= 1) {
@@ -99,7 +99,7 @@ vif_filter <- function(x, th = 5) {
     cols_zero_var <- names(variances[variances < .Machine$double.eps^0.5])
     if (length(cols_zero_var) > 0) {
       warning(
-        "Removing columns with zero or near-zero variance during VIF calculation:",
+        "Removing columns with zero or near-zero variance during VIF calculation: ",
         paste(cols_zero_var, collapse = ", ")
       )
       df <- df[, !(colnames(df) %in% cols_zero_var), drop = FALSE]
@@ -163,27 +163,27 @@ vif_filter <- function(x, th = 5) {
   } else {
     final_vif_data <- "No variables kept."
   }
-  cat("--- VIF Filtering Summary ---\n")
-  cat("Kept layers:", paste(kept_vars, collapse = ", "), "\n")
-  cat("Excluded layers:", paste(exc, collapse = ", "), "\n")
-  cat("\nPearson correlation matrix of original data:\n")
+  message("--- VIF Filtering Summary ---\n")
+  message("Kept layers:", paste(kept_vars, collapse = ", "))
+  message("Excluded layers:", paste(exc, collapse = ", "))
+  message("\nPearson correlation matrix of original data: ")
   if (is.matrix(original_cor_matrix)) {
     print(original_cor_matrix)
   } else {
-    cat(original_cor_matrix, "\n")
+    message(original_cor_matrix)
   }
-  cat("\nFinal VIF values for kept variables:\n")
+  message("\nFinal VIF values for kept variables: ")
   if (is.data.frame(final_vif_data)) {
     print(final_vif_data)
   } else {
-    cat(final_vif_data, "\n")
+    message(final_vif_data)
   }
-  cat("----------------------------\n")
+  message("----------------------------")
   if (length(kept_vars) == 0) {
     warning("All variables were excluded. Returning an empty SpatRaster.")
     return(original_raster[[character(0)]])
   }
   result_raster <- subset(original_raster, kept_vars)
-  cat("VIF filtering completed\n")
+  message("VIF filtering completed")
   return(result_raster)
 }
