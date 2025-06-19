@@ -46,7 +46,7 @@ A new subfolder named \verb{overlay/} will be created within the \code{folder_pa
 }
 \examples{
 \dontrun{
-ClimaRep::mh_overlay(folder_path = temp_dir)
+ClimaRep::mh_overlay(folder_path = file.path(tempdir(), "ClimaRepChange"))
 terra::plot(climarep_img)
 }
 }

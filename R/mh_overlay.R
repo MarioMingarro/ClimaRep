@@ -38,8 +38,8 @@
 #' @importFrom terra rast ifel app writeRaster nlyr values
 #'
 #' @examples
-#' \donttest{
-#' ClimaRep::mh_overlay(folder_path = temp_dir)
+#' \dontrun{
+#' ClimaRep::mh_overlay(folder_path = file.path(tempdir(), "ClimaRepChange"))
 #' terra::plot(climarep_img)
 #' }
 #' @export

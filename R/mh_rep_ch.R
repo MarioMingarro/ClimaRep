@@ -87,7 +87,9 @@
 #' )
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
+#'
 #' r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+#'
 #' r_clim_future <- r_clim_present_filtered + 2
 #' names(r_clim_future) <- names(r_clim_present_filtered)
 #' hex_grid <- sf::st_sf(
@@ -116,7 +118,7 @@
 #'    year = "2070",
 #'    dir_output = file.path(tempdir(), "ClimaRepChange"),
 #'    save_raw = TRUE)
-#' }
+#'}
 #' @export
 mh_rep_ch <- function(polygon,
                       col_name,

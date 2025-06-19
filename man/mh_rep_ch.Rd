@@ -88,7 +88,7 @@ While the covariance matrix accounts for correlations, it is strongly recommende
 Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter} function from this package.
 }
 \examples{
-\dontrun{
+\donttest{
 library(terra)
 library(sf)
 set.seed(2458)
@@ -109,7 +109,9 @@ values(r_clim_present) <- c(
 )
 names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim_present) <- "EPSG:4326"
+
 r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+
 r_clim_future <- r_clim_present_filtered + 2
 names(r_clim_future) <- names(r_clim_present_filtered)
 hex_grid <- sf::st_sf(

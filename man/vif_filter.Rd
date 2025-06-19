@@ -54,7 +54,6 @@ References:
 O’brien (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Quality & Quantity, 41: 673–690. doi:10.1007/s11135-006-9018-6
 }
 \examples{
-\dontrun{
 library(terra)
 library(sf)
 
@@ -77,10 +76,7 @@ names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim) <- "EPSG:4326"
 terra::plot(r_clim)
 
-r_clim_filtered <-
-  ClimaRep::vif_filter(r_clim,
-                       th = 5)
+r_clim_filtered <- ClimaRep::vif_filter(r_clim, th = 5)
 
 terra::plot(r_clim_filtered)
-}
 }

@@ -46,7 +46,6 @@
 #' @importFrom stats cov var lm as.formula cor
 #'
 #' @examples
-#' \donttest{
 #' library(terra)
 #' library(sf)
 #'
@@ -69,12 +68,9 @@
 #' terra::crs(r_clim) <- "EPSG:4326"
 #' terra::plot(r_clim)
 #'
-#' r_clim_filtered <-
-#'   ClimaRep::vif_filter(r_clim,
-#'                        th = 5)
+#' r_clim_filtered <- ClimaRep::vif_filter(r_clim, th = 5)
 #'
 #' terra::plot(r_clim_filtered)
-#'}
 #' @export
 vif_filter <- function(x, th = 5) {
   if (!inherits(x, 'SpatRaster')) {

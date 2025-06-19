@@ -50,7 +50,6 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' \donttest{
 #' library(terra)
 #' library(sf)
 #' set.seed(2458)
@@ -71,7 +70,9 @@
 #' )
 #' names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 #' terra::crs(r_clim_present) <- "EPSG:4326"
+#'
 #' r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
+#'
 #' hex_grid <- sf::st_sf(
 #'    sf::st_make_grid(
 #'      sf::st_as_sf(
@@ -93,7 +94,6 @@
 #'    dir_output = file.path(tempdir(), "ClimaRep"),
 #'    save_raw = TRUE
 #'    )
-#' }
 #' @export
 mh_rep <- function(polygon,
                    col_name,
