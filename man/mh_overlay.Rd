@@ -46,6 +46,6 @@ A new subfolder named \verb{overlay/} will be created within the \code{folder_pa
 }
 \examples{
 ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"))
-#' terra::plotRGB(ClimaRep_overlay)
+terra::plotRGB(ClimaRep_overlay)
 terra::plot(ClimaRep_overlay)
 }

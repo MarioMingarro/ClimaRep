@@ -66,7 +66,6 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' \donttest{
 #' library(terra)
 #' library(sf)
 #' set.seed(2458)
@@ -119,7 +118,6 @@
 #'    year = "2070",
 #'    dir_output = file.path(tempdir(), "ClimaRepChange"),
 #'    save_raw = TRUE)
-#'}
 #' @export
 mh_rep_ch <- function(polygon,
                       col_name,

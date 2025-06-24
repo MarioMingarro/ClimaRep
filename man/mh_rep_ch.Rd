@@ -88,7 +88,6 @@ While the covariance matrix accounts for correlations, it is strongly recommende
 Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter} function from this package.
 }
 \examples{
-\donttest{
 library(terra)
 library(sf)
 set.seed(2458)
@@ -141,5 +140,4 @@ ClimaRep::mh_rep_ch(
    year = "2070",
    dir_output = file.path(tempdir(), "ClimaRepChange"),
    save_raw = TRUE)
-}
 }

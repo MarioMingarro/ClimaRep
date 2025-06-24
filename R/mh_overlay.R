@@ -39,7 +39,7 @@
 #'
 #' @examples
 #' ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"))
-#' #' terra::plotRGB(ClimaRep_overlay)
+#' terra::plotRGB(ClimaRep_overlay)
 #' terra::plot(ClimaRep_overlay)
 #' @export
 mh_overlay <- function(folder_path) {
