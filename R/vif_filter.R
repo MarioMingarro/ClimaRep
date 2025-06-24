@@ -23,10 +23,10 @@
 #'    \item If this highest VIF value is greater than the threshold (`th`), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
 #'    \item This iterative process repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} `th`, or until only one variable remains in the dataset.
 #' }
+#'The output of `vif_filter` returns a `list` object with a filtered `SpatRaster` object and a statistics summary.
 #'
-#' Finally, the function returns a new `SpatRaster` object containing only the variables that were kept.
-#'
-#' It also prints a summary including:
+#'The `SpatRaster` object containing only the variables that were kept and also provides a comprehensive summary printed to the console.
+#'The summary list including:
 #' \itemize{
 #' \item The original Pearson's correlation matrix between all initial variables.
 #' \item The variables names that were kept and those that were excluded.
@@ -68,8 +68,9 @@
 #' terra::crs(r_clim) <- "EPSG:4326"
 #' terra::plot(r_clim)
 #'
-#' r_clim_filtered <- ClimaRep::vif_filter(r_clim, th = 5)
-#'
+#' vif_result <- ClimaRep::vif_filter(r_clim, th = 5)
+#' print(vif_result$summary)
+#' r_clim_filtered <- <- vif_result$filtered_raster
 #' terra::plot(r_clim_filtered)
 #' @export
 vif_filter <- function(x, th = 5) {
@@ -159,27 +160,19 @@ vif_filter <- function(x, th = 5) {
   } else {
     final_vif_data <- "No variables kept."
   }
-  message("--- VIF Filtering Summary ---\n")
-  message("Kept layers:", paste(kept_vars, collapse = ", "))
-  message("Excluded layers:", paste(exc, collapse = ", "))
-  message("\nPearson correlation matrix of original data: ")
-  if (is.matrix(original_cor_matrix)) {
-    print(original_cor_matrix)
-  } else {
-    message(original_cor_matrix)
-  }
-  message("\nFinal VIF values for kept variables: ")
-  if (is.data.frame(final_vif_data)) {
-    print(final_vif_data)
-  } else {
-    message(final_vif_data)
-  }
-  message("----------------------------")
+
+  results_summary <- list(
+    kept_layers = kept_vars,
+    excluded_layers = exc,
+    original_correlation_matrix = original_cor_matrix,
+    final_vif_values = final_vif_data
+  )
   if (length(kept_vars) == 0) {
     warning("All variables were excluded. Returning an empty SpatRaster.")
-    return(original_raster[[character(0)]])
+    filtered_raster <- original_raster[[character(0)]]
+  } else {
+    filtered_raster <- subset(original_raster, kept_vars)
   }
-  result_raster <- subset(original_raster, kept_vars)
-  message("VIF filtering completed")
-  return(result_raster)
+  message("All processes were completed")
+  return(list(filtered_raster = filtered_raster, summary = results_summary))
 }

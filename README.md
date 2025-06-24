@@ -104,18 +104,20 @@ A crucial first step in processing the climate variables is often to address mul
 
 To handle this, the `vif_filter` function can be used to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (e.g., `th = 5`).
 
-The output of `vif_filter` returns a new `SpatRaster` object containing only the variables that were kept and also provides a comprehensive summary printed to the console. 
+The output of `vif_filter` returns a `list` object with a filtered `SpatRaster` object and a statistics summary. 
 
-It also prints a summary including:
+The `SpatRaster` object containing only the variables that were kept and also provides a comprehensive summary printed to the console. 
+
+The summary list including:
 - The lists of variables that were kept and those that were excluded.
 - The original Pearson's correlation matrix between all initial variables.
 - The final VIF values for the variables that were retained after the filtering process.
 
 
 ```{r}
-r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
+vif_result <- vif_filter(r_clim_present, th = 5)
+print(vif_result$summary)
 
---- VIF Filtering Summary ---
 Kept layers: varA, varC, varE, varF, varG 
 Excluded layers: varD, varB 
 
@@ -136,9 +138,8 @@ varC 3.3473
 varE 1.0121
 varF 3.8325
 varG 4.3545
-----------------------------
-VIF filtering completed
 
+r_clim_present_filtered <- vif_result$filtered_raster
 terra::plot(r_clim_present_filtered)
 ```
 <img src="man/figures/F_2.jpeg" alt="Filtered Climate layers" width="600">
