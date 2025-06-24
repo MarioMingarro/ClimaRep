@@ -22,8 +22,8 @@ testthat::test_that("mh_rep_ch works correctly", {
   )
   names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
   terra::crs(r_clim_present) <- "EPSG:4326"
-  r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
-  r_clim_present_filtered <- r_clim_present[[1:5]]
+  vif_result <- ClimaRep::vif_filter(r_clim_present, th = 5)
+  r_clim_present_filtered <- vif_result$filtered_raster
   r_clim_future <- r_clim_present_filtered + 2
   names(r_clim_future) <- names(r_clim_present_filtered)
   hex_grid <- sf::st_sf(sf::st_make_grid(sf::st_as_sf(terra::as.polygons(
@@ -33,17 +33,6 @@ testthat::test_that("mh_rep_ch works correctly", {
   polygons$name <- c("Pol_1", "Pol_2")
   study_area_polygon <- sf::st_as_sf(terra::as.polygons(terra::ext(r_clim_present)))
   sf::st_crs(study_area_polygon) <- "EPSG:4326"
-  terra::plot(r_clim_present[[1]])
-  terra::plot(polygons,
-              add = TRUE,
-              color = "transparent",
-              lwd = 3)
-  terra::plot(
-    study_area_polygon,
-    add = TRUE,
-    col = "transparent",
-    lwd = 3,
-    border = "red")
 
   output_dir <- file.path(tempdir(), "mh_rep_ch_test")
   if (dir.exists(output_dir)) {

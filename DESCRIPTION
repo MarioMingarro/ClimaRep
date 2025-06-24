@@ -1,6 +1,6 @@
 Package: ClimaRep
 Title: Estimating Climate Representativeness
-Version: 0.5
+Version: 0.6
 Authors@R: 
     person(given = "Mario", 
     family = "Mingarro Lopez", 

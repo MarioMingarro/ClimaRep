@@ -45,8 +45,7 @@ The output \code{SpatRaster} contains raw counts. While \code{terra::plotRGB()} 
 A new subfolder named \verb{overlay/} will be created within the \code{folder_path}. The resulting three-layered RGB will be saved as \code{ClimaRep_overlay.tif} inside this new \verb{overlay/} subfolder.
 }
 \examples{
-\dontrun{
-ClimaRep::mh_overlay(folder_path = file.path(tempdir(), "ClimaRepChange"))
-terra::plot(climarep_img)
-}
+ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"))
+#' terra::plotRGB(ClimaRep_overlay)
+terra::plot(ClimaRep_overlay)
 }

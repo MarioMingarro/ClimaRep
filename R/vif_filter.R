@@ -70,7 +70,7 @@
 #'
 #' vif_result <- ClimaRep::vif_filter(r_clim, th = 5)
 #' print(vif_result$summary)
-#' r_clim_filtered <- <- vif_result$filtered_raster
+#' r_clim_filtered <- vif_result$filtered_raster
 #' terra::plot(r_clim_filtered)
 #' @export
 vif_filter <- function(x, th = 5) {

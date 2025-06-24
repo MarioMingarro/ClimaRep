@@ -110,8 +110,9 @@ values(r_clim_present) <- c(
 names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim_present) <- "EPSG:4326"
 
-r_clim_present_filtered <- ClimaRep::vif_filter(r_clim_present, th = 5)
-
+vif_result <- ClimaRep::vif_filter(r_clim_present, th = 5)
+print(vif_result$summary)
+r_clim_present_filtered <- vif_result$filtered_raster
 r_clim_future <- r_clim_present_filtered + 2
 names(r_clim_future) <- names(r_clim_present_filtered)
 hex_grid <- sf::st_sf(

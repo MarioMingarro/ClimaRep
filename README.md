@@ -351,7 +351,7 @@ After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), ras
 The `mh_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
 ```{r}
-mh_overlay(
+ClimaRep_overlay <- mh_overlay(
   folder_path = file.path(tempdir(), "Change"))
 
 Processing 2 classification rasters from C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change
@@ -361,7 +361,6 @@ Calculating counts for category: Novel (value = 3)
 All processes were completed
 Output files in:  C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change/overlay/ClimaRep_overlay.tif 
 
-ClimaRep_overlay <- terra::rast(list.files(file.path(tempdir(), "Change/overlay"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plotRGB(ClimaRep_overlay, stretch = "lin")
 ```
 

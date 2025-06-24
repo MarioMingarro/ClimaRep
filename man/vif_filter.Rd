@@ -34,10 +34,10 @@ Key steps:
 \item If this highest VIF value is greater than the threshold (\code{th}), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
 \item This iterative process repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} \code{th}, or until only one variable remains in the dataset.
 }
+The output of \code{vif_filter} returns a \code{list} object with a filtered \code{SpatRaster} object and a statistics summary.
 
-Finally, the function returns a new \code{SpatRaster} object containing only the variables that were kept.
-
-It also prints a summary including:
+The \code{SpatRaster} object containing only the variables that were kept and also provides a comprehensive summary printed to the console.
+The summary list including:
 \itemize{
 \item The original Pearson's correlation matrix between all initial variables.
 \item The variables names that were kept and those that were excluded.
@@ -76,7 +76,8 @@ names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim) <- "EPSG:4326"
 terra::plot(r_clim)
 
-r_clim_filtered <- ClimaRep::vif_filter(r_clim, th = 5)
-
+vif_result <- ClimaRep::vif_filter(r_clim, th = 5)
+print(vif_result$summary)
+r_clim_filtered <- vif_result$filtered_raster
 terra::plot(r_clim_filtered)
 }
