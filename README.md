@@ -352,14 +352,15 @@ The `mh_overlay` function counting, for each cell, how many of the input rasters
 
 ```{r}
 ClimaRep_overlay <- mh_overlay(
-  folder_path = file.path(tempdir(), "Change"))
+  folder_path = file.path(tempdir(), "Change"),
+   output_dir = file.path(tempdir(), "ClimaRep_overlay"))
 
 Processing 2 classification rasters from C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change
 Calculating counts for category: Lost (value = 2) 
 Calculating counts for category: Retained (value = 1) 
 Calculating counts for category: Novel (value = 3) 
 All processes were completed
-Output files in:  C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change/overlay/ClimaRep_overlay.tif 
+Output files saved in:  C:\Users\AppData\Local\Temp\RtmpY1rKKD/ClimaRep_overlay
 
 terra::plotRGB(ClimaRep_overlay, stretch = "lin")
 ```

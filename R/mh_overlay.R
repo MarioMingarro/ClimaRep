@@ -8,9 +8,17 @@
 #'  contain the categories: `1` (Retained/Represented), `2` (Lost), and `3` (Novel).
 #'  Category `0` (Non-represented) will be ignored for the RGB output.
 #'
-#' @return Writes the multi-layered (`ClimaRep_overlay.tif`) outputs to disk in a new `overlay` subfolder within the `folder_path`.
-#' When `mh_rep_ch` results are used, the output layers consistently represent counts for **Lost** (Red), **Retained** (Green), and **Novel** (Blue) categories across all input rasters. Designed for direct RGB plotting.
+#' @param output_dir `character`. Path to the directory where the output file will be saved. By default, it creates a subdirectory in a temporary location.
+#'
+#'
+#' @return Writes the following outputs to disk within the directory specified by `output_dir`:
 #' When `mh_rep` results are used, the output layers consistently represent counts for **Represented** categories across all input rasters.
+#' When `mh_rep_ch` results are used, the output layers consistently represent counts for **Lost** (Red), **Retained** (Green), and **Novel** (Blue) categories across all input rasters. Designed for direct RGB plotting.
+#' \itemize{
+#'  \item A multi-layered `SpatRaster` (`ClimaRep_overlay.tif`) for RGB visualization.
+#'  \item Individual `.tif` files for each band (Lost, Retained, Novel) in a `Individual_Bands/` subdirectory.
+#' }
+#' The function also returns the resulting multi-layered `SpatRaster` object invisibly.
 #'
 #' @details
 #' This function streamlines the aggregation of Climate Representativeness classifications. It is designed to work with outputs from both `mh_rep` and `mh_rep_ch`.
@@ -38,15 +46,30 @@
 #' @importFrom terra rast ifel app writeRaster nlyr values
 #'
 #' @examples
-#' ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"))
+#' ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"),
+#'                                          output_dir = file.path(tempdir(), "mh_overlay_output"))
 #' terra::plotRGB(ClimaRep_overlay)
 #' terra::plot(ClimaRep_overlay)
 #' @export
-mh_overlay <- function(folder_path) {
+mh_overlay <- function(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay")) {
   if (!is.character(folder_path) ||
       length(folder_path) != 1 || !dir.exists(folder_path)) {
     stop("Parameter 'folder_path' must be a character string and a valid directory.")
   }
+
+  if (!is.character(output_dir) || length(output_dir) != 1) {
+    stop("Parameter 'output_dir' must be a single character string.")
+  }
+
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+
+  dir_individual_bands <- file.path(output_dir, "Individual_Bands")
+  if (!dir.exists(dir_individual_bands)) {
+    dir.create(dir_individual_bands, recursive = TRUE, showWarnings = FALSE)
+  }
+
   rgb_category_map <- c("Lost" = 2,
                         "Retained" = 1,
                         "Novel" = 3)
@@ -89,24 +112,27 @@ mh_overlay <- function(folder_path) {
     } else {
       current_category_sum_raster <- first_raster * 0
     }
+    band_filename <- paste0(rgb_channel_names[which(names(rgb_category_map) == cat_name)], ".tif")
+    terra::writeRaster(current_category_sum_raster,
+                       file.path(dir_individual_bands, band_filename),
+                       overwrite = TRUE,
+                       datatype = "INT2U")
+
     count_rasters_for_rgb[[cat_name]] <- current_category_sum_raster
   }
   final_rgb_stack <- c(count_rasters_for_rgb[["Lost"]],
                        count_rasters_for_rgb[["Retained"]],
                        count_rasters_for_rgb[["Novel"]])
   names(final_rgb_stack) <- rgb_channel_names
-  overlay_dir <- file.path(folder_path, "overlay")
-  if (!dir.exists(overlay_dir)) {
-    dir.create(overlay_dir,
-               recursive = TRUE,
-               showWarnings = FALSE)
-  }
-  dir_output <- file.path(overlay_dir, "ClimaRep_overlay.tif")
+
+  dir_output_file <- file.path(output_dir, "ClimaRep_overlay.tif")
+
   terra::writeRaster(final_rgb_stack,
-                     dir_output,
+                     dir_output_file,
                      overwrite = TRUE,
                      datatype = "INT2U")
+
   message("All processes were completed")
-  message(paste("Output files in: ", dir_output))
+  message(paste("Output files saved in: ", output_dir))
   return(invisible(final_rgb_stack))
 }

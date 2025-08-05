@@ -213,8 +213,9 @@ mh_rep_ch <- function(polygon,
     stop("Not enough variables to calculate Mahalanobis distance. Need at least 2 layers.")
   }
   data_combined_clim <- rbind(data_p_study_clim, data_f_study_clim)
-  cov_matrix <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
-  if (inherits(try(solve(cov_matrix), silent = TRUE)
+  cov_matrix_pre <- suppressWarnings(cov(data_p_study_clim, use = "complete.obs"))
+  cov_matrix_fut <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
+  if (inherits(try(solve(cov_matrix_fut), silent = TRUE)
                , "try-error")) {
     stop(
       "Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'."
@@ -251,10 +252,10 @@ mh_rep_ch <- function(polygon,
     mu_present_polygon <- terra::global(raster_polygon_present, "mean", na.rm = TRUE)$mean
     mh_values_present <- mahalanobis(as.matrix(full_data_present_clim),
                                      mu_present_polygon,
-                                     cov_matrix)
+                                     cov_matrix_pre)
     mh_values_future <- mahalanobis(as.matrix(full_data_future_clim),
                                     mu_present_polygon,
-                                    cov_matrix)
+                                    cov_matrix_fut)
     mh_present_full <- terra::rast(
       cbind(full_data_present_coords, mh_values_present),
       type = "xyz",

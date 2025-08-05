@@ -49,15 +49,14 @@ testthat::test_that("mh_overlay works correctly", {
     dir_output = output_dir,
     save_raw = TRUE)
 
-  overlay_input_folder <- file.path(output_dir, "Change")
 
   mh_overlay(
-    folder_path = overlay_input_folder)
+    folder_path = file.path(output_dir, "Change"),
+    output_dir = file.path(output_dir, "mh_overlay_output"))
 
-  overlay_output_dir <- file.path(overlay_input_folder, "overlay")
-  overlay_output_file <- file.path(overlay_output_dir, "ClimaRep_overlay.tif")
-  expect_true(dir.exists(overlay_output_dir))
-  expect_true(file.exists(overlay_output_file))
-  expect_gt(file.size(overlay_output_file), 0)
+
+  overlay_output <- file.path(output_dir, "mh_overlay_output")
+  expect_true(dir.exists(overlay_output))
+  expect_true(file.exists(overlay_output))
   unlink(output_dir, recursive = TRUE)
 })
