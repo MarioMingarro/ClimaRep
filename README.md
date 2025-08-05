@@ -351,9 +351,8 @@ After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), ras
 The `mh_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
 ```{r}
-ClimaRep_overlay <- mh_overlay(
-  folder_path = file.path(tempdir(), "Change"),
-   output_dir = file.path(tempdir(), "ClimaRep_overlay"))
+ClimaRep_overlay <- mh_overlay(folder_path = file.path(tempdir(), "Change"),
+                               output_dir = file.path(tempdir(), "ClimaRep_overlay"))
 
 Processing 2 classification rasters from C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change
 Calculating counts for category: Lost (value = 2) 

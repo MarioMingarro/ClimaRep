@@ -338,7 +338,7 @@ mh_rep_ch <- function(polygon,
       filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep_change.jpeg")),
       plot = p,
       width = 10,
-      height = 8,
+      height = 10,
       dpi = 300
     )
   }
