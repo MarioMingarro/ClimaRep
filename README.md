@@ -446,10 +446,10 @@ Combines multiple single-layer rasters (`tif`), outputs from `mh_rep` or `mh_rep
 
 This function handles inputs from both `mh_rep` (which primarily contains **Represented** areas) and `mh_rep_ch` (which includes **Retained**, **Lost**, and **Novel** areas). The output layers consistently represent counts of each input.
 
-`mh_overlay(folder_path)`
+`mh_overlay(folder_path, dir_output)`
 
 > `folder_path`: Character string. Path to the directory containing the input single-layer GeoTIFF classification rasters (outputs from `mh_rep_ch()` or `mh_rep()`).
-
+> `dir_output`: Path to the `directory` where output rasters will be saved. The directory will be created if it doesn't exist.
 
 ## Citation
 
