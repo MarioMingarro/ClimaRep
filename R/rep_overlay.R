@@ -52,7 +52,8 @@
 #' terra::plotRGB(ClimaRep_overlay)
 #' terra::plot(ClimaRep_overlay)
 #' @export
-rep_overlay <- function(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay")) {
+rep_overlay <- function(folder_path,
+                        output_dir = file.path(tempdir(), "ClimaRep_overlay")) {
   if (!is.character(folder_path) ||
       length(folder_path) != 1 || !dir.exists(folder_path)) {
     stop("Parameter 'folder_path' must be a character string and a valid directory.")
