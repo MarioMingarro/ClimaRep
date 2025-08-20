@@ -16,7 +16,7 @@ Key features include:
 * Filtering raster climate variables to reduce multicollinearity (`vif_filter`).
 * Estimating current climate representativeness (`mh_rep`).
 * Estimating changes in climate representativeness under future climate projections (`mh_rep_ch`).
-* Estimating climate representativeness overlay (`mh_overlay`).
+* Estimating climate representativeness overlay (`rep_overlay`).
 
 ## Installation
 
@@ -179,7 +179,8 @@ mh_rep(
   polygon = polygons,
   col_name = "name",
   climate_variables = r_clim_present_filtered,
-  th = 0.9, # Use a threshold, e.g., 90th percentile
+  study_area = study_area_polygon,
+  th = 0.95,
   dir_output = tempdir(),
   save_raw = TRUE)
   
@@ -345,13 +346,13 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
-### 4. Estimate Environmental Representativeness Overlay (mh_overlay)
+### 4. Estimate Environmental Representativeness Overlay (rep_overlay)
 After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**Retained, Lost, Novel**) accumulate. 
 
-The `mh_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
+The `rep_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
 ```{r}
-ClimaRep_overlay <- mh_overlay(folder_path = file.path(tempdir(), "Change"),
+ClimaRep_overlay <- rep_overlay(folder_path = file.path(tempdir(), "Change"),
                                output_dir = file.path(tempdir(), "ClimaRep_overlay"))
 
 Processing 2 classification rasters from C:\Users\AppData\Local\Temp\RtmpY1rKKD/Change
@@ -404,6 +405,8 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 
 > `climate_variables`: A `SpatRaster` object with the climate layers (pre-filtered using `vif_filter`).
 
+> `study_area`: An `sf` object defining the overall study region.
+
 > `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the input `polygon`).
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
@@ -440,13 +443,13 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 
 > `save_raw`: Logical. If `TRUE`, saves the continuous Mahalanobis distance rasters (`Mh_raw`) for both present and future scenarios within the study area extent.
 
-**mh_overlay()**
+**rep_overlay()**
 
 Combines multiple single-layer rasters (`tif`), outputs from `mh_rep` or `mh_rep_ch` for different input polygons, into a multi-layered `SpatRaster`.
 
 This function handles inputs from both `mh_rep` (which primarily contains **Represented** areas) and `mh_rep_ch` (which includes **Retained**, **Lost**, and **Novel** areas). The output layers consistently represent counts of each input.
 
-`mh_overlay(folder_path, dir_output)`
+`rep_overlay(folder_path, dir_output)`
 
 > `folder_path`: Character string. Path to the directory containing the input single-layer GeoTIFF classification rasters (outputs from `mh_rep_ch()` or `mh_rep()`).
 > `dir_output`: Path to the `directory` where output rasters will be saved. The directory will be created if it doesn't exist.

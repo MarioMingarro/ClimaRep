@@ -2,7 +2,7 @@ library(testthat)
 library(terra)
 library(stats)
 
-testthat::test_that("mh_overlay works correctly", {
+testthat::test_that("rep_overlay works correctly", {
   set.seed(2458)
   n_cells <- 100 * 100
   r_clim_present <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
@@ -32,7 +32,7 @@ testthat::test_that("mh_overlay works correctly", {
   study_area_polygon <- sf::st_as_sf(terra::as.polygons(terra::ext(r_clim_present)))
   sf::st_crs(study_area_polygon) <- "EPSG:4326"
 
-  output_dir <- file.path(tempdir(), "mh_overlay_test")
+  output_dir <- file.path(tempdir(), "rep_overlay_test")
   if (dir.exists(output_dir)) {
     unlink(output_dir, recursive = TRUE)
   }
@@ -50,12 +50,12 @@ testthat::test_that("mh_overlay works correctly", {
     save_raw = TRUE)
 
 
-  mh_overlay(
+  rep_overlay(
     folder_path = file.path(output_dir, "Change"),
-    output_dir = file.path(output_dir, "mh_overlay_output"))
+    output_dir = file.path(output_dir, "rep_overlay_output"))
 
 
-  overlay_output <- file.path(output_dir, "mh_overlay_output")
+  overlay_output <- file.path(output_dir, "rep_overlay_output")
   expect_true(dir.exists(overlay_output))
   expect_true(file.exists(overlay_output))
   unlink(output_dir, recursive = TRUE)

@@ -61,7 +61,8 @@ Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{
 
 Here are the key steps:
 \enumerate{
-\item Checking of spatial inputs: Ensures that \code{present_climate_variables}, \code{future_climate_variables}, \code{polygon}, and \code{study_area} all have matching CRSs, and that \code{present_climate_variables} and \code{future_climate_variables} share identical extents and resolutions.
+\item Checking CRS: Ensures that \code{future_climate_variables}, \code{polygon}, and \code{study_area} have matching CRSs with \code{climate_variables} by automatically transforming them if needed.
+\item Crops and masks the \code{climate_variables} and \code{future_climate_variables} raster to the \code{study_area} to limit all subsequent calculations to the area of interest.
 \item Calculate the multivariate covariance matrix using climate data from all cells for both present and future time periods combined.
 \item For each polygon in the \code{polygon} object:
 \itemize{

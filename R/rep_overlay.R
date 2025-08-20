@@ -1,4 +1,4 @@
-#' @title Overlay Mahalanobis-based Climate Representativeness Classifications
+#' @title Overlay Mahalanobis-based climate representativeness Classifications
 #'
 #' @description Combines multiple single-layer rasters (`tif`), outputs from `mh_rep` or `mh_rep_ch` for different input polygons, into a multi-layered `SpatRaster`.
 #'
@@ -46,12 +46,13 @@
 #' @importFrom terra rast ifel app writeRaster nlyr values
 #'
 #' @examples
-#' ClimaRep_overlay <- ClimaRep::mh_overlay(folder_path = system.file("extdata", package = "ClimaRep"),
-#'                                          output_dir = file.path(tempdir(), "mh_overlay_output"))
+#' ClimaRep_overlay <- ClimaRep::rep_overlay(folder_path = system.file("extdata",
+#'                                                                     package = "ClimaRep"),
+#'                                          output_dir = file.path(tempdir(), "rep_overlay_output"))
 #' terra::plotRGB(ClimaRep_overlay)
 #' terra::plot(ClimaRep_overlay)
 #' @export
-mh_overlay <- function(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay")) {
+rep_overlay <- function(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay")) {
   if (!is.character(folder_path) ||
       length(folder_path) != 1 || !dir.exists(folder_path)) {
     stop("Parameter 'folder_path' must be a character string and a valid directory.")
@@ -107,8 +108,8 @@ mh_overlay <- function(folder_path, output_dir = file.path(tempdir(), "ClimaRep_
     }
     if (length(current_category_binary_layers) > 0) {
       stacked_binary_layers <- terra::rast(current_category_binary_layers)
-      current_category_sum_raster <- terra::app(stacked_binary_layers, fun =
-                                                  "sum")
+      current_category_sum_raster <- terra::app(stacked_binary_layers,
+                                                fun = "sum")
     } else {
       current_category_sum_raster <- first_raster * 0
     }

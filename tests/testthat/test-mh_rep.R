@@ -47,6 +47,7 @@ testthat::test_that("mh_present runs and writes output", {
     polygon = polygons,
     col_name = "name",
     climate_variables = r_clim_present_filtered,
+    study_area = study_area_polygon,
     th = 0.95,
     dir_output = output_dir,
     save_raw = TRUE
