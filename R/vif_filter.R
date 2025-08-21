@@ -95,10 +95,8 @@ vif_filter <- function(x, th = 5) {
     variances <- apply(df, 2, var, na.rm = TRUE)
     cols_zero_var <- names(variances[variances < .Machine$double.eps^0.5])
     if (length(cols_zero_var) > 0) {
-      warning(
-        "Removing columns with zero or near-zero variance during VIF calculation: ",
-        paste(cols_zero_var, collapse = ", ")
-      )
+      warning("Removing columns with zero or near-zero variance during VIF calculation: ",
+        paste(cols_zero_var, collapse = ", "))
       df <- df[, !(colnames(df) %in% cols_zero_var), drop = FALSE]
       if (ncol(df) <= 1) {
         return(numeric(0))
@@ -160,13 +158,11 @@ vif_filter <- function(x, th = 5) {
   } else {
     final_vif_data <- "No variables kept."
   }
-
   results_summary <- list(
     kept_layers = kept_vars,
     excluded_layers = exc,
     original_correlation_matrix = original_cor_matrix,
-    final_vif_values = final_vif_data
-  )
+    final_vif_values = final_vif_data)
   if (length(kept_vars) == 0) {
     warning("All variables were excluded. Returning an empty SpatRaster.")
     filtered_raster <- original_raster[[character(0)]]

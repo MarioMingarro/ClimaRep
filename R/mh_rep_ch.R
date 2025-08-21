@@ -155,35 +155,13 @@ mh_rep_ch <- function(polygon,
     stop("Parameter 'dir_output' must be a single character string.")
   }
   if (terra::nlyr(present_climate_variables) < 2) {
-    warning(
-      "present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
-    )
+    warning("present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
   }
   if (terra::nlyr(present_climate_variables) != terra::nlyr(future_climate_variables)) {
-    stop(
-      "Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same."
-    )
+    stop("Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same.")
   }
-  message("Validating and adjusting Coordinate Reference Systems (CRS)")
-  reference_system <- terra::crs(present_climate_variables)
-  reference_system_check <- terra::crs(present_climate_variables, describe = TRUE)$code
-  if (is.na(reference_system_check) ||
-      reference_system_check == "") {
-    stop("CRS for 'present_climate_variables' is undefined. Please set a valid CRS.")
-  }
-  if (terra::crs(future_climate_variables, describe = TRUE)$code != reference_system_check) {
-    stop(
-      "CRS mismatch: 'future_climate_variables' must have the same CRS as 'present_climate_variables'."
-    )
-  }
-  if (sf::st_crs(polygon)$epsg != reference_system_check) {
-    message("Adjusting CRS of polygon to match reference system.")
-    polygon <- sf::st_transform(polygon, reference_system)
-  }
-  if (sf::st_crs(study_area)$epsg != reference_system_check) {
-    message("Adjusting CRS of study_area to match reference system.")
-    study_area <- sf::st_transform(study_area, reference_system)
-  }
+
+  message("Establishing output file structure.")
   dir_present <- file.path(dir_output, "Mh_Raw_Pre")
   dir_future <- file.path(dir_output, "Mh_Raw_Fut")
   dir_change <- file.path(dir_output, "Change")
@@ -197,7 +175,25 @@ mh_rep_ch <- function(polygon,
       dir.create(dir, recursive = TRUE, showWarnings = FALSE)
     }
   })
-  message("Creating climate space data")
+  message("Validating and adjusting Coordinate Reference Systems (CRS)")
+  reference_system <- terra::crs(present_climate_variables)
+  reference_system_check <- terra::crs(present_climate_variables, describe = TRUE)$code
+  if (is.na(reference_system_check) ||
+      reference_system_check == "") {
+    stop("CRS for 'present_climate_variables' is undefined. Please set a valid CRS.")
+  }
+  if (terra::crs(future_climate_variables, describe = TRUE)$code != reference_system_check) {
+    stop("CRS mismatch: 'future_climate_variables' must have the same CRS as 'present_climate_variables'.")
+  }
+  if (sf::st_crs(polygon)$epsg != reference_system_check) {
+    message("Adjusting CRS of polygon to match reference system.")
+    polygon <- sf::st_transform(polygon, reference_system)
+  }
+  if (sf::st_crs(study_area)$epsg != reference_system_check) {
+    message("Adjusting CRS of study_area to match reference system.")
+    study_area <- sf::st_transform(study_area, reference_system)
+  }
+  message("Defining the climate reference space.")
   present_masked <- terra::mask(terra::crop(present_climate_variables, study_area),
                                 study_area)
   future_masked <- terra::mask(terra::crop(future_climate_variables, study_area),
@@ -206,9 +202,7 @@ mh_rep_ch <- function(polygon,
   data_f_study <- na.omit(terra::as.data.frame(future_masked, xy = TRUE))
   if (nrow(data_p_study) == 0 ||
       nrow(data_f_study) == 0) {
-    stop(
-      "No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix."
-    )
+    stop("No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix.")
   }
   climate_data_cols <- 3:(ncol(data_p_study))
   data_combined_clim <- rbind(data_p_study[, climate_data_cols], data_f_study[, climate_data_cols])
@@ -216,9 +210,7 @@ mh_rep_ch <- function(polygon,
   cov_matrix_prefut <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
   if (inherits(try(solve(cov_matrix_prefut), silent = TRUE)
                , "try-error")) {
-    stop(
-      "Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'."
-    )
+    stop("Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'.")
   }
   message("Starting per-polygon processing:")
   classify_mh <- function(mh_raster, threshold) {
@@ -232,13 +224,7 @@ mh_rep_ch <- function(polygon,
     pol_name <- gsub("[^a-z0-9_]+", "_", pol_name)
     pol_name <- gsub("__+", "_", pol_name)
     pol_name <- gsub("^_|_$", "", pol_name)
-    message("\nProcessing polygon: ",
-            pol_name,
-            " (",
-            j,
-            " of ",
-            nrow(polygon),
-            ")")
+    message("\nProcessing polygon: ",pol_name, " (",j," of ",nrow(polygon),")")
     raster_polygon_present <- terra::mask(terra::crop(present_masked, pol), pol)
     if (all(is.na(terra::values(raster_polygon_present)))) {
       warning("No available data for: ",
@@ -253,36 +239,28 @@ mh_rep_ch <- function(polygon,
     mh_values_future <- mahalanobis(as.matrix(data_f_study[, climate_data_cols]),
                                     mu_present_polygon,
                                     cov_matrix_prefut)
-    mh_present <- terra::rast(
-      cbind(data_p_study$x, data_p_study$y, mh_values_present),
-      type = "xyz",
-      crs = reference_system
-    )
-    mh_future <- terra::rast(
-      cbind(data_f_study$x, data_f_study$y, mh_values_future),
-      type = "xyz",
-      crs = reference_system
-    )
+    mh_present <- terra::rast(cbind(data_p_study$x, data_p_study$y, mh_values_present),
+                              type = "xyz",
+                              crs = reference_system)
+    mh_future <- terra::rast(cbind(data_f_study$x, data_f_study$y, mh_values_future),
+                             type = "xyz",
+                             crs = reference_system)
     if (save_raw) {
-      terra::writeRaster(mh_present, file.path(dir_present, paste0("Mh_raw_Pre_", pol_name, ".tif")), overwrite = TRUE)
-      terra::writeRaster(mh_future, file.path(
-        dir_future,
-        paste0("Mh_raw_Fut_", model, "_", year, "_", pol_name, ".tif")
-      ), overwrite = TRUE)
+      terra::writeRaster(mh_present, file.path(dir_present, paste0("Mh_raw_Pre_", pol_name, ".tif")),
+                         overwrite = TRUE)
+      terra::writeRaster(mh_future, file.path(dir_future, paste0("Mh_raw_Fut_", model, "_", year, "_", pol_name, ".tif")),
+                         overwrite = TRUE)
     }
     mh_poly <- terra::mask(mh_present, pol)
-    th_value <- suppressWarnings(quantile(
-      terra::values(mh_poly),
-      probs = th,
-      na.rm = TRUE
-    ))
+    th_value <- suppressWarnings(quantile(terra::values(mh_poly),
+                                          probs = th,
+                                          na.rm = TRUE))
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
               ". Skipping.")
       next
     }
-
     th_present <- classify_mh(mh_present, th_value)
     th_future <- classify_mh(mh_future, th_value)
     raster_final <- (th_present * th_future) +
@@ -292,8 +270,7 @@ mh_rep_ch <- function(polygon,
                        file.path(
                          dir_output,
                          "Change",
-                         paste0("Th_change_", model, "_", year, "_", pol_name, ".tif")
-                       ),
+                         paste0("Th_change_", model, "_", year, "_", pol_name, ".tif")),
                        overwrite = TRUE)
     raster_final_factor <- terra::as.factor(raster_final)
     p <- suppressMessages(
@@ -303,38 +280,29 @@ mh_rep_ch <- function(polygon,
           data = study_area,
           color = "gray50",
           fill = NA,
-          linewidth = 1
-        ) +
+          linewidth = 1) +
         ggplot2::geom_sf(
           data = pol,
           color = "black",
-          fill = NA
-        ) +
+          fill = NA) +
         ggplot2::scale_fill_manual(
           name = " ",
           values = c(
-            "0" = "grey90",
-            # Non-represented
-            "1" = "aquamarine4",
-            # Retained
-            "2" = "coral1",
-            # Lost
-            "3" = "steelblue2"# Novel
-          ),
+            "0" = "grey90", # Non-represented
+            "1" = "aquamarine4", # Retained
+            "2" = "coral1", # Lost
+            "3" = "steelblue2"), # Novel
           labels = c(
             "0" = "Non-represented",
             "1" = "Retained",
             "2" = "Lost",
-            "3" = "Novel"
-          ),
+            "3" = "Novel"),
           na.value = "transparent",
           na.translate = FALSE,
-          drop = FALSE
-        ) +
+          drop = FALSE) +
         ggplot2::ggtitle(pol_name) +
         ggplot2::theme_minimal() +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5))
-    )
+        ggplot2::theme(plot.title = element_text(hjust = 0.5)))
     ggplot2::ggsave(
       filename = file.path(
         dir_output,
@@ -344,8 +312,7 @@ mh_rep_ch <- function(polygon,
       plot = p,
       width = 10,
       height = 10,
-      dpi = 300
-    )
+      dpi = 300)
   }
   message("All processes were completed")
   message(paste("Output files in: ", dir_output))

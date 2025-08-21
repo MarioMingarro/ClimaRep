@@ -58,82 +58,57 @@ rep_overlay <- function(folder_path,
       length(folder_path) != 1 || !dir.exists(folder_path)) {
     stop("Parameter 'folder_path' must be a character string and a valid directory.")
   }
-
   if (!is.character(output_dir) || length(output_dir) != 1) {
     stop("Parameter 'output_dir' must be a single character string.")
   }
-
+  message("Establishing output file structure.")
+  dir_individual_bands <- file.path(output_dir, "individual_bands")
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   }
-
-  dir_individual_bands <- file.path(output_dir, "Individual_Bands")
   if (!dir.exists(dir_individual_bands)) {
     dir.create(dir_individual_bands, recursive = TRUE, showWarnings = FALSE)
   }
-
   rgb_category_map <- c("Lost" = 2,
                         "Retained" = 1,
                         "Novel" = 3)
-  rgb_channel_names <- c("Lost_Count_R", "Retained_Count_G", "Novel_Count_B")
+  rgb_channel_names <- c("lost_count_R", "retained_count_G", "novel_count_B")
   raster_files <- list.files(folder_path, pattern = "\\.tif$", full.names = TRUE)
   if (length(raster_files) == 0) {
-    warning("No '.tif files' found in the specified folder: ",
-            folder_path,
-            ". Returning NULL.")
-    return(invisible(NULL))
+    stop("No '.tif files' found in the specified folder: ", folder_path)
   }
-  message(
-    "Processing ",
-    length(raster_files),
-    " rasters from ",
-    folder_path
-  )
+  message("Processing ", length(raster_files), " rasters from ", folder_path)
   first_raster <- terra::rast(raster_files[1])
-  count_rasters_for_rgb <- vector("list", length = length(rgb_category_map))
-  names(count_rasters_for_rgb) <- names(rgb_category_map)
-  all_binary_layers <- list()
+  count_rasters_for_rgb <- list(
+    Lost = first_raster * 0,
+    Retained = first_raster * 0,
+    Novel = first_raster * 0)
+  for (i in seq_along(raster_files)) {
+    file_path <- raster_files[i]
+    current_raster <- terra::rast(file_path)
+    for (cat_name in names(rgb_category_map)) {
+      category_value <- rgb_category_map[cat_name]
+      count_rasters_for_rgb[[cat_name]] <- count_rasters_for_rgb[[cat_name]] +
+        terra::ifel(current_raster == category_value, 1, 0)
+    }
+  }
   for (cat_name in names(rgb_category_map)) {
-    category_value <- rgb_category_map[cat_name]
-    message("Calculating counts for category: ",
-            cat_name,
-            " (value = ",
-            category_value,
-            ") ")
-    current_category_binary_layers <- list()
-    for (i in seq_along(raster_files)) {
-      file_path <- raster_files[i]
-      current_raster <- terra::rast(file_path)
-      binary_layer <- terra::ifel(current_raster == category_value, 1, 0)
-      current_category_binary_layers[[length(current_category_binary_layers) + 1]] <- binary_layer
-    }
-    if (length(current_category_binary_layers) > 0) {
-      stacked_binary_layers <- terra::rast(current_category_binary_layers)
-      current_category_sum_raster <- terra::app(stacked_binary_layers,
-                                                fun = "sum")
-    } else {
-      current_category_sum_raster <- first_raster * 0
-    }
     band_filename <- paste0(rgb_channel_names[which(names(rgb_category_map) == cat_name)], ".tif")
-    terra::writeRaster(current_category_sum_raster,
-                       file.path(dir_individual_bands, band_filename),
-                       overwrite = TRUE,
-                       datatype = "INT2U")
-
-    count_rasters_for_rgb[[cat_name]] <- current_category_sum_raster
+    terra::writeRaster(
+      count_rasters_for_rgb[[cat_name]],
+      file.path(dir_individual_bands, band_filename),
+      overwrite = TRUE,
+      datatype = "INT2U")
   }
   final_rgb_stack <- c(count_rasters_for_rgb[["Lost"]],
                        count_rasters_for_rgb[["Retained"]],
                        count_rasters_for_rgb[["Novel"]])
   names(final_rgb_stack) <- rgb_channel_names
-
   dir_output_file <- file.path(output_dir, "ClimaRep_overlay.tif")
-
   terra::writeRaster(final_rgb_stack,
                      dir_output_file,
                      overwrite = TRUE,
                      datatype = "INT2U")
-
   message("All processes were completed")
   message(paste("Output files saved in: ", output_dir))
   return(invisible(final_rgb_stack))

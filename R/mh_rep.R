@@ -127,9 +127,9 @@ mh_rep <- function(polygon,
   }
   if (terra::nlyr(climate_variables) < 2) {
     warning(
-      "Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables."
-    )
+      "Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
   }
+  message("Establishing output file structure.")
   dir_rep <- file.path(dir_output, "Representativeness")
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_rep, dir_charts)
@@ -153,16 +153,13 @@ mh_rep <- function(polygon,
     message("Adjusting CRS of study_area to match reference system.")
     study_area <- sf::st_transform(study_area, reference_system)
   }
-
+  message("Defining the climate reference space.")
   climate_study_area_masked <- terra::mask(terra::crop(climate_variables, study_area), study_area)
   data_p <- na.omit(terra::as.data.frame(climate_study_area_masked, xy = TRUE))
   climate_data_cols <- 3:(ncol(data_p))
   cov_matrix <- suppressWarnings(cov(data_p[, climate_data_cols], use = "complete.obs"))
-  if (inherits(try(solve(cov_matrix), silent = TRUE)
-               , "try-error")) {
-    stop(
-      "Covariance matrix is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'."
-    )
+  if (inherits(try(solve(cov_matrix), silent = TRUE), "try-error")) {
+    stop("Covariance matrix is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'.")
   }
   message("Starting per-polygon processing:")
   classify_mh <- function(mh_raster, threshold) {
@@ -176,13 +173,7 @@ mh_rep <- function(polygon,
     pol_name <- gsub("[^a-z0-9_]+", "_", pol_name)
     pol_name <- gsub("__+", "_", pol_name)
     pol_name <- gsub("^_|_$", "", pol_name)
-    message("\nProcessing polygon: ",
-            pol_name,
-            " (",
-            j,
-            " of ",
-            nrow(polygon),
-            ")")
+    message("\nProcessing polygon: ",pol_name," (",j, " of ", nrow(polygon),")")
     raster_polygon <- terra::mask(terra::crop(climate_study_area_masked, pol), pol)
     if (all(is.na(terra::values(raster_polygon)))) {
       warning("No available data for: ", pol_name, ". Skipping.")
@@ -200,8 +191,7 @@ mh_rep <- function(polygon,
     th_value <- suppressWarnings(quantile(
       terra::values(mh_poly),
       probs = th,
-      na.rm = TRUE
-    ))
+      na.rm = TRUE))
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
@@ -213,8 +203,7 @@ mh_rep <- function(polygon,
                        file.path(
                          dir_output,
                          "Representativeness",
-                         paste0("Th_rep_", pol_name, ".tif")
-                       ),
+                         paste0("Th_rep_", pol_name, ".tif")),
                        overwrite = TRUE)
     th_present_factor <- terra::as.factor(th_present)
     p <- suppressMessages(
@@ -224,34 +213,28 @@ mh_rep <- function(polygon,
           data = study_area,
           color = "gray50",
           fill = NA,
-          linewidth = 1
-        ) +
+          linewidth = 1) +
         ggplot2::geom_sf(
           data = pol,
           color = "black",
-          fill = NA
-        ) +
+          fill = NA) +
         ggplot2::scale_fill_manual(
           name = " ",
           values = c("0" = "grey90", "1" = "aquamarine4"),
           labels = c("0" = "Non-representative", "1" = "Representative"),
           na.value = "transparent",
           na.translate = FALSE,
-          drop = FALSE
-        ) +
+          drop = FALSE) +
         ggplot2::ggtitle(pol_name) +
         ggplot2::theme_minimal() +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5))
-    )
+        ggplot2::theme(plot.title = element_text(hjust = 0.5)))
     ggplot2::ggsave(
       filename = file.path(dir_output, "Charts", paste0(pol_name, "_rep.jpeg")),
       plot = p,
       width = 10,
       height = 10,
-      dpi = 300
-    )
+      dpi = 300)
   }
-
   message("All processes were completed")
   message(paste("Output files in: ", dir_output))
   return(invisible(NULL))
