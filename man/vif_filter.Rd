@@ -13,8 +13,12 @@ vif_filter(x, th = 5)
 }
 \value{
 A \code{SpatRaster} object containing only the layers retained by the VIF filtering process.
+
+A \code{list} object containing the filtered \code{SpatRaster} and a summary of the filtering process.
 }
 \description{
+This function iteratively filters layers from a \code{SpatRaster} object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (\code{th}).
+
 This function iteratively filters layers from a \code{SpatRaster} object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (\code{th}).
 }
 \details{
@@ -40,6 +44,28 @@ which could otherwise lead to errors (e.g., infinite VIFs). Variables identified
 References:
 O’Brien (2007) A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41, 5:, 673–690. https://doi.org/10.1007/s11135-006-9018-6
 Legendre & Legendre (2012) Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), Developments in Environmental Modelling, 24: 521-624. Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
+
+This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with a high Variance Inflation Factor (VIF). The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model. A high VIF value suggests a high degree of collinearity with other predictors (values exceeding \code{5} or \code{10} are often considered problematic; see O'Brien, 2007; Legendre & Legendre, 2012).
+
+\strong{The filtering process is fully automated and robust:}
+
+\enumerate{
+\item \strong{Validation and Pre-processing:} Validates the input and converts the \code{SpatRaster} to a \code{data.frame} for calculations.
+\item \strong{Hybrid VIF Calculation:} In each step, the function attempts to calculate VIF efficiently using matrix inversion. If perfect collinearity is detected (resulting in a singular matrix that cannot be inverted), the function automatically switches to a more robust method based on linear regressions to handle the situation without an error.
+\item \strong{Iterative Elimination:} The function identifies the variable with the highest VIF among the remaining variables. If its VIF is greater than the threshold (\code{th}), that variable is removed. The process repeats until all remaining variables are below the threshold or until only one variable remains.
+}
+
+The output is a \code{list} containing two main components:
+\itemize{
+\item \code{filtered_raster}: A \code{SpatRaster} object with the variables that were retained after the filtering process.
+\item \code{summary}: A list with a detailed summary of the process, including the names of the kept and excluded variables, the original Pearson's correlation matrix, and the final VIF values for the retained variables.
+}
+The internal VIF calculation includes checks to handle potential numerical instability, such as columns with zero or near-zero variance and cases of perfect collinearity among variables,
+which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
+
+References:
+O’Brien, R. M. (2007). A caution regarding rules of thumb for variance inflation factors. \emph{Quality & Quantity}, \emph{41}(5), 673–690. https://doi.org/10.1007/s11135-006-9018-6
+Legendre, P., & Legendre, L. (2012). Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), \emph{Developments in Environmental Modelling} (Vol. 24, pp. 521-624). Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
 }
 \examples{
 library(terra)
@@ -60,6 +86,31 @@ values(r_clim) <- c(
      (rowFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))),
    (colFromCell(r_clim, 1:n_cells) *
      (colFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))))
+names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
+terra::crs(r_clim) <- "EPSG:4326"
+terra::plot(r_clim)
+
+vif_result <- ClimaRep::vif_filter(r_clim, th = 5)
+print(vif_result$summary)
+r_clim_filtered <- vif_result$filtered_raster
+terra::plot(r_clim_filtered)
+library(terra)
+
+set.seed(2458)
+n_cells <- 100 * 100
+r_clim <- terra::rast(ncols = 100, nrows = 100, nlyrs = 7)
+values(r_clim) <- c(
+  (rowFromCell(r_clim, 1:n_cells) * 0.2 + rnorm(n_cells, 0, 3)),
+  (rowFromCell(r_clim, 1:n_cells) * 0.9 + rnorm(n_cells, 0, 0.2)),
+  (colFromCell(r_clim, 1:n_cells) * 0.15 + rnorm(n_cells, 0, 2.5)),
+  (colFromCell(r_clim, 1:n_cells) +
+    (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim, 1:n_cells) /
+    (rowFromCell(r_clim, 1:n_cells)) * 0.1 + rnorm(n_cells, 0, 4)),
+  (colFromCell(r_clim, 1:n_cells) *
+    (rowFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))),
+  (colFromCell(r_clim, 1:n_cells) *
+    (colFromCell(r_clim, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))))
 names(r_clim) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
 terra::crs(r_clim) <- "EPSG:4326"
 terra::plot(r_clim)
