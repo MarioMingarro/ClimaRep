@@ -20,38 +20,32 @@ This function iteratively filters layers from a \code{SpatRaster} object by remo
 \details{
 This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
-Conceptually, it is based on the proportion of variance that predictor shares with the other independent variables.
 A high VIF value suggests a high degree of collinearity with other predictors (values exceeding \code{5} or \code{10} are often considered problematic; see O'Brien, 2007).
-In this context, the function also provides the Pearson correlation matrix between all initial variables.
 
 Key steps:
 \enumerate{
 \item Validate inputs: Ensures \code{x} is a \code{SpatRaster} with at least two layers and \code{th} is a valid \code{numeric} value.
-\item Convert the input \code{SpatRaster} (\code{x}) to a \code{data.frame}, retaining only unique rows if \code{x} has many cells and few unique climate values.
-\item Remove rows containing any \code{NA} values across all variables from the \code{data.frame}.
-\item In each iteration, calculate the VIF for all variables currently remaining in the dataset.
-\item Identify the variable with the highest VIF among the remaining variables.
-\item If this highest VIF value is greater than the threshold (\code{th}), remove the variable with the highest VIF from the dataset, and the loop continues with the remaining variables.
-\item This iterative process repeats until the highest VIF among the remaining variables is less than or equal to \eqn{\le} \code{th}, or until only one variable remains in the dataset.
-}
-The output of \code{vif_filter} returns a \code{list} object with a filtered \code{SpatRaster} object and a statistics summary.
-
-The \code{SpatRaster} object containing only the variables that were kept and also provides a comprehensive summary printed to the console.
-The summary list including:
+\item Convert the input \code{SpatRaster} (\code{x}) to a \code{data.frame} and remove rows with missing values (\code{NA}).
+\item \strong{Iterative Filtering Process:}
 \itemize{
-\item The original Pearson's correlation matrix between all initial variables.
-\item The variables names that were kept and those that were excluded.
-\item The final VIF values for the variables retained after the process.
+\item In each step, the VIF for each remaining variable is calculated by fitting a linear regression model where that variable is the response and all other remaining variables are the predictors. The VIF is then computed from the model's R-squared value using the formula \eqn{VIF = 1 / (1 - R^2)}.
+\item The variable with the highest VIF is identified.
+\item If this highest VIF value is greater than the threshold (\code{th}), that variable is removed.
+\item This process repeats until the highest VIF among the remaining variables is less than or equal to \code{th}, or until only one variable remains.
 }
-
-The internal VIF calculation includes checks to handle potential numerical
-instability, such as columns with zero or near-zero variance and cases of
-perfect collinearity among variables, which could otherwise lead to errors
-(e.g., infinite VIFs or issues with matrix inversion). Variables identified
-as having infinite VIF due to perfect collinearity are prioritized for removal.
+\item The function handles cases of perfect collinearity or variables with zero variance by prioritizing them for removal, preventing numerical instability.
+}
+The function returns a \code{list} with two main components:
+\itemize{
+\item \code{filtered_raster}: A \code{SpatRaster} object containing only the layers that were kept.
+\item \code{summary}: A list containing the original Pearson's correlation matrix, the names of the kept and excluded variables, and the final VIF values for the retained variables.
+}
+The internal VIF calculation includes checks to handle potential numerical instability, such as columns with zero or near-zero variance and cases of perfect collinearity among variables,
+which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
 
 References:
 O’brien (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Quality & Quantity, 41: 673–690. doi:10.1007/s11135-006-9018-6
+Legendre & Legendre (2012) Numerical ecology (3rd ed.). Elsevier.
 }
 \examples{
 library(terra)
