@@ -26,8 +26,8 @@
 #' }
 #'The function returns a `list` with two main components:
 #' \itemize{
-#' \item `filtered_raster`: A `SpatRaster` object containing only the layers that were kept.
-#' \item `summary`: A list containing the original Pearson's correlation matrix, the names of the kept and excluded variables, and the final VIF values for the retained variables.
+#' \item A `SpatRaster` object containing only the layers that were kept.
+#' \item A `summary` list containing the original Pearson's correlation matrix, the names of the kept and excluded variables, and the final VIF values for the retained variables.
 #' }
 #'The internal VIF calculation includes checks to handle potential numerical instability, such as columns with zero or near-zero variance and cases of perfect collinearity among variables,
 #'which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
