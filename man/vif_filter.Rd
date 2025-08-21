@@ -20,32 +20,26 @@ This function iteratively filters layers from a \code{SpatRaster} object by remo
 \details{
 This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
-A high VIF value suggests a high degree of collinearity with other predictors (values exceeding \code{5} or \code{10} are often considered problematic; see O'Brien, 2007).
+A high VIF value suggests a high degree of collinearity with other predictors (values exceeding \code{5} or \code{10} are often considered problematic; see O'Brien, 2007; Legendre & Legendre, 2012).
 
 Key steps:
-\enumerate{
-\item Validate inputs: Ensures \code{x} is a \code{SpatRaster} with at least two layers and \code{th} is a valid \code{numeric} value.
-\item Convert the input \code{SpatRaster} (\code{x}) to a \code{data.frame} and remove rows with missing values (\code{NA}).
-\item \strong{Iterative Filtering Process:}
-\itemize{
-\item In each step, the VIF for each remaining variable is calculated by fitting a linear regression model where that variable is the response and all other remaining variables are the predictors. The VIF is then computed from the model's R-squared value using the formula \eqn{VIF = 1 / (1 - R^2)}.
-\item The variable with the highest VIF is identified.
-\item If this highest VIF value is greater than the threshold (\code{th}), that variable is removed.
-\item This process repeats until the highest VIF among the remaining variables is less than or equal to \code{th}, or until only one variable remains.
+#' \enumerate{
+\item Validation and pre-processing: Validates the input and converts the \code{SpatRaster} to a \code{data.frame} for calculations.
+\item Hybrid VIF calculation: In each step, the function attempts to calculate VIF efficiently using matrix inversion. If perfect collinearity is detected (resulting in a singular matrix that cannot be inverted), the function automatically switches to a more robust method based on linear regressions to handle the situation without an error.
+\item Iterative elimination: The function identifies the variable with the highest VIF among the remaining variables. If its VIF is greater than the threshold (\code{th}), that variable is removed. The process repeats until all remaining variables are below the threshold or until only one variable remains.
 }
-\item The function handles cases of perfect collinearity or variables with zero variance by prioritizing them for removal, preventing numerical instability.
-}
-The function returns a \code{list} with two main components:
+
+The output is a \code{list} containing two main components:
 \itemize{
-\item A \code{SpatRaster} object containing only the layers that were kept.
-\item A \code{summary} list containing the original Pearson's correlation matrix, the names of the kept and excluded variables, and the final VIF values for the retained variables.
+\item \code{filtered_raster}: A \code{SpatRaster} object with the variables that were retained after the filtering process.
+\item \code{summary}: A list with a detailed summary of the process, including the names of the kept and excluded variables, the original Pearson's correlation matrix, and the final VIF values for the retained variables.
 }
 The internal VIF calculation includes checks to handle potential numerical instability, such as columns with zero or near-zero variance and cases of perfect collinearity among variables,
 which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
 
 References:
-O’brien (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Quality & Quantity, 41: 673–690. doi:10.1007/s11135-006-9018-6
-Legendre & Legendre (2012) Numerical ecology (3rd ed.). Elsevier.
+O’Brien (2007) A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41, 5:, 673–690. https://doi.org/10.1007/s11135-006-9018-6
+Legendre & Legendre (2012) Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), Developments in Environmental Modelling, 24: 521-624. Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
 }
 \examples{
 library(terra)

@@ -9,32 +9,26 @@
 #'
 #' @details This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with high Variance Inflation Factor (VIF).
 #' The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model.
-#' A high VIF value suggests a high degree of collinearity with other predictors (values exceeding `5` or `10` are often considered problematic; see O'Brien, 2007).
+#' A high VIF value suggests a high degree of collinearity with other predictors (values exceeding `5` or `10` are often considered problematic; see O'Brien, 2007; Legendre & Legendre, 2012).
 #'
 #' Key steps:
-#' \enumerate{
-#' \item Validate inputs: Ensures `x` is a `SpatRaster` with at least two layers and `th` is a valid `numeric` value.
-#' \item Convert the input `SpatRaster` (`x`) to a `data.frame` and remove rows with missing values (`NA`).
-#' \item **Iterative Filtering Process:**
-#' \itemize{
-#' \item In each step, the VIF for each remaining variable is calculated by fitting a linear regression model where that variable is the response and all other remaining variables are the predictors. The VIF is then computed from the model's R-squared value using the formula \eqn{VIF = 1 / (1 - R^2)}.
-#' \item The variable with the highest VIF is identified.
-#' \item If this highest VIF value is greater than the threshold (`th`), that variable is removed.
-#' \item This process repeats until the highest VIF among the remaining variables is less than or equal to `th`, or until only one variable remains.
+#' #' \enumerate{
+#' \item Validation and pre-processing: Validates the input and converts the `SpatRaster` to a `data.frame` for calculations.
+#' \item Hybrid VIF calculation: In each step, the function attempts to calculate VIF efficiently using matrix inversion. If perfect collinearity is detected (resulting in a singular matrix that cannot be inverted), the function automatically switches to a more robust method based on linear regressions to handle the situation without an error.
+#' \item Iterative elimination: The function identifies the variable with the highest VIF among the remaining variables. If its VIF is greater than the threshold (`th`), that variable is removed. The process repeats until all remaining variables are below the threshold or until only one variable remains.
 #' }
-#' \item The function handles cases of perfect collinearity or variables with zero variance by prioritizing them for removal, preventing numerical instability.
-#' }
-#'The function returns a `list` with two main components:
+#'
+#' The output is a `list` containing two main components:
 #' \itemize{
-#' \item A `SpatRaster` object containing only the layers that were kept.
-#' \item A `summary` list containing the original Pearson's correlation matrix, the names of the kept and excluded variables, and the final VIF values for the retained variables.
+#' \item `filtered_raster`: A `SpatRaster` object with the variables that were retained after the filtering process.
+#' \item `summary`: A list with a detailed summary of the process, including the names of the kept and excluded variables, the original Pearson's correlation matrix, and the final VIF values for the retained variables.
 #' }
 #'The internal VIF calculation includes checks to handle potential numerical instability, such as columns with zero or near-zero variance and cases of perfect collinearity among variables,
 #'which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
 #'
 #' References:
-#' O’brien (2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors. Quality & Quantity, 41: 673–690. doi:10.1007/s11135-006-9018-6
-#' Legendre & Legendre (2012) Numerical ecology (3rd ed.). Elsevier.
+#' O’Brien (2007) A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41, 5:, 673–690. https://doi.org/10.1007/s11135-006-9018-6
+#' Legendre & Legendre (2012) Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), Developments in Environmental Modelling, 24: 521-624. Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
 #'
 #' @importFrom terra as.data.frame subset rast
 #' @importFrom stats cov var lm as.formula cor
@@ -76,34 +70,36 @@ vif_filter <- function(x, th = 5) {
   }
   original_raster <- x
   x_df <- terra::as.data.frame(x, na.rm = TRUE)
-  if (ncol(x_df) <= 1) {
-    warning("Less than two variables present. VIF filtering not applicable.")
-    return(list(
-      filtered_raster = original_raster,
-      summary = list(
-        kept_layers = names(original_raster),
-        excluded_layers = character(0),
-        original_correlation_matrix = "Correlation matrix not applicable (less than 2 variables).",
-        final_vif_values = "Only one variable kept. VIF calculation not applicable."
-      )
-    ))
-  }
-  calc_vif_matrix_method <- function(df) {
+    calc_vif_robust <- function(df) {
     if (ncol(df) <= 1) return(numeric(0))
-    cor_matrix <- cor(df, use = "pairwise.complete.obs")
-    if (det(cor_matrix) == 0) {
-      warning("Perfect collinearity detected. Cannot invert the correlation matrix.")
-      return(rep(Inf, ncol(df)))
-    }
-    vif_values <- diag(solve(cor_matrix))
-    names(vif_values) <- colnames(df)
-    return(vif_values)
+    tryCatch({
+      cor_matrix <- cor(df, use = "pairwise.complete.obs")
+      vif_values <- diag(solve(cor_matrix))
+      names(vif_values) <- colnames(df)
+      return(vif_values)
+      },
+    error = function(e) {
+      if (grepl("singular", e$message)) {
+        warning("Perfect collinearity detected. Switching to the regression method for VIF calculation.")
+        vif_values <- sapply(names(df), function(name) {
+          model <- try(stats::lm(as.formula(paste(name, "~ .")), data = df), silent = TRUE)
+          if (inherits(model, "try-error") || summary(model)$r.squared >= 1) {
+            return(Inf)
+          }
+          1 / (1 - summary(model)$r.squared)
+        })
+        names(vif_values) <- names(df)
+        return(vif_values)
+      } else {
+        stop(e)
+      }
+    })
   }
   kept_vars <- colnames(x_df)
   excluded_vars <- character(0)
   while (length(kept_vars) > 1) {
     df_subset <- x_df[, kept_vars, drop = FALSE]
-    v <- calc_vif_matrix_method(df_subset)
+    v <- calc_vif_robust(df_subset)
     if (all(v < th) || any(is.infinite(v))) {
       break
     }
@@ -113,7 +109,7 @@ vif_filter <- function(x, th = 5) {
   }
   final_vif_values <- NULL
   if (length(kept_vars) > 1) {
-    final_vif_values <- round(calc_vif_matrix_method(x_df[, kept_vars, drop = FALSE]), 4)
+    final_vif_values <- round(calc_vif_robust(x_df[, kept_vars, drop = FALSE]), 4)
   } else if (length(kept_vars) == 1) {
     final_vif_values <- "Only one variable kept. VIF calculation not applicable."
   } else {
