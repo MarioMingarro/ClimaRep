@@ -6,10 +6,10 @@
 #'
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
 #'
-#' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as** `present_climate_variables`.
+#' @param polygon An `sf` object containing the defined areas. **Its CRS will be used as the reference system.**
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param present_climate_variables A `SpatRaster` stack of climate variables representing present conditions. Its CRS will be used as the reference system.
-#' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions. **Must have the same CRS, extent, and resolution as** `present_climate_variables`.
+#' @param present_climate_variables A `SpatRaster` stack of climate variables representing present conditions.
+#' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions. **Must have the same extent, and resolution as** `present_climate_variables`.
 #' @param study_area A single `sf` polygon. **Must have the same CRS as** `present_climate_variables`.
 #' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
 #' @param model `character`. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
@@ -32,14 +32,14 @@
 #'
 #' Here are the key steps:
 #' \enumerate{
-#'  \item Checking CRS: Ensures that `future_climate_variables`, `polygon`, and `study_area` have matching CRSs with `climate_variables` by automatically transforming them if needed.
+#'  \item Checking CRS: Ensures that `future_climate_variables`, `climate_variables`, and `study_area` have matching CRSs with `polygon` by automatically transforming them if needed. The CRS of `polygon` will be used as the reference system.
 #'  \item Crops and masks the `climate_variables` and `future_climate_variables` raster to the `study_area` to limit all subsequent calculations to the area of interest.
-#'  \item Calculate the multivariate covariance matrix using climate data from all cells for both present and future time periods combined.
+#'  \item Calculate the multivariate covariance matrix using climate data from all cells for both present and present-future time periods combined.
 #'  \item For each polygon in the `polygon` object:
 #'  \itemize{
-#'    \item Crop and mask the current climate variables raster (`present_climate_variables`) to the boundary of the current polygon.
+#'    \item Crop and mask the present climate variables raster (`present_climate_variables`) to the boundary of the current polygon.
 #'    \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
-#'    Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and future covariance matrix.
+#'    Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and present-future covariance matrix.
 #'    This results in a Mahalanobis distance raster for the present period and another for the future period.
 #'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
 #'    \item Classify each cells, for both present and future periods, as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Non-Representative = `0` (Mahalanobis distance $>$ `th`).
@@ -176,21 +176,24 @@ mh_rep_ch <- function(polygon,
     }
   })
   message("Validating and adjusting Coordinate Reference Systems (CRS)")
-  reference_system <- terra::crs(present_climate_variables)
-  reference_system_check <- terra::crs(present_climate_variables, describe = TRUE)$code
-  if (is.na(reference_system_check) ||
-      reference_system_check == "") {
-    stop("CRS for 'present_climate_variables' is undefined. Please set a valid CRS.")
+
+  # Get the reference CRS from the polygon
+  reference_system <- terra::crs(sf::st_crs(polygon)$wkt)
+  reference_system_check <- sf::st_crs(polygon)$epsg
+
+  if (is.na(reference_system_check) || reference_system_check == "") {
+    stop("CRS for 'polygon' is undefined. Please set a valid CRS for the polygon")
+  }
+  if (terra::crs(present_climate_variables, describe = TRUE)$code != reference_system_check) {
+    message("Adjusting CRS of present_climate_variables to match the polygon's system")
+    present_climate_variables <- terra::project(present_climate_variables, reference_system)
   }
   if (terra::crs(future_climate_variables, describe = TRUE)$code != reference_system_check) {
-    stop("CRS mismatch: 'future_climate_variables' must have the same CRS as 'present_climate_variables'.")
-  }
-  if (sf::st_crs(polygon)$epsg != reference_system_check) {
-    message("Adjusting CRS of polygon to match reference system.")
-    polygon <- sf::st_transform(polygon, reference_system)
+    message("Adjusting CRS of future_climate_variables to match the polygon's system")
+    future_climate_variables <- terra::project(future_climate_variables, reference_system)
   }
   if (sf::st_crs(study_area)$epsg != reference_system_check) {
-    message("Adjusting CRS of study_area to match reference system.")
+    message("Adjusting CRS of study_area to match the polygon's system")
     study_area <- sf::st_transform(study_area, reference_system)
   }
   message("Defining the climate reference space.")

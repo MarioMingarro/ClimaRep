@@ -18,13 +18,13 @@ mh_rep_ch(
 )
 }
 \arguments{
-\item{polygon}{An \code{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{present_climate_variables}.}
+\item{polygon}{An \code{sf} object containing the defined areas. \strong{Its CRS will be used as the reference system.}}
 
 \item{col_name}{\code{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
 
-\item{present_climate_variables}{A \code{SpatRaster} stack of climate variables representing present conditions. Its CRS will be used as the reference system.}
+\item{present_climate_variables}{A \code{SpatRaster} stack of climate variables representing present conditions.}
 
-\item{future_climate_variables}{A \code{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions. \strong{Must have the same CRS, extent, and resolution as} \code{present_climate_variables}.}
+\item{future_climate_variables}{A \code{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions. \strong{Must have the same extent, and resolution as} \code{present_climate_variables}.}
 
 \item{study_area}{A single \code{sf} polygon. \strong{Must have the same CRS as} \code{present_climate_variables}.}
 
@@ -61,14 +61,14 @@ Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{
 
 Here are the key steps:
 \enumerate{
-\item Checking CRS: Ensures that \code{future_climate_variables}, \code{polygon}, and \code{study_area} have matching CRSs with \code{climate_variables} by automatically transforming them if needed.
+\item Checking CRS: Ensures that \code{future_climate_variables}, \code{climate_variables}, and \code{study_area} have matching CRSs with \code{polygon} by automatically transforming them if needed. The CRS of \code{polygon} will be used as the reference system.
 \item Crops and masks the \code{climate_variables} and \code{future_climate_variables} raster to the \code{study_area} to limit all subsequent calculations to the area of interest.
-\item Calculate the multivariate covariance matrix using climate data from all cells for both present and future time periods combined.
+\item Calculate the multivariate covariance matrix using climate data from all cells for both present and present-future time periods combined.
 \item For each polygon in the \code{polygon} object:
 \itemize{
-\item Crop and mask the current climate variables raster (\code{present_climate_variables}) to the boundary of the current polygon.
+\item Crop and mask the present climate variables raster (\code{present_climate_variables}) to the boundary of the current polygon.
 \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
-Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and future covariance matrix.
+Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and present-future covariance matrix.
 This results in a Mahalanobis distance raster for the present period and another for the future period.
 \item Apply the specified threshold (\code{th}) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
 \item Classify each cells, for both present and future periods, as Representative = \code{1} (Mahalanobis distance \eqn{\le} \code{th}) or Non-Representative = \code{0} (Mahalanobis distance $>$ \code{th}).

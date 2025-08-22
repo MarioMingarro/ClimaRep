@@ -4,9 +4,9 @@
 #'
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`.
 #'
-#' @param polygon An `sf` object containing the defined areas. **Must have the same CRS as** `climate_variables`.
+#' @param polygon An `sf` object containing the defined areas. **Its CRS will be used as the reference system.**
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param climate_variables A `SpatRaster` stack of climate variables representing the conditions. Its CRS will be used as the reference system.
+#' @param climate_variables A `SpatRaster` stack of climate variables.
 #' @param study_area An `sf` object defining the study area. The analysis will be limited to this area.
 #' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
 #' @param dir_output `character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
@@ -22,11 +22,9 @@
 #' @details
 #' This function performs a multivariate analysis using Mahalanobis distance to assess the Climate Representativeness of input `polygons` for a single time period.
 #'
-#' Crucially, this function assumes that all spatial inputs (`polygon`, `climate_variables`) are already correctly aligned and share the same Coordinate Reference System (CRS). If inputs do not meet these criteria, the function will stop with an informative error.
-#'
-#' Here are the key steps:
+#' **Key steps:**
 #' \enumerate{
-#'  \item Checking CRS: Ensures that `polygon` and `study_area` have matching CRSs with `climate_variables` by automatically transforming them if needed.
+#'  \item Ensures that `climate_variables` and `study_area` have matching CRSs with `polygon` by automatically transforming them if needed. The CRS of `polygon` will be used as the reference system.
 #'  \item Crops and masks the `climate_variables` raster to the `study_area` to limit all subsequent calculations to the area of interest.
 #'  \item Calculate the multivariate covariance matrix using climate data from all cells.
 #'  \item For each polygon in the `polygon` object:
@@ -129,7 +127,7 @@ mh_rep <- function(polygon,
     warning(
       "Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
   }
-  message("Establishing output file structure.")
+  message("Establishing output file structure")
   dir_rep <- file.path(dir_output, "Representativeness")
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_rep, dir_charts)
@@ -143,17 +141,20 @@ mh_rep <- function(polygon,
     }
   })
   message("Validating and adjusting Coordinate Reference Systems (CRS)")
-  reference_system <- terra::crs(climate_variables)
-  reference_system_check <- terra::crs(climate_variables, describe = TRUE)$code
-  if (sf::st_crs(polygon)$epsg != reference_system_check) {
-    message("Adjusting CRS of polygon to match reference system.")
-    polygon <- sf::st_transform(polygon, reference_system)
+  reference_system <- terra::crs(sf::st_crs(polygon)$wkt)
+  reference_system_check <- sf::st_crs(polygon)$epsg
+  if (is.na(reference_system_check) || reference_system_check == "") {
+    stop("CRS for 'polygon' is undefined. Please set a valid CRS for the polygon")
+  }
+  if (terra::crs(climate_variables, describe = TRUE)$code != reference_system_check) {
+    message(paste0("Adjusting CRS of climate_variables to match the polygon's system (EPSG:", reference_system_check, ")."))
+    climate_variables <- terra::project(climate_variables, reference_system)
   }
   if (sf::st_crs(study_area)$epsg != reference_system_check) {
-    message("Adjusting CRS of study_area to match reference system.")
+    message(paste0("Adjusting CRS of study_area to match the polygon's system (EPSG:", reference_system_check, ")."))
     study_area <- sf::st_transform(study_area, reference_system)
   }
-  message("Defining the climate reference space.")
+  message("Defining the climate reference space")
   climate_study_area_masked <- terra::mask(terra::crop(climate_variables, study_area), study_area)
   data_p <- na.omit(terra::as.data.frame(climate_study_area_masked, xy = TRUE))
   climate_data_cols <- 3:(ncol(data_p))

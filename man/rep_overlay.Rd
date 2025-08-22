@@ -2,7 +2,7 @@
 % Please edit documentation in R/rep_overlay.R
 \name{rep_overlay}
 \alias{rep_overlay}
-\title{Overlay Mahalanobis-based climate representativeness Classifications}
+\title{Overlay ClimaRep Classifications}
 \usage{
 rep_overlay(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay"))
 }
@@ -11,25 +11,24 @@ rep_overlay(folder_path, output_dir = file.path(tempdir(), "ClimaRep_overlay"))
 contain the categories: \code{1} (Retained/Represented), \code{2} (Lost), and \code{3} (Novel).
 Category \code{0} (Non-represented) will be ignored for the RGB output.}
 
-\item{output_dir}{\code{character}. Path to the directory where the output file will be saved. By default, it creates a subdirectory in a temporary location.}
+\item{output_dir}{\code{character}. Path to the directory where the output file will be saved.}
 }
 \value{
-Writes the following outputs to disk within the directory specified by \code{output_dir}:
-When \code{mh_rep} results are used, the output layers consistently represent counts for \strong{Represented} categories across all input rasters.
-When \code{mh_rep_ch} results are used, the output layers consistently represent counts for \strong{Lost} (Red), \strong{Retained} (Green), and \strong{Novel} (Blue) categories across all input rasters. Designed for direct RGB plotting.
+Writes the following outputs within the directory specified by \code{output_dir}:
+When \code{ClimaRep::mh_rep()} results are used, the output layers consistently represent counts for \strong{Represented} categories across all input rasters.
+When \code{ClimaRep::mh_rep_ch()} results are used, the output layers consistently represent counts for \strong{Lost} (Red), \strong{Retained} (Green), and \strong{Novel} (Blue) categories across all input rasters. Designed for direct RGB plotting.
 \itemize{
 \item A multi-layered \code{SpatRaster} (\code{ClimaRep_overlay.tif}) for RGB visualization.
-\item Individual \code{.tif} files for each band (Lost, Retained, Novel) in a \verb{Individual_Bands/} subdirectory.
+\item Individual \code{.tif} files for each band (Lost, Retained, Novel) in \verb{Individual_Bands/} subdirectory.
 }
-The function also returns the resulting multi-layered \code{SpatRaster} object invisibly.
 }
 \description{
-Combines multiple single-layer rasters (\code{tif}), outputs from \code{mh_rep} or \code{mh_rep_ch} for different input polygons, into a multi-layered \code{SpatRaster}.
+Combines multiple single-layer rasters (\code{tif}), outputs from \code{ClimaRep::mh_rep()} or \code{ClimaRep::mh_rep_ch()} for different input polygons, into a multi-layered \code{SpatRaster}.
 
-This function handles inputs from both \code{mh_rep} (which primarily contains \strong{Represented} areas) and \code{mh_rep_ch} (which includes \strong{Retained}, \strong{Lost}, and \strong{Novel} areas). The output layers consistently represent counts of each input.
+This function handles inputs from both \code{ClimaRep::mh_rep()} (which primarily contains \strong{Represented} areas) and \code{ClimaRep::mh_rep_ch()} (which includes \strong{Retained}, \strong{Lost}, and \strong{Novel} areas). The output layers consistently represent counts of each input.
 }
 \details{
-This function streamlines the aggregation of Climate Representativeness classifications. It is designed to work with outputs from both \code{mh_rep} and \code{mh_rep_ch}.
+This function streamlines the aggregation of ClimaRep classifications. It is designed to work with outputs from both \code{ClimaRep::mh_rep()} and \code{ClimaRep::mh_rep_ch}.
 
 For each of the three key categories (Lost, Retained/Represented, Novel), the function:
 \enumerate{
@@ -40,14 +39,14 @@ For each of the three key categories (Lost, Retained/Represented, Novel), the fu
 
 The three resulting count layers (Lost, Retained, Novel) are then consistently stacked in the following order:
 \itemize{
-\item First layer (Red): Cumulative count of \strong{Lost}.
-\item Second layer (Green): Cumulative count of \strong{Retained}.
-\item Third layer (Blue): Cumulative count of \strong{Novel}.
+\item First layer (Red): Cumulative count of Lost.
+\item Second layer (Green): Cumulative count of Retained.
+\item Third layer (Blue): Cumulative count of Novel.
 }
 This fixed order ensures that the output \code{SpatRaster} is immediately ready for direct RGB visualization using \code{terra::plotRGB()}, where the color mixtures will intuitively reflect
 the spatial agreement of these change types.
 
-The output \code{SpatRaster} contains raw counts. While \code{terra::plotRGB()} often handles stretching for visualization, users might normalize these counts manually (e.g., to 0-255) for finer control over visual contrast.
+The output \code{SpatRaster} contains raw counts. While \code{terra::plotRGB()} often handles stretching for visualization, users might normalize these counts manually (e.g., to 0-number of \code{polygons}) for finer visual contrast.
 
 A new subfolder named \verb{overlay/} will be created within the \code{folder_path}. The resulting three-layered RGB will be saved as \code{ClimaRep_overlay.tif} inside this new \verb{overlay/} subfolder.
 }

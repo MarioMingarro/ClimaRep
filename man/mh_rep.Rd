@@ -15,11 +15,11 @@ mh_rep(
 )
 }
 \arguments{
-\item{polygon}{An \code{sf} object containing the defined areas. \strong{Must have the same CRS as} \code{climate_variables}.}
+\item{polygon}{An \code{sf} object containing the defined areas. \strong{Its CRS will be used as the reference system.}}
 
 \item{col_name}{\code{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
 
-\item{climate_variables}{A \code{SpatRaster} stack of climate variables representing the conditions. Its CRS will be used as the reference system.}
+\item{climate_variables}{A \code{SpatRaster} stack of climate variables.}
 
 \item{study_area}{An \code{sf} object defining the study area. The analysis will be limited to this area.}
 
@@ -45,11 +45,9 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 \details{
 This function performs a multivariate analysis using Mahalanobis distance to assess the Climate Representativeness of input \code{polygons} for a single time period.
 
-Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{climate_variables}) are already correctly aligned and share the same Coordinate Reference System (CRS). If inputs do not meet these criteria, the function will stop with an informative error.
-
-Here are the key steps:
+\strong{Key steps:}
 \enumerate{
-\item Checking CRS: Ensures that \code{polygon} and \code{study_area} have matching CRSs with \code{climate_variables} by automatically transforming them if needed.
+\item Ensures that \code{climate_variables} and \code{study_area} have matching CRSs with \code{polygon} by automatically transforming them if needed. The CRS of \code{polygon} will be used as the reference system.
 \item Crops and masks the \code{climate_variables} raster to the \code{study_area} to limit all subsequent calculations to the area of interest.
 \item Calculate the multivariate covariance matrix using climate data from all cells.
 \item For each polygon in the \code{polygon} object:

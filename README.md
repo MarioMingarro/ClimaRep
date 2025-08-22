@@ -347,7 +347,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
 ### 4. Estimate Environmental Representativeness Overlay (rep_overlay)
-After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**Retained, Lost, Novel**) accumulate. 
+After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**Represented / Retained, Lost, Novel**) accumulate. 
 
 The `rep_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
@@ -395,7 +395,7 @@ This function iteratively filters layers from a `SpatRaster` object by removing 
 
 This function calculates Mahalanobis-based Climate Representativeness for input polygon within a defined area.
 
-Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`.
+Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`. The CRS of `polygon` will be used as the reference system.
 
 `mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
 
@@ -419,7 +419,7 @@ This function calculates Mahalanobis-based Climate Representativeness (or forwar
 
 The function identifies areas of climate representativeness **Retained**, **Lost**, or **Novel**.
 
-Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
+Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`. The CRS of `polygon` will be used as the reference system.
 
 `mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
 

@@ -156,7 +156,7 @@ vif_filter <- function(x, th = 5) {
       }
     })
   }
-  message("Starting iterative VIF filtering process...")
+  message("Starting iterative VIF filtering process")
   kept_vars <- colnames(x_df)
   excluded_vars <- character(0)
   while (length(kept_vars) > 1) {
@@ -181,7 +181,7 @@ vif_filter <- function(x, th = 5) {
       break
     }
   }
-  message("VIF filtering process completed.")
+  message("VIF filtering process completed")
   final_vif_values <- NULL
   if (length(kept_vars) > 1) {
     final_vif_values <- round(calc_vif_robust(x_df[, kept_vars, drop = FALSE]), 4)
