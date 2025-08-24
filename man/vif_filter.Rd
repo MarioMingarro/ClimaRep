@@ -2,7 +2,7 @@
 % Please edit documentation in R/vif_filter.R
 \name{vif_filter}
 \alias{vif_filter}
-\title{Filter SpatRaster Layers based on Variance Inflation Factor (VIF)}
+\title{Filter SpatRaster layers based on Variance Inflation Factor (VIF)}
 \usage{
 vif_filter(x, th = 5)
 }

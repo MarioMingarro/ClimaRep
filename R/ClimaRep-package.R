@@ -2,7 +2,7 @@
 #' @aliases ClimaRep
 "_PACKAGE"
 
-#' @title ClimaRep: Prueba Minima
+#' @title ClimaRep: Estimating Climate Representativeness
 #' @description
 #' ## Overview
 #' The primary goal of `ClimaRep` is to quantify how well the climate within specific polygons (`sf`) represents the broader climate space defined by climate variables (`SpatRaster`) within a study area (`sf`).
@@ -10,10 +10,10 @@
 #'
 #' ## Key Features
 #' The package includes functions for:
-#' * Filtering raster climate variables to reduce multicollinearity (`ClimaRep::vif_filter`).
-#' * Estimating current climate representativeness (`ClimaRep::mh_rep`).
-#' * Estimating changes in climate representativeness under future climate projections (`ClimaRep::mh_rep_ch`).
-#' * Estimating climate representativeness overlay (`ClimaRep::rep_overlay`).
+#' * Filtering raster climate variables to reduce multicollinearity (\link{ClimaRep::vif_filter}).
+#' * Estimating current climate representativeness (\link{ClimaRep::mh_rep}).
+#' * Estimating changes in climate representativeness under future climate projections (\link{ClimaRep::mh_rep_ch}).
+#' * Estimating climate representativeness overlay (\link{ClimaRep::rep_overlay}).
 #'
 #' ## More Details
 #' https://github.com/MarioMingarro/ClimaRep

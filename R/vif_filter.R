@@ -1,4 +1,4 @@
-#' @title Filter SpatRaster Layers based on Variance Inflation Factor (VIF)
+#' @title Filter SpatRaster layers based on Variance Inflation Factor (VIF)
 #'
 #' @description This function iteratively filters layers from a `SpatRaster` object by removing the one with the highest Variance Inflation Factor (VIF) that exceeds a specified threshold (`th`).
 #'

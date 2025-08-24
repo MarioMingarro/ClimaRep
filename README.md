@@ -32,7 +32,7 @@ devtools::install_github("MarioMingarro/ClimaRep")
 ```
 Dependencies:
 
-This package relies on other R packages, notably:
+This package relies on other R packages, such as:
 
 > `terra` for efficient handling of raster data (`SpatRaster` objects).
 
@@ -106,7 +106,7 @@ To handle this, the `vif_filter` function can be used to iteratively remove vari
 
 The output of `vif_filter` returns a `list` object with a filtered `SpatRaster` object and a statistics summary. 
 
-The `SpatRaster` object containing only the variables that were kept and also provides a comprehensive summary printed to the console. 
+The `SpatRaster` object, containing only the variables that were kept, also provides a comprehensive summary printed to the console. 
 
 The summary list including:
 - The lists of variables that were kept and those that were excluded.
@@ -173,7 +173,7 @@ Use `mh_rep` to estimate **Climate Representativeness** for each input `polygon`
 
 The function calculates the Mahalanobis distance from the multivariate centroid of climate conditions within each `polygon` to all cells in the `study_area`. 
 
-Cells within a certain percentile threshold (`th`) of distances found within the input `polygon` are considered representativeness.
+Cells within a certain percentile threshold (`th`) of distances found within the input `polygon` are considered representative.
 ```{r}
 mh_rep(
   polygon = polygons,
@@ -258,9 +258,9 @@ Use `mh_rep_ch` to compare representativeness between the `present_climate_varia
 
 This function calculates representativeness for each input `polygon` in both scenarios and determines cells where conditions:
 
-- **Retained** - Are present in both currently and future.
-- **Lost** - Are present currently, but not present in the future.
-- **Novel** - Are present in the future, but not present currently.
+- **Retained** - Climate conditions that exist in both the current and future scenarios.
+- **Lost** - Climate conditions that exist now but are no longer present in the future.
+- **Novel** - Climate conditions that are new and only appear in the future scenario.
 
 ```{r}
 mh_rep_ch(

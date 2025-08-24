@@ -18,10 +18,10 @@ It also provides functions to evaluate how this representativeness changes under
 
 The package includes functions for:
 \itemize{
-\item Filtering raster climate variables to reduce multicollinearity (\code{ClimaRep::vif_filter}).
-\item Estimating current climate representativeness (\code{ClimaRep::mh_rep}).
-\item Estimating changes in climate representativeness under future climate projections (\code{ClimaRep::mh_rep_ch}).
-\item Estimating climate representativeness overlay (\code{ClimaRep::rep_overlay}).
+\item Filtering raster climate variables to reduce multicollinearity (\link{ClimaRep::vif_filter}).
+\item Estimating current climate representativeness (\link{ClimaRep::mh_rep}).
+\item Estimating changes in climate representativeness under future climate projections (\link{ClimaRep::mh_rep_ch}).
+\item Estimating climate representativeness overlay (\link{ClimaRep::rep_overlay}).
 }
 }
 
