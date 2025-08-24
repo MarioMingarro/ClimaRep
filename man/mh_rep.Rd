@@ -2,7 +2,7 @@
 % Please edit documentation in R/mh_rep.R
 \name{mh_rep}
 \alias{mh_rep}
-\title{Multivariate Climate Representativeness Analysis}
+\title{Multivariate climate representativeness analysis}
 \usage{
 mh_rep(
   polygon,
@@ -38,12 +38,14 @@ Writes the following outputs to disk within subdirectories of \code{dir_output}:
 }
 }
 \description{
-This function calculates Mahalanobis-based Climate Representativeness for input polygon within a defined area.
+This function calculates Mahalanobis-based climate representativeness for input polygon within a defined area.
+
+The function categorizes cells based on how their climate representativeness, labeling them as Non-representative and Representative.
 
 Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (\code{climate_variables}), with the climate conditions within each specific input \code{polygon}.
 }
 \details{
-This function performs a multivariate analysis using Mahalanobis distance to assess the Climate Representativeness of input \code{polygons} for a single time period.
+This function performs a multivariate analysis using Mahalanobis distance to assess the climate representativeness of input \code{polygons} for a single time period.
 
 \strong{Key steps:}
 \enumerate{

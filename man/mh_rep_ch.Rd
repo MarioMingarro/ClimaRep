@@ -2,7 +2,7 @@
 % Please edit documentation in R/mh_rep_ch.R
 \name{mh_rep_ch}
 \alias{mh_rep_ch}
-\title{Multivariate Temporal Climate Representativeness Change Analysis}
+\title{Multivariate temporal climate tepresentativeness change analysis}
 \usage{
 mh_rep_ch(
   polygon,
@@ -47,17 +47,15 @@ Writes the following outputs to disk within subdirectories of \code{dir_output}:
 }
 }
 \description{
-This function calculates Mahalanobis-based Climate Representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
+This function calculates Mahalanobis-based climate representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
 
-The function identifies areas of climate representativeness \strong{Retained}, \strong{Lost}, or \strong{Novel}.
+The function categorizes cells based on how their climate representativeness changes, labeling them as Retained, Lost, or Novel.
 
 Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (\code{present_climate_variables} and \code{future_climate_variables}), with the climate conditions within each specific input \code{polygon}.
 }
 \details{
 This function extends the approach used in \code{mh_rep} to assess Changes in Climate Representativeness (or forward climate analogs) over time.
 While \code{mh_rep()} calculates representativeness in a single scenario, \code{mh_rep_ch()} adapts this by using the mean from the present polygon but a covariance matrix derived from the overall climate space across both present and future periods combined.
-
-Crucially, this function assumes that all spatial inputs (\code{polygon}, \code{present_climate_variables}, \code{future_climate_variables}, \code{study_area}) are already correctly aligned and share the same Coordinate Reference System (CRS) and consistent spatial properties (extent, resolution). If inputs do not meet these criteria, the function will stop with an informative error.
 
 Here are the key steps:
 \enumerate{

@@ -1,4 +1,4 @@
-# ClimaRep: Estimating Climate Representativeness
+# ClimaRep: Estimating climate representativeness
 
 <p align="center">
   <img src="man/figures/ClimaRep_logo.png" alt="workflow" width="450">
@@ -9,7 +9,7 @@
 
 ## Overview
 
-The `ClimaRep` package offers tools to analyze the **Climate Representativeness** of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
+The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
 Using spatial data, including climate raster layers, the input area polygons, and a polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
@@ -228,7 +228,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
 
-Cells are coded `1` for `represented` and `0` for not represented.
+Cells are coded `1` for `representative` and `0` for not representetive.
 ```{r}
 mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
@@ -237,7 +237,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 <img src="man/figures/F_6.jpeg" alt="bin_rep" width="600">
 
-*Figure 6: Example of binary representativeness raster for Pol_1, showing cells classified as represented (value 1).*
+*Figure 6: Example of binary representativeness raster for Pol_1, showing cells classified as representetive (value 1).*
 
 ### 3. Estimate change in climate representativeness.
 To estimate how **Representativeness Changes**, a future climate scenario is required.
@@ -298,7 +298,7 @@ list.files(tempdir())
 
 The `Change` subfolder contains binary rasters (`.tif`) for each input `polygon`, indicating the category of change.
 
-- **0** - Non Represented
+- **0** - Non representetive
 - **1** - Retained
 - **2** - Lost
 - **3** - Novel
@@ -310,7 +310,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="man/figures/F_8.jpeg" alt="Change_pol_2" width="600">
 
-*Figure 8: Example of change in representativeness for Pol_2, showing areas Non Represented (0), Retained (1), Lost (2), Novel (3).*
+*Figure 8: Example of change in representativeness for Pol_2, showing areas Non representetive (0), Retained (1), Lost (2), Novel (3).*
 
 The `Charts` subfolder is updated or regenerated and contains **summary map** files (`.jpeg`) visualizing the change analysis results for each input `polygon`.
 
@@ -347,7 +347,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
 ### 4. Estimate Environmental Representativeness Overlay (rep_overlay)
-After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**Represented / Retained, Lost, Novel**) accumulate. 
+After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**representetive / Retained, Lost, Novel**) accumulate. 
 
 The `rep_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
@@ -447,7 +447,7 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 
 Combines multiple single-layer rasters (`tif`), outputs from `mh_rep` or `mh_rep_ch` for different input polygons, into a multi-layered `SpatRaster`.
 
-This function handles inputs from both `mh_rep` (which primarily contains **Represented** areas) and `mh_rep_ch` (which includes **Retained**, **Lost**, and **Novel** areas). The output layers consistently represent counts of each input.
+This function handles inputs from both `mh_rep` (which primarily contains **representetive** areas) and `mh_rep_ch` (which includes **Retained**, **Lost**, and **Novel** areas). The output layers consistently represent counts of each input.
 
 `rep_overlay(folder_path, dir_output)`
 

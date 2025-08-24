@@ -38,8 +38,8 @@ The internal VIF calculation includes checks to handle potential numerical insta
 which could otherwise lead to errors (e.g., infinite VIFs). Variables identified as having infinite VIF due to perfect collinearity are prioritized for removal.
 
 References:
-O’Brien, R. M. (2007). A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41(5), 673–690. https://doi.org/10.1007/s11135-006-9018-6
-Legendre, P., & Legendre, L. (2012). Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), \emph{Developments in Environmental Modelling} (Vol. 24, pp. 521-624). Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
+O’Brien (2007) A caution regarding rules of thumb for variance inflation factors. Quality & Quantity, 41(5), 673–690. https://doi.org/10.1007/s11135-006-9018-6
+Legendre & Legendre (2012) Interpretation of ecological structures. In P. Legendre & L. Legendre (Eds.), \emph{Developments in Environmental Modelling} (Vol. 24, pp. 521-624). Elsevier. https://doi.org/10.1016/B978-0-444-53868-0.50010-1
 }
 \examples{
 library(terra)
