@@ -8,9 +8,9 @@
 #'
 #' @param polygon An `sf` object containing the defined areas. **Its CRS will be used as the reference system.**
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
-#' @param present_climate_variables A `SpatRaster` stack of climate variables representing present conditions.
-#' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions. **Must have the same extent, and resolution as** `present_climate_variables`.
-#' @param study_area A single `sf` polygon. **Must have the same CRS as** `present_climate_variables`.
+#' @param present_climate_variables A `SpatRaster` stack of climate variables representing current conditions.
+#' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions.
+#' @param study_area A single `sf` polygon.
 #' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
 #' @param model `character`. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
 #' @param year `character`. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
@@ -44,18 +44,18 @@
 #'  }
 #'  \item Compares the binary representativeness of each cell between the present and future periods and determines cells where conditions are:
 #'  \itemize{
-#'    \item `0`: **Non-represented**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
-#'    \item `1`: **Retained**: Cells that are within the defined Mahalanobis threshold in both present and future periods.
+#'    \item `0`: **Non-representative**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
+#'    \item `1`: **Retained**: Cells that are within the defined Mahalanobis threshold in both present and future periods. **Representative** if `Climarep::mh_rep()` is used
 #'    \item `2`: **Lost**: Cells that are within the defined Mahalanobis threshold in the present period but outside it in the future period.
 #'    \item `3`: **Novel**: Cells that are outside the defined Mahalanobis threshold in the present period but within it in the future period.
-#'  }
+#'   }
 #'  \item Saves the classification raster (`.tif`) and generates a corresponding visualization map (`.jpeg`) for each polygon. These are saved within the specified output directory (`dir_output`).
 #'  All files are saved using the `model` and `year` parameters for better file management.
 #' }
 #'
 #' It is important to note that Mahalanobis distance assumes is sensitive to collinearity among variables.
 #' While the covariance matrix accounts for correlations, it is strongly recommended that the climate variables (`present_climate_variables`) are not strongly correlated.
-#' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter` function from this package.
+#' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter()` function from this package.
 #'
 #' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor compareGeom resample
 #' @importFrom sf st_crs st_transform st_geometry st_as_sf
@@ -129,37 +129,37 @@ mh_rep_ch <- function(polygon,
                       dir_output = file.path(tempdir(), "ClimaRep"),
                       save_raw = FALSE) {
   if (!inherits(polygon, "sf"))
-    stop("Parameter 'polygon' must be an sf object.")
+    stop("Parameter 'polygon' must be an sf object")
   if (!is.character(col_name) ||
       length(col_name) != 1 || !(col_name %in% names(polygon))) {
-    stop("Parameter 'col_name' must be a single character string naming a column in 'polygon'.")
+    stop("Parameter 'col_name' must be a single character string naming a column in 'polygon'")
   }
   if (!inherits(present_climate_variables, "SpatRaster"))
-    stop("Parameter 'present_climate_variables' must be a SpatRaster object.")
+    stop("Parameter 'present_climate_variables' must be a SpatRaster object")
   if (!inherits(future_climate_variables, "SpatRaster"))
-    stop("Parameter 'future_climate_variables' must be a SpatRaster object.")
+    stop("Parameter 'future_climate_variables' must be a SpatRaster object")
   if (!inherits(study_area, "sf"))
     stop("Parameter 'study_area' must be an sf object.")
   if (!is.numeric(th) || length(th) != 1 || th < 0 || th > 1) {
-    stop("Parameter 'th' must be a single numeric value between 0 and 1.")
+    stop("Parameter 'th' must be a single numeric value between 0 and 1")
   }
   if (!is.character(model) || length(model) != 1) {
-    stop("Parameter 'model' must be a single character string.")
+    stop("Parameter 'model' must be a single character string")
   }
   if (!is.character(year) || length(year) != 1) {
-    stop("Parameter 'year' must be a single character string.")
+    stop("Parameter 'year' must be a single character string")
   }
   if (!is.character(dir_output) || length(dir_output) != 1) {
-    stop("Parameter 'dir_output' must be a single character string.")
+    stop("Parameter 'dir_output' must be a single character string")
   }
   if (terra::nlyr(present_climate_variables) < 2) {
-    warning("present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
+    warning("present_climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables")
   }
   if (terra::nlyr(present_climate_variables) != terra::nlyr(future_climate_variables)) {
-    stop("Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same.")
+    stop("Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same")
   }
 
-  message("Establishing output file structure.")
+  message("Establishing output file structure")
   dir_present <- file.path(dir_output, "Mh_Raw_Pre")
   dir_future <- file.path(dir_output, "Mh_Raw_Fut")
   dir_change <- file.path(dir_output, "Change")
@@ -194,7 +194,7 @@ mh_rep_ch <- function(polygon,
     message("Adjusting CRS of study_area to match the polygon's system")
     study_area <- sf::st_transform(study_area, reference_system)
   }
-  message("Defining the climate reference space.")
+  message("Defining the climate reference space")
   present_masked <- terra::mask(terra::crop(present_climate_variables, study_area),
                                 study_area)
   future_masked <- terra::mask(terra::crop(future_climate_variables, study_area),
@@ -203,7 +203,7 @@ mh_rep_ch <- function(polygon,
   data_f_study <- na.omit(terra::as.data.frame(future_masked, xy = TRUE))
   if (nrow(data_p_study) == 0 ||
       nrow(data_f_study) == 0) {
-    stop("No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix.")
+    stop("No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix")
   }
   climate_data_cols <- 3:(ncol(data_p_study))
   data_combined_clim <- rbind(data_p_study[, climate_data_cols], data_f_study[, climate_data_cols])
@@ -211,7 +211,7 @@ mh_rep_ch <- function(polygon,
   cov_matrix_prefut <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
   if (inherits(try(solve(cov_matrix_prefut), silent = TRUE)
                , "try-error")) {
-    stop("Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'.")
+    stop("Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'")
   }
   message("Starting per-polygon processing:")
   classify_mh <- function(mh_raster, threshold) {
@@ -289,12 +289,12 @@ mh_rep_ch <- function(polygon,
         ggplot2::scale_fill_manual(
           name = " ",
           values = c(
-            "0" = "grey90", # Non-represented
+            "0" = "grey90", # Non-representative
             "1" = "aquamarine4", # Retained
             "2" = "coral1", # Lost
             "3" = "steelblue2"), # Novel
           labels = c(
-            "0" = "Non-represented",
+            "0" = "Non-representative",
             "1" = "Retained",
             "2" = "Lost",
             "3" = "Novel"),

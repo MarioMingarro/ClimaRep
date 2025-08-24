@@ -65,7 +65,7 @@ This function performs a multivariate analysis using Mahalanobis distance to ass
 
 It is important to note that Mahalanobis distance is sensitive to collinearity among variables.
 While the covariance matrix accounts for correlations, it is strongly recommended that the \code{climate_variables} are not strongly correlated.
-Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter} function from this package.
+Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter()} function from this package.
 }
 \examples{
 library(terra)

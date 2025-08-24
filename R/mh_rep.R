@@ -42,7 +42,7 @@
 #'
 #' It is important to note that Mahalanobis distance is sensitive to collinearity among variables.
 #' While the covariance matrix accounts for correlations, it is strongly recommended that the `climate_variables` are not strongly correlated.
-#' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter` function from this package.
+#' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter()` function from this package.
 #'
 #' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell compareGeom
 #' @importFrom sf st_crs st_transform st_geometry st_as_sf st_make_grid

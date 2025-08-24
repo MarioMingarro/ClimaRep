@@ -20,6 +20,7 @@ When \code{ClimaRep::mh_rep_ch()} results are used, the output layers consistent
 \itemize{
 \item A multi-layered \code{SpatRaster} (\code{ClimaRep_overlay.tif}) for RGB visualization.
 \item Individual \code{.tif} files for each band (Lost, Retained, Novel) in \verb{Individual_Bands/} subdirectory.
+\item \verb{Additional note}: The \code{ClimaRep::mh_rep()} function analyzes a single period. When its output is used, representative cells are all categorized as Retained (value 1), while other categories (Lost and Novel) have a value of zero.
 }
 }
 \description{
@@ -30,7 +31,7 @@ This function handles inputs from both \code{ClimaRep::mh_rep()} (which primaril
 \details{
 This function streamlines the aggregation of ClimaRep classifications. It is designed to work with outputs from both \code{ClimaRep::mh_rep()} and \code{ClimaRep::mh_rep_ch}.
 
-For each of the three key categories (Lost, Retained/Represented, Novel), the function:
+For each of the three key categories (Lost, Retained/representative, Novel), the function:
 \enumerate{
 \item Identifies and reads all \code{.tif} files within the \code{folder_path}.
 \item For each input raster, it creates a binary layer: \code{1} if the cell's value matches the target category (e.g., \code{2} for 'Lost'), and \code{0} otherwise.

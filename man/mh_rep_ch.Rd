@@ -22,11 +22,11 @@ mh_rep_ch(
 
 \item{col_name}{\code{character}. Name of the column in the \code{polygon} object that contains unique identifiers for each polygon.}
 
-\item{present_climate_variables}{A \code{SpatRaster} stack of climate variables representing present conditions.}
+\item{present_climate_variables}{A \code{SpatRaster} stack of climate variables representing current conditions.}
 
-\item{future_climate_variables}{A \code{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions. \strong{Must have the same extent, and resolution as} \code{present_climate_variables}.}
+\item{future_climate_variables}{A \code{SpatRaster} stack containing the same climate variables as \code{present_climate_variables} but representing future projected conditions.}
 
-\item{study_area}{A single \code{sf} polygon. \strong{Must have the same CRS as} \code{present_climate_variables}.}
+\item{study_area}{A single \code{sf} polygon.}
 
 \item{th}{\code{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
 
@@ -73,8 +73,8 @@ This results in a Mahalanobis distance raster for the present period and another
 }
 \item Compares the binary representativeness of each cell between the present and future periods and determines cells where conditions are:
 \itemize{
-\item \code{0}: \strong{Non-represented}: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
-\item \code{1}: \strong{Retained}: Cells that are within the defined Mahalanobis threshold in both present and future periods.
+\item \code{0}: \strong{Non-representative}: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
+\item \code{1}: \strong{Retained}: Cells that are within the defined Mahalanobis threshold in both present and future periods. \strong{Representative} if \code{Climarep::mh_rep()} is used
 \item \code{2}: \strong{Lost}: Cells that are within the defined Mahalanobis threshold in the present period but outside it in the future period.
 \item \code{3}: \strong{Novel}: Cells that are outside the defined Mahalanobis threshold in the present period but within it in the future period.
 }
@@ -84,7 +84,7 @@ All files are saved using the \code{model} and \code{year} parameters for better
 
 It is important to note that Mahalanobis distance assumes is sensitive to collinearity among variables.
 While the covariance matrix accounts for correlations, it is strongly recommended that the climate variables (\code{present_climate_variables}) are not strongly correlated.
-Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter} function from this package.
+Consider performing a collinearity analysis beforehand, perhaps using the \code{vif_filter()} function from this package.
 }
 \examples{
 library(terra)
