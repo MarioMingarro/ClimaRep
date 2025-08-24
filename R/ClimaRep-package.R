@@ -10,10 +10,10 @@
 #'
 #' ## Key Features
 #' The package includes functions for:
-#' * Filtering raster climate variables to reduce multicollinearity (\link{ClimaRep::vif_filter}).
-#' * Estimating current climate representativeness (\link{ClimaRep::mh_rep}).
-#' * Estimating changes in climate representativeness under future climate projections (\link{ClimaRep::mh_rep_ch}).
-#' * Estimating climate representativeness overlay (\link{ClimaRep::rep_overlay}).
+#' * Filtering raster climate variables to reduce multicollinearity (\link{vif_filter}).
+#' * Estimating current climate representativeness (\link{mh_rep}).
+#' * Estimating changes in climate representativeness under future climate projections (\link{mh_rep_ch}).
+#' * Estimating climate representativeness overlay (\link{rep_overlay}).
 #'
 #' ## More Details
 #' https://github.com/MarioMingarro/ClimaRep
