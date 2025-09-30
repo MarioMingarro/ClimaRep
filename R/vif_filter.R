@@ -10,7 +10,7 @@
 #' @details This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with a high Variance Inflation Factor (VIF).
 #' The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model. A high VIF value suggests a high degree of collinearity with other predictors (values exceeding `5` or `10` are often considered problematic; see O'Brien, 2007; Legendre & Legendre, 2012).
 #'
-#' **The filtering process is fully automated and robust:**
+#' The filtering process is fully automated and robust:
 #'
 #' \enumerate{
 #' \item Validates the input and converts the `SpatRaster` to a `data.frame` for calculations.
@@ -70,29 +70,30 @@ vif_filter <- function(x, th = 5) {
   original_raster <- x
   x_df <- terra::as.data.frame(x, na.rm = TRUE)
   calc_vif_robust <- function(df) {
-    if (ncol(df) <= 1) return(numeric(0))
-    tryCatch({
+    if (ncol(df) <= 1)
+      return(numeric(0))
+    vif_values <- tryCatch({
       cor_matrix <- cor(df, use = "pairwise.complete.obs")
-      vif_values <- diag(solve(cor_matrix))
-      names(vif_values) <- colnames(df)
-      return(vif_values)
-    },
-    error = function(e) {
-      if (grepl("singular", e$message)) {
-        message("Perfect collinearity detected. Switching to the regression method for VIF calculation.")
-        vif_values <- sapply(names(df), function(name) {
-          model <- try(stats::lm(as.formula(paste(name, "~ .")), data = df), silent = TRUE)
-          if (inherits(model, "try-error") || summary(model)$r.squared >= 1) {
-            return(Inf)
-          }
-          1 / (1 - summary(model)$r.squared)
-        })
-        names(vif_values) <- names(df)
-        return(vif_values)
-      } else {
-        stop(e)
+      vif_values_matrix <- diag(solve(cor_matrix))
+      if (any(vif_values_matrix < 0)) {
+        stop("Negative VIF detected, indicating numerical instability.")
       }
+      names(vif_values_matrix) <- colnames(df)
+      return(vif_values_matrix)
+    }, error = function(e) {
+      message("Numerical instability detected. Switching to the regression method for VIF calculation.")
+      vif_values_lm <- sapply(names(df), function(name) {
+        model <- try(stats::lm(as.formula(paste(name, "~ .")), data = df), silent = TRUE)
+        if (inherits(model, "try-error") ||
+            summary(model)$r.squared >= 1) {
+          return(Inf)
+        }
+        1 / (1 - summary(model)$r.squared)
+      })
+      names(vif_values_lm) <- names(df)
+      return(vif_values_lm)
     })
+    return(vif_values)
   }
   message("Starting iterative VIF filtering process")
   kept_vars <- colnames(x_df)
@@ -133,8 +134,7 @@ vif_filter <- function(x, th = 5) {
     kept_layers = kept_vars,
     excluded_layers = excluded_vars,
     original_correlation_matrix = original_cor_matrix,
-    final_vif_values = final_vif_values
-  )
+    final_vif_values = final_vif_values)
   filtered_raster <- if (length(kept_vars) > 0) subset(original_raster, kept_vars) else original_raster[[character(0)]]
   return(list(filtered_raster = filtered_raster, summary = results_summary))
 }

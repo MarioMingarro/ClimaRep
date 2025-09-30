@@ -21,7 +21,7 @@ This function iteratively filters layers from a \code{SpatRaster} object by remo
 This function implements a common iterative procedure to reduce multicollinearity among raster layers by removing variables with a high Variance Inflation Factor (VIF).
 The VIF for a specific predictor indicates how much the variance of its estimated coefficient is inflated due to its linear relationships with all other predictors in the model. A high VIF value suggests a high degree of collinearity with other predictors (values exceeding \code{5} or \code{10} are often considered problematic; see O'Brien, 2007; Legendre & Legendre, 2012).
 
-\strong{The filtering process is fully automated and robust:}
+The filtering process is fully automated and robust:
 
 \enumerate{
 \item Validates the input and converts the \code{SpatRaster} to a \code{data.frame} for calculations.

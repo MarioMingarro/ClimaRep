@@ -31,7 +31,13 @@ https://github.com/MarioMingarro/ClimaRep
 }
 }
 \author{
-\strong{Maintainer}: Mario Mingarro Lopez \email{mario_mingarro@mncn.csic.es} (\href{https://orcid.org/0000-0003-3977-7944}{ORCID})
+\strong{Maintainer}: Mario Mingarro \email{mario_mingarro@mncn.csic.es} (\href{https://orcid.org/0000-0003-3977-7944}{ORCID})
+
+Authors:
+\itemize{
+  \item Gabriel del Barrio (\href{https://orcid.org/0000-0001-6146-9433}{ORCID})
+  \item Jorge M. Lobo (\href{https://orcid.org/0000-0002-3152-4769}{ORCID})
+}
 
 }
 \keyword{internal}
