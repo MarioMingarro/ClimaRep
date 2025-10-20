@@ -2,7 +2,7 @@
 #'
 #' @description This function calculates Mahalanobis-based climate representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
 #'
-#' The function categorizes cells based on how their climate representativeness changes, labeling them as Retained, Lost, or Novel.
+#' The function categorizes cells based on how their climate representativeness changes, labeling them as Stable, Lost, or Novel.
 #'
 #' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
 #'
@@ -19,7 +19,7 @@
 #'
 #' @return Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{
-#'  \item Classification (`.tif` ) change rasters: Change category rasters (`0` for **Non-representative**, `1` for **Retained**, `2` for **Lost** and `3` for **Novel**) for each input polygon are saved in the `Change/` subdirectory.
+#'  \item Classification (`.tif` ) change rasters: Change category rasters (`0` for **Unsuitable**, `1` for **Stable**, `2` for **Lost** and `3` for **Novel**) for each input polygon are saved in the `Change/` subdirectory.
 #'  \item Visualization (`.jpeg`) maps: Image files visualizing the change classification results for each `polygon` are saved in the `Charts/` subdirectory.
 #'  \item Raw Mahalanobis distance rasters: Optionally, they are saved as `.tif` files in the `Mh_Raw_Pre/` and `Mh_Raw_Fut/` subdirectories if `save_raw = TRUE`.
 #' }
@@ -40,12 +40,12 @@
 #'    Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and present-future covariance matrix.
 #'    This results in a Mahalanobis distance raster for the present period and another for the future period.
 #'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
-#'    \item Classify each cells, for both present and future periods, as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Non-Representative = `0` (Mahalanobis distance $>$ `th`).
+#'    \item Classify each cells, for both present and future periods, as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Unsuitable = `0` (Mahalanobis distance $>$ `th`).
 #'  }
 #'  \item Compares the binary representativeness of each cell between the present and future periods and determines cells where conditions are:
 #'  \itemize{
-#'    \item `0`: **Non-representative**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
-#'    \item `1`: **Retained**: Cells that are within the defined Mahalanobis threshold in both present and future periods. **Representative** if `Climarep::mh_rep()` is used
+#'    \item `0`: **Unsuitable**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
+#'    \item `1`: **Stable**: Cells that are within the defined Mahalanobis threshold in both present and future periods. **Representative** if `Climarep::mh_rep()` is used
 #'    \item `2`: **Lost**: Cells that are within the defined Mahalanobis threshold in the present period but outside it in the future period.
 #'    \item `3`: **Novel**: Cells that are outside the defined Mahalanobis threshold in the present period but within it in the future period.
 #'   }
@@ -158,7 +158,6 @@ mh_rep_ch <- function(polygon,
   if (terra::nlyr(present_climate_variables) != terra::nlyr(future_climate_variables)) {
     stop("Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same")
   }
-
   message("Establishing output file structure")
   dir_present <- file.path(dir_output, "Mh_Raw_Pre")
   dir_future <- file.path(dir_output, "Mh_Raw_Fut")
@@ -174,11 +173,8 @@ mh_rep_ch <- function(polygon,
     }
   })
   message("Validating and adjusting Coordinate Reference Systems (CRS)")
-
-  # Get the reference CRS from the polygon
   reference_system <- terra::crs(sf::st_crs(polygon)$wkt)
   reference_system_check <- sf::st_crs(polygon)$epsg
-
   if (is.na(reference_system_check) || reference_system_check == "") {
     stop("CRS for 'polygon' is undefined. Please set a valid CRS for the polygon")
   }
@@ -281,7 +277,7 @@ mh_rep_ch <- function(polygon,
           data = study_area,
           color = "gray50",
           fill = NA,
-          linewidth = 1) +
+          linewidth = 0.5) +
         ggplot2::geom_sf(
           data = pol,
           color = "black",
@@ -289,13 +285,13 @@ mh_rep_ch <- function(polygon,
         ggplot2::scale_fill_manual(
           name = " ",
           values = c(
-            "0" = "grey90", # Non-representative
-            "1" = "aquamarine4", # Retained
+            "0" = "grey90", # Unsuitable
+            "1" = "aquamarine4", # Stable
             "2" = "coral1", # Lost
             "3" = "steelblue2"), # Novel
           labels = c(
-            "0" = "Non-representative",
-            "1" = "Retained",
+            "0" = "Unsuitable",
+            "1" = "stable",
             "2" = "Lost",
             "3" = "Novel"),
           na.value = "transparent",

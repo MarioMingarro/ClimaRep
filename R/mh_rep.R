@@ -216,7 +216,7 @@ mh_rep <- function(polygon,
           data = study_area,
           color = "gray50",
           fill = NA,
-          linewidth = 1) +
+          linewidth = 0.5) +
         ggplot2::geom_sf(
           data = pol,
           color = "black",

@@ -41,7 +41,7 @@ mh_rep_ch(
 \value{
 Writes the following outputs to disk within subdirectories of \code{dir_output}:
 \itemize{
-\item Classification (\code{.tif} ) change rasters: Change category rasters (\code{0} for \strong{Non-representative}, \code{1} for \strong{Retained}, \code{2} for \strong{Lost} and \code{3} for \strong{Novel}) for each input polygon are saved in the \verb{Change/} subdirectory.
+\item Classification (\code{.tif} ) change rasters: Change category rasters (\code{0} for \strong{Unsuitable}, \code{1} for \strong{Stable}, \code{2} for \strong{Lost} and \code{3} for \strong{Novel}) for each input polygon are saved in the \verb{Change/} subdirectory.
 \item Visualization (\code{.jpeg}) maps: Image files visualizing the change classification results for each \code{polygon} are saved in the \verb{Charts/} subdirectory.
 \item Raw Mahalanobis distance rasters: Optionally, they are saved as \code{.tif} files in the \verb{Mh_Raw_Pre/} and \verb{Mh_Raw_Fut/} subdirectories if \code{save_raw = TRUE}.
 }
@@ -49,7 +49,7 @@ Writes the following outputs to disk within subdirectories of \code{dir_output}:
 \description{
 This function calculates Mahalanobis-based climate representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
 
-The function categorizes cells based on how their climate representativeness changes, labeling them as Retained, Lost, or Novel.
+The function categorizes cells based on how their climate representativeness changes, labeling them as Stable, Lost, or Novel.
 
 Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (\code{present_climate_variables} and \code{future_climate_variables}), with the climate conditions within each specific input \code{polygon}.
 }
@@ -69,12 +69,12 @@ Here are the key steps:
 Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and present-future covariance matrix.
 This results in a Mahalanobis distance raster for the present period and another for the future period.
 \item Apply the specified threshold (\code{th}) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
-\item Classify each cells, for both present and future periods, as Representative = \code{1} (Mahalanobis distance \eqn{\le} \code{th}) or Non-Representative = \code{0} (Mahalanobis distance $>$ \code{th}).
+\item Classify each cells, for both present and future periods, as Representative = \code{1} (Mahalanobis distance \eqn{\le} \code{th}) or Unsuitable = \code{0} (Mahalanobis distance $>$ \code{th}).
 }
 \item Compares the binary representativeness of each cell between the present and future periods and determines cells where conditions are:
 \itemize{
-\item \code{0}: \strong{Non-representative}: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
-\item \code{1}: \strong{Retained}: Cells that are within the defined Mahalanobis threshold in both present and future periods. \strong{Representative} if \code{Climarep::mh_rep()} is used
+\item \code{0}: \strong{Unsuitable}: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
+\item \code{1}: \strong{Stable}: Cells that are within the defined Mahalanobis threshold in both present and future periods. \strong{Representative} if \code{Climarep::mh_rep()} is used
 \item \code{2}: \strong{Lost}: Cells that are within the defined Mahalanobis threshold in the present period but outside it in the future period.
 \item \code{3}: \strong{Novel}: Cells that are outside the defined Mahalanobis threshold in the present period but within it in the future period.
 }
