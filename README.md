@@ -44,7 +44,7 @@ This package relies on other R packages, such as:
 
 These dependencies will be installed automatically when you install `ClimaRep`.
 
-## Getting Started
+## Getting started
 
 This section provides a brief example demonstrating the core workflow of the package.
 
@@ -98,7 +98,7 @@ terra::plot(r_clim_present)
 *Figure 1: Example of simulated climate raster layers (r_clim_present).*
 
 
-### 1. Filter Climate Variables
+### 1. Filter climate variables
 
 A crucial first step in processing the climate variables is often to address multicollinearity. Multicollinearity among climate variables can affect multivariate analyses.
 
@@ -146,7 +146,7 @@ terra::plot(r_clim_present_filtered)
 
 *Figure 2: Example of filtered climate dataset, showing remaining variables (r_clim_present_filtered) after vif_filter() function.*
 
-### 2. Estimate Climate Representativeness.
+### 2. Estimate climate representativeness.
 Create example input area `polygon` (`sf`) and a `study_area` polygon (`sf`) to define the region and climate space for analysis:
 ```{r}
 hex_grid <- sf::st_sf(
@@ -229,7 +229,7 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 3. The `Representativeness` subfolder contains the **binary representativeness** rasters (`.tif`) for each input `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis distance.
 
-Cells are coded `1` for `representative` and `0` for not representetive.
+Cells are coded `1` for `Representative` and `0` for `Unsuitable`.
 ```{r}
 mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
@@ -347,7 +347,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 11: Example continuous future Mahalanobis distance raster for Pol_2.*
 
-### 4. Estimate Environmental Representativeness Overlay (rep_overlay)
+### 4. Estimate environmental representativeness overlay (rep_overlay)
 After obtaining the representativeness (`mh_rep`),  or change (`mh_rep_ch`), rasters for multiple polygons, you can combine them to visualize where different change types (**Representetive / Stable, Lost, Novel**) accumulate. 
 
 The `rep_overlay` function counting, for each cell, how many of the input rasters had a specific category value at that location.
@@ -380,7 +380,7 @@ terra::plot(ClimaRep_overlay)
 *Figure 13: Example of accumulate Lost (1), Stable (2) or Novel (3) cells.*
 
 
-## Functions Reference
+## Functions reference
 
 **vif_filter()**
 
@@ -468,7 +468,7 @@ If the package itself is formally cited (e.g., on CRAN), please include the pack
 > Farber & Kadmon (2003) Assessment of alternative approaches for bioclimatic modeling with special emphasis on the Mahalanobis distance. *Ecological Modelling*, 160: 115–130. doi:10.1016/S0304-3800(02)00327-7 
 
 
-## Getting Help
+## Getting help
 
 If you encounter issues or have questions, please contact.
 
