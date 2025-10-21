@@ -108,9 +108,9 @@ To handle this, the `vif_filter` function can be used to iteratively remove vari
 The output of `vif_filter` returns a `list` object with:
 - A filtered `SpatRaster` object containing only the variables that were kept 
 - A comprehensive statistics summary list including:
-  - The lists of variables that were kept and those that were excluded.
+  - The name of variables that were kept and those that were excluded.
   - The original Pearson's correlation matrix between all initial variables.
-  - The final VIF values for the variables that were retained after the filtering process.
+  - The final VIF values for the variables that were retained.
 
 
 ```{r}
@@ -143,7 +143,7 @@ terra::plot(r_clim_present_filtered)
 ```
 <img src="man/figures/F_2.jpeg" alt="Filtered Climate layers" width="600">
 
-*Figure 2: Example of filtered climate dataset, showing remaining variables (r_clim_present_filtered) after vif_filter() function.*
+*Figure 2: Example of filtered climate dataset, showing remaining variables (r_clim_present_filtered) after `vif_filter()` function.*
 
 ### 2. Estimate climate representativeness.
 Create example input area `polygon` (`sf`) and a `study_area` polygon (`sf`) to define the region and climate space for analysis:
