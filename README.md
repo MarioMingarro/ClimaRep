@@ -9,8 +9,8 @@
 
 ## Overview
 
-The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future climate change scenarios. 
-Using spatial data, including climate raster layers, the input area polygons, and a polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
+The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future scenarios. 
+Using spatial data, including climate raster layers, the input reference area polygons, and a polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
 
 Key features include:
 * Filtering raster climate variables to reduce multicollinearity (`vif_filter`).
@@ -62,13 +62,14 @@ Next, prepare the essential input data:
 
 1. **Climate variables** as an `SpatRaster` objects with consistent extent, resolution, and Coordinate Reference System (CRS).
 
-2. **Polygon** as an `sf` object containing one or more polygons, with a column identifying each distinct area (e.g., a 'name' or 'ID' column).
+2. **Polygon** as an `sf` object containing one or more polygons, with a column identifying each reference area (e.g., a 'name' or 'ID' column).
 
 3. **Study area** as a single `sf` object, representing the overall geographical region for analysis and thus the climate space being worked on.
 
 
 Here is a practical example using simulated data:
-The example simulates a pair of defined input areas and assesses their climate representativeness and transformation within a defined climate space. 
+
+The example simulates a pair of reference areas and assesses their climate representativeness and change within a defined study area. 
 This involves creating a simulated climate space within which the analysis is performed.
 
 Generate simulated climate raster layers:
@@ -104,14 +105,12 @@ A crucial first step in processing the climate variables is often to address mul
 
 To handle this, the `vif_filter` function can be used to iteratively remove variables with a Variance Inflation Factor (VIF) above a specified threshold (e.g., `th = 5`).
 
-The output of `vif_filter` returns a `list` object with a filtered `SpatRaster` object and a statistics summary. 
-
-The `SpatRaster` object, containing only the variables that were kept, also provides a comprehensive summary printed to the console. 
-
-The summary list including:
-- The lists of variables that were kept and those that were excluded.
-- The original Pearson's correlation matrix between all initial variables.
-- The final VIF values for the variables that were retained after the filtering process.
+The output of `vif_filter` returns a `list` object with:
+- A filtered `SpatRaster` object containing only the variables that were kept 
+- A comprehensive statistics summary list including:
+  - The lists of variables that were kept and those that were excluded.
+  - The original Pearson's correlation matrix between all initial variables.
+  - The final VIF values for the variables that were retained after the filtering process.
 
 
 ```{r}
