@@ -10,11 +10,11 @@ Authors@R: c(
     person(given = "Gabriel", 
             family = "del Barrio", 
             comment = c(ORCID = "0000-0001-6146-9433"),
-            role = "aut"),
+            role = "ctb"),
     person(given = "Jorge M.", 
             family = "Lobo", 
             comment = c(ORCID = "0000-0002-3152-4769"),
-            role = "aut"))
+            role = "ctb"))
 Description: Offers tools to estimate the climate representativeness of reference polygons and quantifies its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) <doi:10.32800/abc.2018.41.0333> and Mingarro and Lobo (2022) <doi:10.1017/S037689292100014X>.
 License: MIT + file LICENSE
 Encoding: UTF-8
