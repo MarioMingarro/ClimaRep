@@ -291,7 +291,7 @@ mh_rep_ch <- function(polygon,
             "3" = "steelblue2"), # Novel
           labels = c(
             "0" = "Unsuitable",
-            "1" = "stable",
+            "1" = "Stable",
             "2" = "Lost",
             "3" = "Novel"),
           na.value = "transparent",
