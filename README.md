@@ -457,6 +457,7 @@ The output layers consistently represent the accumulation of each input.
 
 > `folder_path`: `Character string`. Path to the directory containing the input single-layer GeoTIFF classification rasters (outputs from `ClimaRep::mh_rep_ch()` or `ClimaRep::mh_rep()`).
 > `dir_output`: Path to the `directory` where output rasters will be saved. The directory will be created if it doesn't exist.
+> `change`: `Logical`. Specifies whether the inputs are change-detection results from `ClimaRep::mh_rep_ch()` (`TRUE`) or standard results from `ClimaRep::mh_rep()` (`FALSE`, default).
 
 ## Citation
 
