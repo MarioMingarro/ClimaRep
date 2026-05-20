@@ -1,6 +1,6 @@
 Package: ClimaRep
 Title: Estimating Climate Representativeness
-Version: 1.0
+Version: 1.1
 Authors@R: c(
     person(given = "Mario", 
             family = "Mingarro", 
@@ -10,16 +10,16 @@ Authors@R: c(
     person(given = "Gabriel", 
             family = "del Barrio", 
             comment = c(ORCID = "0000-0001-6146-9433"),
-            role = "ctb"),
+            role = "aut"),
     person(given = "Jorge M.", 
             family = "Lobo", 
             comment = c(ORCID = "0000-0002-3152-4769"),
-            role = "ctb"))
+            role = "aut"))
 Description: Offers tools to estimate the climate representativeness of reference polygons and quantifies its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) <doi:10.32800/abc.2018.41.0333> and Mingarro and Lobo (2022) <doi:10.1017/S037689292100014X>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
 Imports: ggplot2, terra, utils, stats, sf, tidyterra

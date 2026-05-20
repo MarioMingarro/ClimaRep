@@ -58,10 +58,9 @@
 #'                                                                     package = "ClimaRep"),
 #'                                          output_dir = file.path(tempdir(), "rep_overlay_output"),
 #'                                          change = FALSE)
-#' terra::plotRGB(ClimaRep_overlay)
 #' terra::plot(ClimaRep_overlay)
 #' @export
-rep_overlay2 <- function(folder_path,
+rep_overlay <- function(folder_path,
                          output_dir = file.path(tempdir(), "ClimaRep_overlay"),
                          change = FALSE) {
 

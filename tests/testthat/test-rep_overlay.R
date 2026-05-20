@@ -52,7 +52,8 @@ testthat::test_that("rep_overlay works correctly", {
 
   rep_overlay(
     folder_path = file.path(output_dir, "Change"),
-    output_dir = file.path(output_dir, "rep_overlay_output"))
+    output_dir = file.path(output_dir, "rep_overlay_output"),
+    change = TRUE)
 
 
   overlay_output <- file.path(output_dir, "rep_overlay_output")
