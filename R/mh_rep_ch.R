@@ -32,12 +32,12 @@
 #' \enumerate{
 #'  \item Checking CRS: Ensures that `future_climate_variables`, `climate_variables`, and `study_area` have matching CRSs with `polygon` by automatically transforming them if needed. The CRS of `polygon` will be used as the reference system.
 #'  \item Crops and masks the `climate_variables` and `future_climate_variables` raster to the `study_area` to limit all subsequent calculations to the area of interest.
-#'  \item Calculate the multivariate covariance matrix using climate data from all cells for both present and present-future time periods combined.
+#'  \item Calculate a single multivariate covariance matrix using climate data from all cells across both present and future time periods combined. This matrix is used as the metric for Mahalanobis distance in both periods, ensuring that present and future distances are directly comparable under the same threshold.
 #'  \item For each polygon in the `polygon` object:
 #'  \itemize{
 #'    \item Crop and mask the present climate variables raster (`present_climate_variables`) to the boundary of the current polygon.
 #'    \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
-#'    Calculate the Mahalanobis distance for each cell relative to the centroid and the overall present and present-future covariance matrix.
+#'    Calculate the Mahalanobis distance for each cell relative to the centroid using the combined present-future covariance matrix.
 #'    This results in a Mahalanobis distance raster for the present period and another for the future period.
 #'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
 #'    \item Classify each cells, for both present and future periods, as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Unsuitable = `0` (Mahalanobis distance $>$ `th`).
@@ -158,6 +158,9 @@ mh_rep_ch <- function(polygon,
   if (terra::nlyr(present_climate_variables) != terra::nlyr(future_climate_variables)) {
     stop("Number of layers in 'present_climate_variables' and 'future_climate_variables' must be the same")
   }
+  if (any(names(present_climate_variables) != names(future_climate_variables))) {
+    stop("Name of layers in 'present_climate_variables' and 'future_climate_variables' must be the same")
+  }
   message("Establishing output file structure")
   dir_present <- file.path(dir_output, "Mh_Raw_Pre")
   dir_future <- file.path(dir_output, "Mh_Raw_Fut")
@@ -203,7 +206,6 @@ mh_rep_ch <- function(polygon,
   }
   climate_data_cols <- 3:(ncol(data_p_study))
   data_combined_clim <- rbind(data_p_study[, climate_data_cols], data_f_study[, climate_data_cols])
-  cov_matrix_pre <- suppressWarnings(cov(data_p_study[, climate_data_cols], use = "complete.obs"))
   cov_matrix_prefut <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
   if (inherits(try(solve(cov_matrix_prefut), silent = TRUE)
                , "try-error")) {
@@ -232,7 +234,7 @@ mh_rep_ch <- function(polygon,
     mu_present_polygon <- terra::global(raster_polygon_present, "mean", na.rm = TRUE)$mean
     mh_values_present <- mahalanobis(as.matrix(data_p_study[, climate_data_cols]),
                                      mu_present_polygon,
-                                     cov_matrix_pre)
+                                     cov_matrix_prefut)
     mh_values_future <- mahalanobis(as.matrix(data_f_study[, climate_data_cols]),
                                     mu_present_polygon,
                                     cov_matrix_prefut)

@@ -20,8 +20,8 @@ testthat::test_that("rep_overlay works correctly", {
        (terra::colFromCell(r_clim_present, 1:n_cells) + 0.1 + rnorm(n_cells, 0, 4))))
   names(r_clim_present) <- c("varA", "varB", "varC", "varD", "varE", "varF", "varG")
   terra::crs(r_clim_present) <- "EPSG:4326"
-  r_clim_present_filtered <- vif_filter(r_clim_present, th = 5)
-  r_clim_present_filtered <- r_clim_present[[1:5]]
+  vif_result <- vif_filter(r_clim_present, th = 5)
+  r_clim_present_filtered <- vif_result$filtered_raster
   r_clim_future <- r_clim_present_filtered + 2
   names(r_clim_future) <- names(r_clim_present_filtered)
   hex_grid <- sf::st_sf(sf::st_make_grid(sf::st_as_sf(terra::as.polygons(
