@@ -3,7 +3,7 @@
 #' @description Combines multiple single-layer rasters (`tif`), outputs from `ClimaRep::mh_rep()` or `ClimaRep::mh_rep_ch()` for different input polygons, into a multi-layered `SpatRaster`, depending on the type of input.
 #'
 #' This function handles inputs from both `ClimaRep::mh_rep()` (which primarily contains **Representative** cells) and `ClimaRep::mh_rep_ch()` (which includes **Stable**, **Lost**, and **Novel** cells). The output layers consistently represent counts of each input.
-#'#' The behaviour is controlled by the `change` argument:
+#' The behaviour is controlled by the `change` argument:
 #' \itemize{
 #'   \item `change = FALSE` (default): inputs are treated as outputs of
 #'         `ClimaRep::mh_rep()`. Only **Representative** cells (value `1`) are counted,
@@ -24,33 +24,31 @@
 #' When `ClimaRep::mh_rep_ch()` results are used, the output layers consistently represent counts for **Lost** (Red), **Stable** (Green), and **Novel** (Blue) categories across all input rasters. Designed for direct RGB plotting.
 #' \itemize{
 #'  \item A multi-layered `SpatRaster` (`ClimaRep_overlay.tif`) for RGB visualization.
-#'  \item Individual `.tif` files for each band (Lost, Stable, Novel) in `Individual_Bands/` subdirectory.
+#'  \item Individual `.tif` files for each band (Lost, Stable, Novel) in `individual_bands/` subdirectory.
 #'  \item `Additional note`: The `ClimaRep::mh_rep()` function analyzes a single period. When its output is used, representative cells are all categorized as Stable (value 1), while other categories (Lost and Novel) have a value of zero.
 #' }
 #'
 #' @details
-#' This function streamlines the aggregation of ClimaRep classifications. It is designed to work with outputs from both `ClimaRep::mh_rep()` and `ClimaRep::mh_rep_ch`.
+#' This function aggregates the per-polygon binary or categorical rasters produced by \code{\link{mh_rep}} or \code{\link{mh_rep_ch}} into cumulative count layers across
+#' all input polygons. It is designed as a post-processing step to summarise where, and how often, a given category occurs in space when many polygons have been analysed.
 #'
-#' For each of the three key categories (Lost, Stable/Representative, Novel), the function:
-#' \enumerate{
-#'  \item Identifies and reads all `.tif` files within the `folder_path`.
-#'  \item For each input raster, it creates a binary layer: `1` if the cell's value matches the target category (e.g., `2` for 'Lost'), and `0` otherwise.
-#'  \item Sums these binary layers to generate a cumulative count for that specific category at each grid cell.
-#' }
-#'
-#' The three resulting count layers (Lost, Stable, Novel) are then consistently stacked in the following order:
+#'  The behaviour is controlled by the `change` argument:
 #' \itemize{
-#'  \item First layer (Red): Cumulative count of Lost.
-#'  \item Second layer (Green): Cumulative count of Stable.
-#'  \item Third layer (Blue): Cumulative count of Novel.
+#'   \item `change = FALSE` (default): inputs are treated as outputs of `ClimaRep::mh_rep()`. For each input raster, a binary layer is created where
+#'         cells with value `1` (Representative) are set to `1` and all other values to `0`. These layers are summed across all rasters to produce a single-layer
+#'         cumulative count of how many polygons classify each cell as representative.
+#'   \item `change = TRUE`: inputs are treated as outputs of `ClimaRep::mh_rep()`. Three independent cumulative count layers are
+#'         produced, one for each change category: cells coded `2` (Lost), `1` (Stable), and `3` (Novel). Cells coded `0` (Unsuitable) are ignored.
+#'         The three count layers are stacked in the fixed order Lost (Red), Stable (Green), Novel (Blue), so the resulting `SpatRaster` is ready for direct RGB
+#'         visualization with \code{terra::plotRGB()}, where colour mixtures intuitively reflect the spatial agreement among change types.
 #' }
-#' This fixed order ensures that the output `SpatRaster` is immediately ready for direct RGB visualization using `terra::plotRGB()`, where the color mixtures will intuitively reflect
-#' the spatial agreement of these change types.
 #'
-#' The output `SpatRaster` contains raw counts. While `terra::plotRGB()` often handles stretching for visualization, users might normalize these counts manually (e.g., to 0-number of `polygons`) for finer visual contrast.
-#'
-#' A new subfolder named `overlay/` will be created within the `folder_path`. The resulting three-layered RGB will be saved as `ClimaRep_overlay.tif` inside this new `overlay/` subfolder.
-#'
+#' Output structure within `output_dir`:
+#' \itemize{
+#'   \item `ClimaRep_overlay.tif`: the final multi-layer (or single-layer) `SpatRaster` of cumulative counts.
+#'   \item `individual_bands/`: only created when `change = TRUE`. Contains one `.tif` per RGB channel `lost_count_R.tif`, `stable_count_G.tif`, `novel_count_B.tif` for users who prefer to handle each band separately.
+#' }
+
 #' @importFrom terra rast ifel app writeRaster nlyr values
 #'
 #' @examples

@@ -232,6 +232,16 @@ mh_rep_ch <- function(polygon,
       next
     }
     mu_present_polygon <- terra::global(raster_polygon_present, "mean", na.rm = TRUE)$mean
+    names(mu_present_polygon) <- names(raster_polygon_present)
+    if (any(is.na(mu_present_polygon))) {
+      missing_vars <- names(mu_present_polygon)[is.na(mu_present_polygon)]
+      warning(
+        "Polygon '", pol_name, "' has no valid data for variable(s): ",
+        paste(missing_vars, collapse = ", "),
+        ". Cannot compute multivariate centroid. Skipping."
+      )
+      next
+    }
     mh_values_present <- mahalanobis(as.matrix(data_p_study[, climate_data_cols]),
                                      mu_present_polygon,
                                      cov_matrix_prefut)

@@ -126,8 +126,7 @@ mh_rep <- function(polygon,
     stop("Parameter 'dir_output' must be a single character string.")
   }
   if (terra::nlyr(climate_variables) < 2) {
-    warning(
-      "Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
+    stop("Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
   }
   message("Establishing output file structure")
   dir_rep <- file.path(dir_output, "Representativeness")
@@ -178,11 +177,17 @@ mh_rep <- function(polygon,
     pol_name <- gsub("^_|_$", "", pol_name)
     message("\nProcessing polygon: ",pol_name," (",j, " of ", nrow(polygon),")")
     raster_polygon <- terra::mask(terra::crop(climate_study_area_masked, pol), pol)
-    if (all(is.na(terra::values(raster_polygon)))) {
-      warning("No available data for: ", pol_name, ". Skipping.")
+    mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
+    names(mu) <- names(raster_polygon)
+    if (any(is.na(mu))) {
+      missing_vars <- names(mu)[is.na(mu)]
+      warning(
+        "Polygon '", pol_name, "' has no valid data for variable(s): ",
+        paste(missing_vars, collapse = ", "),
+        ". Cannot compute multivariate centroid. Skipping."
+      )
       next
     }
-    mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
     mh_values <- mahalanobis(as.matrix(data_p[, climate_data_cols]), mu, cov_matrix)
     mh_present <- terra::rast(cbind(data_p$x, data_p$y, mh_values),
                               type = "xyz",
