@@ -4,9 +4,9 @@
 \name{ClimaRep-package}
 \alias{ClimaRep-package}
 \alias{ClimaRep}
-\title{ClimaRep: Estimating Climate Representativeness}
+\title{ClimaRep: Estimating Climate Analogue Areas}
 \description{
-Offers tools to estimate the climate representativeness of reference polygons and quantifies its transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) \doi{10.32800/abc.2018.41.0333} and Mingarro and Lobo (2022) \doi{10.1017/S037689292100014X}.
+Offers tools to identify the climate analogues of reference polygons and quantifies their transformation under future climate change scenarios. Approaches described in Mingarro and Lobo (2018) \doi{10.32800/abc.2018.41.0333} and Mingarro and Lobo (2022) \doi{10.1017/S037689292100014X}.
 
 \subsection{Overview}{
 

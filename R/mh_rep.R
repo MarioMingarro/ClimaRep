@@ -1,28 +1,26 @@
 #' @title Multivariate climate representativeness analysis
 #'
-#' @description This function calculates Mahalanobis-based climate representativeness for input polygon within a defined area.
-#'
-#' The function categorizes cells based on how their climate representativeness, labeling them as Non-representative and Representative.
-#'
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific input `polygon`.
+#' @description This function identifies the climate analogues of an input polygon within a defined area, based on the Mahalanobis distance.
+#' The function classifies each cell of the study area as a climate analogue or non-analogue of the reference polygon, according to a similarity threshold.
+#' A cell is a climate analogue when its multivariate climate conditions, drawn from the reference climate space (`climate_variables`), fall within the internal climatic variability (`th`) of each specific input `polygon`.
 #'
 #' @param polygon An `sf` object containing the defined areas. **Its CRS will be used as the reference system.**
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
 #' @param climate_variables A `SpatRaster` stack of climate variables.
 #' @param study_area An `sf` object defining the study area. The analysis will be limited to this area.
-#' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
+#' @param th `numeric` (0-1). Percentile threshold used to define climate analogues. Cells with a Mahalanobis distance below or equal to the `th` are classified as analogues (default: 0.95).
 #' @param dir_output `character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
 #' @param save_raw `logical`. If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: `FALSE`).
 #'
 #' @return Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{
-#'  \item Classification (`.tif` ) rasters: Binary rasters (`0` for **Non-representative** and`1` for **Representative**) for each input polygon are saved in the `Representativeness/` subdirectory.
+#'  \item Classification (`.tif` ) rasters: Binary rasters (`0` for **non-analogue** and`1` for **analogue**) for each input polygon are saved in the `Analogues/` subdirectory.
 #'  \item Visualization (`.jpeg`) maps: Image files visualizing the classification results for each `polygon` are saved in the `Charts/` subdirectory.
 #'  \item Raw Mahalanobis distance rasters: Optionally saved as `.tif` files in the `Mh_Raw/` subdirectory if `save_raw = TRUE`.
 #' }
 #'
 #' @details
-#' This function performs a multivariate analysis using Mahalanobis distance to assess the climate representativeness of input `polygons` for a single time period.
+#' This function performs a multivariate analysis using Mahalanobis distance to identify the climate analogues of input `polygons` for a single time period.
 #'
 #' **Key steps:**
 #' \enumerate{
@@ -34,8 +32,8 @@
 #'    \item Crop and mask the climate variables raster (`climate_variables`) to the boundary of the current polygon.
 #'    \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
 #'    \item Calculate the Mahalanobis distance for each cell relative to the centroid and covariance matrix.
-#'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
-#'    \item Classify each cell as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Non-Representative = `0` (Mahalanobis distance $>$ `th`).
+#'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered climate analogues This threshold is a percentile of the Mahalanobis distances within the current polygon.
+#'    \item Classify each cell as analogue = `1` (Mahalanobis distance \eqn{\le} `th`) or non-analogue = `0` (Mahalanobis distance $>$ `th`).
 #'  }
 #'  \item Saves the binary classification raster (`.tif`) and generates a corresponding visualization map (`.jpeg`) for each polygon. These are saved within the specified output directory (`dir_output`).
 #' }
@@ -129,7 +127,7 @@ mh_rep <- function(polygon,
     stop("Climate_variables has fewer than 2 layers. Mahalanobis distance is typically for multiple variables.")
   }
   message("Establishing output file structure")
-  dir_rep <- file.path(dir_output, "Representativeness")
+  dir_rep <- file.path(dir_output, "Analogues")
   dir_charts <- file.path(dir_output, "Charts")
   dirs_to_create <- c(dir_rep, dir_charts)
   if (save_raw) {
@@ -210,7 +208,7 @@ mh_rep <- function(polygon,
     terra::writeRaster(th_present,
                        file.path(
                          dir_output,
-                         "Representativeness",
+                         "Analogues",
                          paste0("Th_rep_", pol_name, ".tif")),
                        overwrite = TRUE)
     th_present_factor <- terra::as.factor(th_present)
@@ -229,7 +227,7 @@ mh_rep <- function(polygon,
         ggplot2::scale_fill_manual(
           name = " ",
           values = c("0" = "grey90", "1" = "aquamarine4"),
-          labels = c("0" = "Non-representative", "1" = "Representative"),
+          labels = c("0" = "Non-analogue", "1" = "Analogue"),
           na.value = "transparent",
           na.translate = FALSE,
           drop = FALSE) +

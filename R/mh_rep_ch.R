@@ -1,53 +1,55 @@
-#' @title Multivariate temporal climate tepresentativeness change analysis
+#' @title Multivariate temporal climate analogous change analysis
 #'
-#' @description This function calculates Mahalanobis-based climate representativeness (or forward climate analogs) for input polygon across two time periods (present and future) within a defined area.
+#' @description This function identifies how the climate analogues of an input polygon change across two time periods (present and future)
+#' within a defined area, based on the Mahalanobis distance. This characterises the climate resilience of the polygon: the behaviour of its analogues under a climate-change scenario.
 #'
-#' The function categorizes cells based on how their climate representativeness changes, labeling them as Stable, Lost, or Novel.
+#' The function classifies each cell as Stable, Lost, or Novel depending on whether it is a climate analogue of the polygon in the present period, the future period, or both.
 #'
-#' Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific input `polygon`.
+#' A cell is a climate analogue when its multivariate climate conditions, drawn from the reference climate space (`present_climate_variables` and `future_climate_variables`), fall
+#' within the internal variability (`th`) of each specific `polygon`.
 #'
 #' @param polygon An `sf` object containing the defined areas. **Its CRS will be used as the reference system.**
 #' @param col_name `character`. Name of the column in the `polygon` object that contains unique identifiers for each polygon.
 #' @param present_climate_variables A `SpatRaster` stack of climate variables representing current conditions.
 #' @param future_climate_variables A `SpatRaster` stack containing the same climate variables as `present_climate_variables` but representing future projected conditions.
 #' @param study_area A single `sf` polygon.
-#' @param th `numeric` (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the `th` are classified as representative (default: 0.95).
+#' @param th `numeric` (0-1). Percentile threshold used to define climate analogues Cells with a Mahalanobis distance below or equal to the `th` are classified as analogues (default: 0.95).
 #' @param model `character`. Name or identifier of the climate model used (e.g., "MIROC6"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
 #' @param year `character`. Year or period of future climate data (e.g., "2070"). This parameter is used in output filenames and subdirectory names, allowing for better file management.
 #' @param dir_output `character`. Path to the directory where output files will be saved. The function will create subdirectories within this path.
 #' @param save_raw `logical`. If `TRUE`, saves the intermediate continuous Mahalanobis distance rasters calculated for each polygon before binary classification. The final binary classification rasters are always saved (default: `FALSE`).
+#' @param cov_type `character`. Reference covariance used for the Mahalanobis metric, applied to **both** periods so distances are comparable under a single threshold. `"present"` (default) uses the present climate covariance only: the present footprint (Stable + Lost) is then identical to that of [mh_rep()], and the future is projected into a fixed present reference space. `"pooled"` uses the combined present + future covariance: more lenient to extrapolation, but the reference space (and hence the present footprint) depends on the future scenario.
 #'
 #' @return Writes the following outputs to disk within subdirectories of `dir_output`:
 #' \itemize{
-#'  \item Classification (`.tif` ) change rasters: Change category rasters (`0` for **Unsuitable**, `1` for **Stable**, `2` for **Lost** and `3` for **Novel**) for each input polygon are saved in the `Change/` subdirectory.
+#'  \item Classification (`.tif`) change rasters: Change category rasters (`0` for **Non-analogue**, `1` for **Stable**, `2` for **Lost** and `3` for **Novel**) for each input polygon are saved in the `Change/` subdirectory.
 #'  \item Visualization (`.jpeg`) maps: Image files visualizing the change classification results for each `polygon` are saved in the `Charts/` subdirectory.
 #'  \item Raw Mahalanobis distance rasters: Optionally, they are saved as `.tif` files in the `Mh_Raw_Pre/` and `Mh_Raw_Fut/` subdirectories if `save_raw = TRUE`.
 #' }
 #'
 #' @details
-#' This function extends the approach used in `mh_rep` to assess Changes in Climate Representativeness (or forward climate analogs) over time.
-#' While `mh_rep()` calculates representativeness in a single scenario, `mh_rep_ch()` adapts this by using the mean from the present polygon but a covariance matrix derived from the overall climate space across both present and future periods combined.
-#'
+#' This function extends the approach used in `mh_rep` to assess changes in the climate analogues of a polygon over time.
+#' While `mh_rep()` identifies analogues in a single scenario, `mh_rep_ch()` adapts this by using the centroid (mean) of the present polygon together with a single reference covariance matrix applied to both periods, so that present and future Mahalanobis distances are comparable under one threshold. The reference covariance is selected with `cov_type`: `"present"` (default) uses the present-climate covariance only, which makes the present footprint (Stable + Lost) identical to that of `mh_rep()`; `"pooled"` uses the combined present + future covariance, which is more lenient to extrapolation but makes the reference space depend on the future scenario.
 #' Here are the key steps:
 #' \enumerate{
 #'  \item Checking CRS: Ensures that `future_climate_variables`, `climate_variables`, and `study_area` have matching CRSs with `polygon` by automatically transforming them if needed. The CRS of `polygon` will be used as the reference system.
 #'  \item Crops and masks the `climate_variables` and `future_climate_variables` raster to the `study_area` to limit all subsequent calculations to the area of interest.
-#'  \item Calculate a single multivariate covariance matrix using climate data from all cells across both present and future time periods combined. This matrix is used as the metric for Mahalanobis distance in both periods, ensuring that present and future distances are directly comparable under the same threshold.
+#'  \item Calculate a single multivariate covariance matrix used as the metric for Mahalanobis distance in both periods, ensuring that present and future distances are directly comparable under the same threshold. By default (cov_type = "present") this is the covariance of the present climate; with cov_type = "pooled" it is the covariance of present and future cells combined.
 #'  \item For each polygon in the `polygon` object:
 #'  \itemize{
 #'    \item Crop and mask the present climate variables raster (`present_climate_variables`) to the boundary of the current polygon.
 #'    \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
-#'    Calculate the Mahalanobis distance for each cell relative to the centroid using the combined present-future covariance matrix.
+#'    Calculate the Mahalanobis distance for each cell relative to the centroid using the reference covariance matrix selected by cov_type.
 #'    This results in a Mahalanobis distance raster for the present period and another for the future period.
-#'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
-#'    \item Classify each cells, for both present and future periods, as Representative = `1` (Mahalanobis distance \eqn{\le} `th`) or Unsuitable = `0` (Mahalanobis distance $>$ `th`).
+#'    \item Apply the specified threshold (`th`) to Mahalanobis distances to determine which cells are considered analogue. This threshold is a percentile of the Mahalanobis distances within the current polygon.
+#'    \item Classify each cells, for both present and future periods, as analogue = `1` (Mahalanobis distance \eqn{\le} `th`) or non-analogue = `0` (Mahalanobis distance $>$ `th`).
 #'  }
-#'  \item Compares the binary representativeness of each cell between the present and future periods and determines cells where conditions are:
+#'  \item Compares the binary analogues of each cell between the present and future periods and determines cells where conditions are:
 #'  \itemize{
-#'    \item `0`: **Unsuitable**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
-#'    \item `1`: **Stable**: Cells that are within the defined Mahalanobis threshold in both present and future periods. **Representative** if `Climarep::mh_rep()` is used
-#'    \item `2`: **Lost**: Cells that are within the defined Mahalanobis threshold in the present period but outside it in the future period.
-#'    \item `3`: **Novel**: Cells that are outside the defined Mahalanobis threshold in the present period but within it in the future period.
+#'    \item `0`: **Non-analogue**: Cells that are outside the defined Mahalanobis threshold in both present and future periods.
+#'    \item `1`: **Stable**: Cells that are a climate analogue of the polygon in both present and future periods.
+#'    \item `2`: **Lost**: Cells that are a climate analogue in the present period but not in the future period.
+#'    \item `3`: **Novel**: Cells that are not a climate analogue in the present period but are one in the future period.
 #'   }
 #'  \item Saves the classification raster (`.tif`) and generates a corresponding visualization map (`.jpeg`) for each polygon. These are saved within the specified output directory (`dir_output`).
 #'  All files are saved using the `model` and `year` parameters for better file management.
@@ -116,7 +118,8 @@
 #'    model = "ExampleModel",
 #'    year = "2070",
 #'    dir_output = file.path(tempdir(), "ClimaRepChange"),
-#'    save_raw = TRUE)
+#'    save_raw = TRUE,
+#'    cov_type = "present")
 #' @export
 mh_rep_ch <- function(polygon,
                       col_name,
@@ -127,7 +130,9 @@ mh_rep_ch <- function(polygon,
                       model,
                       year,
                       dir_output = file.path(tempdir(), "ClimaRep"),
-                      save_raw = FALSE) {
+                      save_raw = FALSE,
+                      cov_type = c("present", "pooled")) {
+  cov_type <- match.arg(cov_type)
   if (!inherits(polygon, "sf"))
     stop("Parameter 'polygon' must be an sf object")
   if (!is.character(col_name) ||
@@ -205,11 +210,18 @@ mh_rep_ch <- function(polygon,
     stop("No valid climate data found within 'study_area' for one or both periods. Cannot calculate combined covariance matrix")
   }
   climate_data_cols <- 3:(ncol(data_p_study))
-  data_combined_clim <- rbind(data_p_study[, climate_data_cols], data_f_study[, climate_data_cols])
-  cov_matrix_prefut <- suppressWarnings(cov(data_combined_clim, use = "complete.obs"))
-  if (inherits(try(solve(cov_matrix_prefut), silent = TRUE)
-               , "try-error")) {
-    stop("Covariance matrix (combined present/future data) is singular (e.g., perfectly correlated or insufficient data). Consider filtering variables 'vif_filter()'")
+  cov_ref <- switch(
+    cov_type,
+    present = suppressWarnings(cov(data_p_study[, climate_data_cols],
+                                   use = "complete.obs")),
+    pooled  = suppressWarnings(cov(rbind(data_p_study[, climate_data_cols],
+                                         data_f_study[, climate_data_cols]),
+                                   use = "complete.obs"))
+  )
+  if (inherits(try(solve(cov_ref), silent = TRUE), "try-error")) {
+    stop("Reference covariance matrix (cov_type = '", cov_type,
+         "') is singular (e.g., perfectly correlated or insufficient data). ",
+         "Consider filtering variables with 'vif_filter()'.")
   }
   message("Starting per-polygon processing:")
   classify_mh <- function(mh_raster, threshold) {
@@ -244,10 +256,10 @@ mh_rep_ch <- function(polygon,
     }
     mh_values_present <- mahalanobis(as.matrix(data_p_study[, climate_data_cols]),
                                      mu_present_polygon,
-                                     cov_matrix_prefut)
+                                     cov_ref)
     mh_values_future <- mahalanobis(as.matrix(data_f_study[, climate_data_cols]),
                                     mu_present_polygon,
-                                    cov_matrix_prefut)
+                                    cov_ref)
     mh_present <- terra::rast(cbind(data_p_study$x, data_p_study$y, mh_values_present),
                               type = "xyz",
                               crs = reference_system)
@@ -302,7 +314,7 @@ mh_rep_ch <- function(polygon,
             "2" = "coral1", # Lost
             "3" = "steelblue2"), # Novel
           labels = c(
-            "0" = "Unsuitable",
+            "0" = "Non-analogue",
             "1" = "Stable",
             "2" = "Lost",
             "3" = "Novel"),

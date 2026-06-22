@@ -23,7 +23,7 @@ mh_rep(
 
 \item{study_area}{An \code{sf} object defining the study area. The analysis will be limited to this area.}
 
-\item{th}{\code{numeric} (0-1). Percentile threshold used to define representativeness. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as representative (default: 0.95).}
+\item{th}{\code{numeric} (0-1). Percentile threshold used to define climate analogues. Cells with a Mahalanobis distance below or equal to the \code{th} are classified as analogues (default: 0.95).}
 
 \item{dir_output}{\code{character}. Path to the directory where output files will be saved. The function will create subdirectories within this path.}
 
@@ -32,20 +32,18 @@ mh_rep(
 \value{
 Writes the following outputs to disk within subdirectories of \code{dir_output}:
 \itemize{
-\item Classification (\code{.tif} ) rasters: Binary rasters (\code{0} for \strong{Non-representative} and\code{1} for \strong{Representative}) for each input polygon are saved in the \verb{Representativeness/} subdirectory.
+\item Classification (\code{.tif} ) rasters: Binary rasters (\code{0} for \strong{non-analogue} and\code{1} for \strong{analogue}) for each input polygon are saved in the \verb{Analogues/} subdirectory.
 \item Visualization (\code{.jpeg}) maps: Image files visualizing the classification results for each \code{polygon} are saved in the \verb{Charts/} subdirectory.
 \item Raw Mahalanobis distance rasters: Optionally saved as \code{.tif} files in the \verb{Mh_Raw/} subdirectory if \code{save_raw = TRUE}.
 }
 }
 \description{
-This function calculates Mahalanobis-based climate representativeness for input polygon within a defined area.
-
-The function categorizes cells based on how their climate representativeness, labeling them as Non-representative and Representative.
-
-Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (\code{climate_variables}), with the climate conditions within each specific input \code{polygon}.
+This function identifies the climate analogues of an input polygon within a defined area, based on the Mahalanobis distance.
+The function classifies each cell of the study area as a climate analogue or non-analogue of the reference polygon, according to a similarity threshold.
+A cell is a climate analogue when its multivariate climate conditions, drawn from the reference climate space (\code{climate_variables}), fall within the internal climatic variability (\code{th}) of each specific input \code{polygon}.
 }
 \details{
-This function performs a multivariate analysis using Mahalanobis distance to assess the climate representativeness of input \code{polygons} for a single time period.
+This function performs a multivariate analysis using Mahalanobis distance to identify the climate analogues of input \code{polygons} for a single time period.
 
 \strong{Key steps:}
 \enumerate{
@@ -57,8 +55,8 @@ This function performs a multivariate analysis using Mahalanobis distance to ass
 \item Crop and mask the climate variables raster (\code{climate_variables}) to the boundary of the current polygon.
 \item Calculate the multivariate mean using the climate data from the previous step. This defines the climate centroid for the current polygon.
 \item Calculate the Mahalanobis distance for each cell relative to the centroid and covariance matrix.
-\item Apply the specified threshold (\code{th}) to Mahalanobis distances to determine which cells are considered representative. This threshold is a percentile of the Mahalanobis distances within the current polygon.
-\item Classify each cell as Representative = \code{1} (Mahalanobis distance \eqn{\le} \code{th}) or Non-Representative = \code{0} (Mahalanobis distance $>$ \code{th}).
+\item Apply the specified threshold (\code{th}) to Mahalanobis distances to determine which cells are considered climate analogues This threshold is a percentile of the Mahalanobis distances within the current polygon.
+\item Classify each cell as analogue = \code{1} (Mahalanobis distance \eqn{\le} \code{th}) or non-analogue = \code{0} (Mahalanobis distance $>$ \code{th}).
 }
 \item Saves the binary classification raster (\code{.tif}) and generates a corresponding visualization map (\code{.jpeg}) for each polygon. These are saved within the specified output directory (\code{dir_output}).
 }

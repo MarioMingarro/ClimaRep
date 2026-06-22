@@ -9,14 +9,14 @@
 
 ## Overview
 
-The `ClimaRep` package offers tools to analyze the climate representativeness of defined areas, assessing current conditions and evaluating how they are projected to change under future scenarios. 
-Using spatial data, including climate raster layers, the input reference area polygons, and a polygon of the study area, the package quantifies this representativeness and analyzes its transformation.
+The `ClimaRep` package offers tools to identify the climate analogues of defined areas, assessing their current pattern and how it is projected to change under future scenarios. 
+Using spatial data, including climate raster layers, the input reference area polygons, and a polygon of the study area, the packagequantifies these analogues and, by accumulating them across areas, their redundancy and representativeness.
 
 Key features include:
 * Filtering raster climate variables to reduce multicollinearity (`ClimaRep::vif_filter()`).
-* Estimating current climate representativeness (`ClimaRep::mh_rep()`).
-* Estimating changes in climate representativeness under future climate projections (`ClimaRep::mh_rep_ch()`).
-* Estimating climate representativeness overlay (`ClimaRep::rep_overlay()`).
+* Identifying current climate analogues (`ClimaRep::mh_rep()`).
+* Identifying changes in climate analogues under future climate projections (`ClimaRep::mh_rep_ch()`).
+* Aggregating analogues into climate redundancy (`ClimaRep::rep_overlay()`).
 
 ## Installation
 
@@ -146,8 +146,8 @@ terra::plot(r_clim_present_filtered)
 
 *Figure 2: Example of filtered climate dataset, showing remaining variables (`r_clim_present_filtered`) after `ClimaRep::vif_filter()`.*
 
-### 2. Estimate climate representativeness
-Create example reference `polygon` (`sf`) to estimate climate representativeness and a `study_area` polygon (`sf`) to set the climate space for analysis:
+### 2. Identify climate analogues
+Create example reference `polygon` (`sf`) to estimate climate analogues of and a `study_area` polygon (`sf`) to set the climate space for analysis:
 ```{r}
 hex_grid <- sf::st_sf(
   sf::st_make_grid(
@@ -169,11 +169,11 @@ terra::plot(study_area_polygon, add = TRUE, col = "transparent", lwd = 3, border
 
 *Figure 3: Example of reference polygons (black outline) and study area (red outline) overlaid on `r_clim_present_filtered[[1]]`.*
 
-Use `ClimaRep::mh_rep()` to estimate climate representativeness for each reference `polygon`. 
+Use `ClimaRep::mh_rep()` to estimate climate climate analogues for each reference `polygon`. 
 
 The function calculates the Mahalanobis Distance from the multivariate centroid of climate conditions within each reference `polygon` to all cells in the `study_area`. 
 
-Cells within a certain percentile threshold (`th`) of distances found within the reference `polygon` are considered representative of the climate of the `polygon`.
+Cells within a certain percentile threshold (`th`) of distances found within the reference `polygon` are considered analogues of the climate of the `polygon`.
 
 ```{r}
 mh_rep(
@@ -202,10 +202,10 @@ Output files in: C:\Users\AppData\Local\Temp\RtmpY1rKKD
 This process generates 3 subfolders within the directory specified by `dir_output` (e.g., `tempdir()`).
 ```{r}
 list.files(tempdir())
- [1] "Charts"             "Mh_Raw"             "Representativeness"
+ [1] "Charts"             "Mh_Raw"             "Analogues"
 ```
 
-1. The `Charts` subfolder contains the binary representativeness image files (`.jpeg`) for each reference `polygon`.
+1. The `Charts` subfolder contains the binary climate analogues image files (`.jpeg`) for each reference `polygon`.
 
 ```{r}
 list.files(file.path(tempdir(), "Charts"))
@@ -213,7 +213,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="man/figures/F_4.jpeg" alt="rep_map" width="600">
 
-*Figure 4: Example of binary representativeness map for Pol_1 (pol_1_rep.jpeg).*
+*Figure 4: Example of binary climate analogues map for Pol_1 (pol_1_rep.jpeg).*
 
 2. The `Mh_raw` subfolder contains the continuous Mahalanobis Distance rasters (`.tif`) for each reference `polygon`. 
 
@@ -228,22 +228,22 @@ terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 5: Example of continuous Mahalanobis Distance raster for Pol_1. Darker shades indicate cells with climate conditions more similar to Pol_1.*
 
-3. The `Representativeness` subfolder contains the binary representativeness rasters (`.tif`) for each reference `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis Distance.
+3. The `Analogues` subfolder contains the binary climate analogues rasters (`.tif`) for each reference `polygon`, based on the threshold (`th`) applied to the raw Mahalanobis Distance.
 
-Cells are coded `1` for `Representative` and `0` for `Unsuitable`.
+Cells are coded `1` for `Analogue` and `0` for `Non-analogue`.
 
 ```{r}
-mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Representativeness"),  pattern = "\\.tif$", full.names = TRUE))
+mh_rep_result <- terra::rast(list.files(file.path(tempdir(), "Analogues"),  pattern = "\\.tif$", full.names = TRUE))
 terra::plot(mh_rep_result[[1]])
 terra::plot(polygons[1,], add = TRUE, color= "transparent", lwd = 3)
 ```
 
 <img src="man/figures/F_6.jpeg" alt="bin_rep" width="600">
 
-*Figure 6: Example of binary representativeness raster for Pol_1, showing cells classified as representetive (value 1).*
+*Figure 6: Example of binary climate analogues raster for Pol_1, showing cells classified as representetive (value 1).*
 
-### 3. Estimate change in climate representativeness.
-To estimate how representativeness changes, a future climate scenario is required.
+### 3. Estimate change in climate analogues.
+To estimate the change climate analogues, a future climate scenario is required.
 
 In this example, a simple virtual future climate conditions (`SpatRaster`) are created by adding a constant value to the `r_clim_present_filtered` data:
 
@@ -257,9 +257,9 @@ terra::plot(r_clim_future)
 
 *Figure 7: Example of simulated future climate variables (`r_clim_future`).*
 
-Use `ClimaRep::mh_rep_ch()` to compare representativeness of a reference `polygon`, between the `present_climate_variables` and `future_climate_variables`. 
+Use `ClimaRep::mh_rep_ch()` to compare climate analogues of a reference `polygon`, between the `present_climate_variables` and `future_climate_variables`. 
 
-This function calculates representativeness for each reference `polygon` in both scenarios and determines cells where conditions:
+This function calculates climate analogues areas for each reference `polygon` in both scenarios and determines cells where conditions:
 
 - **Stable** - Climate conditions that exist in both the current and future scenarios.
 - **Lost** - Climate conditions that exist now but are no longer present in the future.
@@ -276,7 +276,8 @@ th = 0.95,
 model = "MODEL",
 year = "2070",
 dir_output = tempdir(),
-save_raw = TRUE)
+save_raw = TRUE, 
+cov_type = "present")
 
 Validating and adjusting Coordinate Reference Systems (CRS).
 Starting per-polygon processing:
@@ -301,7 +302,7 @@ list.files(tempdir())
 
 The `Change` subfolder contains binary rasters (`.tif`) for each reference `polygon`, indicating the category of change.
 
-- **0** - Unsuitable 
+- **0** - Non-analogue 
 - **1** - Stable
 - **2** - Lost
 - **3** - Novel
@@ -313,7 +314,7 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 ```
 <img src="man/figures/F_8.jpeg" alt="Change_pol_2" width="600">
 
-*Figure 8: Example of change in representativeness for Pol_2, showing areas Unsuitable (0), Stable (1), Lost (2), Novel (3).*
+*Figure 8: Example of change in climate analogues areas for Pol_2, showing areas Non-analogue (0), Stable (1), Lost (2), Novel (3).*
 
 The `Charts` subfolder is updated or regenerated and contains summary map files (`.jpeg`) visualizing the change analysis results for each reference `polygon`.
 
@@ -323,7 +324,7 @@ list.files(file.path(tempdir(), "Charts"))
 ```
 <img src="man/figures/F_9.jpeg" alt="map_change_pol_2" width="600">
 
-*Figure 9: Example of summary maps illustrating climate representativeness change for Pol_2 (`pol_2_rep_change.jpeg`).*
+*Figure 9: Example of summary maps illustrating climate analogue areas change for Pol_2 (`pol_2_rep_change.jpeg`).*
 
 The `Mh_Raw_Pre` subfolder contains the continuous Mahalanobis Distance rasters (`.tif`) for the **present** scenario, calculated within the `study_area` extent relative to the climate conditions within each reference `polygon`.
 
@@ -349,8 +350,8 @@ terra::plot(polygons[2,], add = TRUE, color= "transparent", lwd = 3)
 
 *Figure 11: Example continuous future Mahalanobis Distance raster for Pol_2.*
 
-### 4. Estimate environmental representativeness overlay.
-After obtaining the representativeness (`ClimaRep::mh_rep()`),  or change (`ClimaRep::mh_rep_ch()`), rasters for multiple reference `polygons`, it is possible to combine them and to identify where the different types of changes (representative/stable, lost, novel) are accumulated. 
+### 4. Aggregate analogues into climate redundancy.
+After obtaining the climate analogues areas (`ClimaRep::mh_rep()`), or change (`ClimaRep::mh_rep_ch()`), rasters for multiple reference `polygons`, it is possible to combine them and to identify where the different types of changes (analogue/stable, lost, novel) are accumulated. 
 
 The `ClimaRep::rep_overlay()` function counting, for each cell, how many of the input rasters had a specific category value at that location.
 
@@ -396,13 +397,13 @@ This function iteratively filters layers from a `SpatRaster` object by removing 
 
 **ClimaRep::mh_rep()**
 
-This function calculates climate representativeness for each reference polygon within a defined area.
+This function calculates climate analogue areas for each reference polygon within a defined area.
 
-Representativeness is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific reference `polygon`. The CRS of `polygon` will be used as the reference system.
+The climate analogues areas are identified by comparing the multivariate climate conditions of each cell, of the reference climate space (`climate_variables`), with the climate conditions within each specific reference `polygon`. The CRS of `polygon` will be used as the reference system.
 
 `ClimaRep::mh_rep(polygon, col_name, climate_variables, th, dir_output, save_raw)`
 
-> `polygon`: An `sf` object containing the input polygon(s) for which representativeness will be assessed.
+> `polygon`: An `sf` object containing the input polygon(s) for which analogues areas will be assessed.
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each reference `polygon`.
 
@@ -410,7 +411,7 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 
 > `study_area`: An `sf` object defining the overall study region.
 
-> `th`: The `threshold` for determining representativeness (e.g., 0.9 for the 90th percentile of distances within the reference `polygon`).
+> `th`: The `threshold` for determining analogues (e.g., 0.9 for the 90th percentile of distances within the reference `polygon`).
 
 > `dir_output`: Path to the `directory` where output rasters and charts will be saved. The directory will be created if it doesn't exist.
 
@@ -418,15 +419,15 @@ Representativeness is assessed by comparing the multivariate climate conditions 
 
 **ClimaRep::mh_rep_ch()**
 
-This function calculates climate representativeness for each reference polygon across two time periods (present and future) within a defined area.
+This function calculates climate analogues for each reference polygon across two time periods (present and future) within a defined area.
 
-The function identifies areas of climate representativeness Stable, Lost, or Novel.
+The function identifies areas of climate analogues Stable, Lost, or Novel.
 
-Representativeness change is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific reference `polygon`. The CRS of `polygon` will be used as the reference system.
+Climate analogues areas change is assessed by comparing the multivariate climate conditions of each cell, of the reference climate space (`present_climate_variables` and `future_climate_variables`), with the climate conditions within each specific reference `polygon`. The CRS of `polygon` will be used as the reference system.
 
 `ClimaRep::mh_rep_ch(polygon, col_name, present_climate_variables, future_climate_variables, study_area, th, model, year, dir_output, save_raw)`
 
-> `polygon`: An `sf` object containing the input polygon/s for which representativeness change will be assessed.
+> `polygon`: An `sf` object containing the input polygon/s for which analogue change will be assessed.
 
 > `col_name`: The `name` of the column in `polygon` that contains unique identifiers for each reference `polygon`.
 
@@ -436,7 +437,7 @@ Representativeness change is assessed by comparing the multivariate climate cond
 
 > `study_area`: An `sf` object defining the overall study region.
 
-> `th`: The percentile `threshold` for determining representativeness in both scenarios (e.g., 0.9 for the 90th percentile of distances within the reference `polygon`).
+> `th`: The percentile `threshold` for determining analogues in both scenarios (e.g., 0.9 for the 90th percentile of distances within the reference `polygon`).
 
 > `model`: `Character string` identifying the climate model (e.g., "MIROC6"). This is used in output filenames for clear identification.
 
@@ -450,7 +451,7 @@ Representativeness change is assessed by comparing the multivariate climate cond
 
 Combines multiple single-layer rasters (`tif`), outputs from `ClimaRep::mh_rep()` or `ClimaRep::mh_rep_ch()` for different input polygons, into a multi-layered `SpatRaster`.
 
-This function handles inputs from both `ClimaRep::mh_rep()` (which contains representetive and unsuitable cells) and `ClimaRep::mh_rep_ch()` (which includes Stable, Lost, and Novel cells). 
+This function handles inputs from both `ClimaRep::mh_rep()` (which contains analogue and non-analogue cells) and `ClimaRep::mh_rep_ch()` (which includes Stable, Lost, and Novel cells). 
 The output layers consistently represent the accumulation of each input.
 
 `ClimaRep::rep_overlay(folder_path, dir_output)`

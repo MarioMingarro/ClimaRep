@@ -50,18 +50,17 @@ testthat::test_that("mh_rep_ch works correctly", {
     model = "ExampleModel",
     year = "2070",
     dir_output = output_dir,
-    save_raw = TRUE)
+    save_raw = TRUE,
+    cov_type = "present")
 
   change_dir <- file.path(output_dir, "Change")
   charts_dir <- file.path(output_dir, "Charts")
   mh_raw_pre_dir <- file.path(output_dir, "Mh_Raw_Pre")
   mh_raw_fut_dir <- file.path(output_dir, "Mh_Raw_Fut")
-
   expect_true(dir.exists(change_dir), label = "Change directory exists")
   expect_true(dir.exists(charts_dir), label = "Charts directory exists")
   expect_true(dir.exists(mh_raw_pre_dir), label = "Mh_Raw_Pre directory exists")
   expect_true(dir.exists(mh_raw_fut_dir), label = "Mh_Raw_Fut directory exists")
-
   expect_gt(length(list.files(change_dir)), 0, label = "Change directory is not empty")
   expect_gt(length(list.files(charts_dir)), 0, label = "Charts directory is not empty")
   expect_gt(length(list.files(mh_raw_pre_dir)), 0, label = "Mh_Raw_Pre directory is not empty")

@@ -53,15 +53,15 @@ testthat::test_that("mh_present runs and writes output", {
     save_raw = TRUE
   )
 
-  rep_dir <- file.path(output_dir, "Representativeness")
+  rep_dir <- file.path(output_dir, "Analogues")
   charts_dir <- file.path(output_dir, "Charts")
   mh_raw_dir <- file.path(output_dir, "Mh_Raw")
 
-  expect_true(dir.exists(rep_dir), label = "Representativeness directory exists")
+  expect_true(dir.exists(rep_dir), label = "Analogue directory exists")
   expect_true(dir.exists(charts_dir), label = "Charts directory exists")
   expect_true(dir.exists(mh_raw_dir), label = "Mh_Raw directory exists")
 
-  expect_gt(length(list.files(rep_dir)), 0, label = "Representativeness directory is not empty")
+  expect_gt(length(list.files(rep_dir)), 0, label = "Analogues directory is not empty")
   expect_gt(length(list.files(charts_dir)), 0, label = "Charts directory is not empty")
   expect_gt(length(list.files(mh_raw_dir)), 0, label = "Mh_Raw directory is not empty")
   unlink(output_dir, recursive = TRUE)
