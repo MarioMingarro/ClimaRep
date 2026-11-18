@@ -1,6 +1,6 @@
 Package: ClimaRep
 Title: Estimating Climate Analogue Areas
-Version: 1.1
+Version: 1.2
 Authors@R: c(
     person(given = "Mario", 
             family = "Mingarro", 

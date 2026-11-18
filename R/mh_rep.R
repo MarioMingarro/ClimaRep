@@ -42,12 +42,11 @@
 #' While the covariance matrix accounts for correlations, it is strongly recommended that the `climate_variables` are not strongly correlated.
 #' Consider performing a collinearity analysis beforehand, perhaps using the `vif_filter()` function from this package.
 #'
-#' @importFrom terra crs project crop mask global as.data.frame rast writeRaster as.factor values ncell compareGeom
-#' @importFrom sf st_crs st_transform st_geometry st_as_sf st_make_grid
+#' @importFrom terra crs project crop mask vect ext intersect as.data.frame rast writeRaster as.factor ifel
+#' @importFrom sf st_crs st_transform
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_manual ggtitle theme_minimal ggsave element_text
 #' @importFrom tidyterra geom_spatraster
-#' @importFrom stats mahalanobis cov quantile na.omit
-#' @importFrom utils packageVersion
+#' @importFrom stats mahalanobis cov quantile na.omit complete.cases
 #'
 #' @examples
 #' library(terra)
@@ -154,7 +153,10 @@ mh_rep <- function(polygon,
     study_area <- sf::st_transform(study_area, reference_system)
   }
   message("Defining the climate reference space")
-  climate_study_area_masked <- terra::mask(terra::crop(climate_variables, study_area), study_area)
+  study_area_v <- terra::vect(study_area)
+  climate_study_area_masked <- terra::mask(terra::crop(climate_variables, study_area_v, snap = "out"),
+                                           study_area_v,
+                                           touches = FALSE)
   data_p <- na.omit(terra::as.data.frame(climate_study_area_masked, xy = TRUE))
   climate_data_cols <- 3:(ncol(data_p))
   cov_matrix <- suppressWarnings(cov(data_p[, climate_data_cols], use = "complete.obs"))
@@ -165,6 +167,7 @@ mh_rep <- function(polygon,
   classify_mh <- function(mh_raster, threshold) {
     terra::ifel(mh_raster <= threshold, 1, 0)
   }
+  study_area_ext <- terra::ext(climate_study_area_masked)
   for (j in 1:nrow(polygon)) {
     pol <- polygon[j, ]
     pol_name <- as.character(pol[[col_name]])
@@ -174,18 +177,26 @@ mh_rep <- function(polygon,
     pol_name <- gsub("__+", "_", pol_name)
     pol_name <- gsub("^_|_$", "", pol_name)
     message("\nProcessing polygon: ",pol_name," (",j, " of ", nrow(polygon),")")
-    raster_polygon <- terra::mask(terra::crop(climate_study_area_masked, pol), pol)
-    mu <- terra::global(raster_polygon, "mean", na.rm = TRUE)$mean
-    names(mu) <- names(raster_polygon)
-    if (any(is.na(mu))) {
-      missing_vars <- names(mu)[is.na(mu)]
-      warning(
-        "Polygon '", pol_name, "' has no valid data for variable(s): ",
-        paste(missing_vars, collapse = ", "),
-        ". Cannot compute multivariate centroid. Skipping."
-      )
+    pol_v <- terra::vect(pol)
+    if (is.null(terra::intersect(study_area_ext, terra::ext(pol_v)))) {
+      warning("Polygon '", pol_name, "' does not overlap the study area. Skipping.")
       next
     }
+    r_pol <- terra::crop(climate_study_area_masked, pol_v, snap = "out")
+    cells_pol <- terra::as.data.frame(terra::mask(r_pol, pol_v, touches = FALSE), na.rm = FALSE)
+    cells_pol <- cells_pol[stats::complete.cases(cells_pol), , drop = FALSE]
+    if (nrow(cells_pol) == 0) {
+      cells_pol <- terra::as.data.frame(terra::mask(r_pol, pol_v, touches = TRUE), na.rm = FALSE)
+      cells_pol <- cells_pol[stats::complete.cases(cells_pol), , drop = FALSE]
+      if (nrow(cells_pol) > 0)
+        message("Polygon '", pol_name, "' contains no cell centre; using the cells it touches.")
+    }
+    if (nrow(cells_pol) == 0) {
+      warning("Polygon '", pol_name, "' has no cells with complete climate data. Skipping.")
+      next
+    }
+    cells_pol <- as.matrix(cells_pol)
+    mu <- colMeans(cells_pol)
     mh_values <- mahalanobis(as.matrix(data_p[, climate_data_cols]), mu, cov_matrix)
     mh_present <- terra::rast(cbind(data_p$x, data_p$y, mh_values),
                               type = "xyz",
@@ -193,11 +204,8 @@ mh_rep <- function(polygon,
     if (save_raw) {
       terra::writeRaster(mh_present, file.path(dir_mh_raw, paste0("Mh_raw_", pol_name, ".tif")), overwrite = TRUE)
     }
-    mh_poly <- terra::mask(mh_present, pol)
-    th_value <- suppressWarnings(quantile(
-      terra::values(mh_poly),
-      probs = th,
-      na.rm = TRUE))
+    th_value <- stats::quantile(stats::mahalanobis(cells_pol, mu, cov_matrix),
+                                probs = th, names = FALSE)
     if (anyNA(th_value) || is.infinite(th_value)) {
       warning("No valid threshold was obtained for: ",
               pol_name,
